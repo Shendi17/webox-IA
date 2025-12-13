@@ -1,0 +1,793 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Agents IA - WeBox Studio Créatif{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Header */
+.agents-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-create {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Stats globales */
+.global-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.global-stat-card {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.global-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.global-stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Tabs */
+.agents-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Grille agents */
+.agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.agent-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.agent-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.agent-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.agent-icon {
+    font-size: 3rem;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+}
+
+.agent-info {
+    flex: 1;
+}
+
+.agent-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.agent-category {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.agent-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.badge-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-beta {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-premium {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.agent-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.agent-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.agent-features li {
+    padding: 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.agent-features li::before {
+    content: "✓ ";
+    color: #28a745;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.agent-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 1rem 0;
+}
+
+.agent-stat {
+    text-align: center;
+}
+
+.agent-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.agent-stat-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.agent-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-use {
+    background: #667eea;
+    color: white;
+}
+
+.btn-use:hover {
+    background: #5568d3;
+}
+
+.btn-test {
+    background: #28a745;
+    color: white;
+}
+
+.btn-test:hover {
+    background: #218838;
+}
+
+.btn-config {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-config:hover {
+    background: #5a6268;
+}
+
+/* Conversations */
+.conversations-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.conversation-item {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.conversation-item:hover {
+    background: #f8f9fa;
+}
+
+.conversation-item:last-child {
+    border-bottom: none;
+}
+
+.conversation-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.conversation-icon {
+    font-size: 2rem;
+}
+
+.conversation-info {
+    flex: 1;
+}
+
+.conversation-agent {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.conversation-message {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.conversation-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #999;
+}
+
+/* Marketplace */
+.marketplace-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.filter-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Performance */
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.performance-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.performance-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.performance-icon {
+    font-size: 2.5rem;
+}
+
+.performance-info {
+    flex: 1;
+}
+
+.performance-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.performance-trend {
+    color: #28a745;
+    font-size: 0.9rem;
+}
+
+.performance-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.perf-stat {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.perf-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.perf-stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .agents-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header avec stats -->
+<div class="agents-header">
+    <div class="header-content">
+        <div>
+            <h1 class="header-title">🤖 Agents IA Spécialisés</h1>
+            <p class="header-subtitle">Déployez des agents IA intelligents pour automatiser vos tâches</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-create" onclick="createCustomAgent()">
+                ➕ Créer un Agent
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats globales -->
+    <div class="global-stats">
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalConversations">0</div>
+            <div class="global-stat-label">Conversations</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalTasks">0</div>
+            <div class="global-stat-label">Tâches complétées</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="timeSaved">0h</div>
+            <div class="global-stat-label">Temps économisé</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="avgSatisfaction">0%</div>
+            <div class="global-stat-label">Satisfaction</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="agents-tabs">
+    <button class="tab-btn active" onclick="switchTab('mes-agents')">Mes Agents</button>
+    <button class="tab-btn" onclick="switchTab('marketplace')">Marketplace</button>
+    <button class="tab-btn" onclick="switchTab('conversations')">Conversations</button>
+    <button class="tab-btn" onclick="switchTab('performance')">Performance</button>
+</div>
+
+<!-- Tab: Mes Agents -->
+<div class="tab-content active" id="mes-agents-content">
+    <div class="agents-grid" id="myAgentsGrid">
+        <!-- Agents chargés dynamiquement -->
+    </div>
+</div>
+
+<!-- Tab: Marketplace -->
+<div class="tab-content" id="marketplace-content">
+    <div class="marketplace-filters">
+        <input type="text" class="filter-input" placeholder="🔍 Rechercher un agent..." id="marketplaceSearch">
+        <select class="filter-select" id="categoryFilter">
+            <option value="">Toutes catégories</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Ventes</option>
+            <option value="support">Support</option>
+            <option value="dev">Développement</option>
+            <option value="finance">Finance</option>
+        </select>
+    </div>
+    
+    <div class="agents-grid" id="marketplaceGrid">
+        <!-- Marketplace agents -->
+    </div>
+</div>
+
+<!-- Tab: Conversations -->
+<div class="tab-content" id="conversations-content">
+    <div class="conversations-section">
+        <h2>💬 Conversations récentes</h2>
+        <div id="conversationsList">
+            <!-- Conversations chargées dynamiquement -->
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Performance -->
+<div class="tab-content" id="performance-content">
+    <div class="performance-grid" id="performanceGrid">
+        <!-- Performance chargée dynamiquement -->
+    </div>
+</div>
+
+<script>
+let currentTab = 'mes-agents';
+
+// ==================== TABS ====================
+function switchTab(tab) {
+    currentTab = tab;
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tab + '-content').classList.add('active');
+    
+    if (tab === 'mes-agents') loadMyAgents();
+    if (tab === 'marketplace') loadMarketplace();
+    if (tab === 'conversations') loadConversations();
+    if (tab === 'performance') loadPerformance();
+}
+
+// ==================== CHARGEMENT ====================
+async function loadStats() {
+    try {
+        const response = await fetch('/api/agents/stats');
+        const data = await response.json();
+        
+        document.getElementById('totalConversations').textContent = data.total_conversations;
+        document.getElementById('totalTasks').textContent = data.total_tasks;
+        document.getElementById('timeSaved').textContent = data.time_saved + 'h';
+        document.getElementById('avgSatisfaction').textContent = data.avg_satisfaction + '%';
+    } catch (error) {
+        console.error('Erreur chargement stats:', error);
+    }
+}
+
+async function loadMyAgents() {
+    const grid = document.getElementById('myAgentsGrid');
+    
+    const agents = [
+        {
+            id: 1,
+            icon: '💰',
+            name: 'Agent Ventes',
+            category: 'Ventes',
+            status: 'active',
+            description: 'Expert en stratégies de vente, conversion et closing',
+            features: ['Qualification leads', 'Scripts de vente', 'Suivi prospects', 'Analyse conversion'],
+            conversations: 156,
+            tasks: 423,
+            satisfaction: 4.8
+        },
+        {
+            id: 2,
+            icon: '📢',
+            name: 'Agent Marketing',
+            category: 'Marketing',
+            status: 'active',
+            description: 'Spécialiste en stratégie marketing et création de contenu',
+            features: ['Stratégie contenu', 'SEO', 'Campagnes pub', 'Analytics'],
+            conversations: 203,
+            tasks: 567,
+            satisfaction: 4.9
+        },
+        {
+            id: 3,
+            icon: '💵',
+            name: 'Agent Finance',
+            category: 'Finance',
+            status: 'active',
+            description: 'Expert en gestion financière et comptabilité',
+            features: ['Comptabilité', 'Prévisions', 'Budgets', 'Reporting'],
+            conversations: 89,
+            tasks: 234,
+            satisfaction: 4.7
+        },
+        {
+            id: 4,
+            icon: '⚙️',
+            name: 'Agent Opérations',
+            category: 'Opérations',
+            status: 'beta',
+            description: 'Optimisation des processus et workflows',
+            features: ['Process mapping', 'Automatisation', 'KPIs', 'Amélioration continue'],
+            conversations: 124,
+            tasks: 345,
+            satisfaction: 4.6
+        },
+        {
+            id: 5,
+            icon: '💬',
+            name: 'Agent Support',
+            category: 'Support',
+            status: 'active',
+            description: 'Support client et gestion des demandes 24/7',
+            features: ['Réponses auto', 'Tickets', 'FAQ', 'Escalade'],
+            conversations: 178,
+            tasks: 489,
+            satisfaction: 4.9
+        },
+        {
+            id: 6,
+            icon: '🎯',
+            name: 'Agent Stratégie',
+            category: 'Stratégie',
+            status: 'active',
+            description: 'Conseil stratégique et développement business',
+            features: ['Analyse marché', 'Business plan', 'Roadmap', 'Concurrence'],
+            conversations: 95,
+            tasks: 267,
+            satisfaction: 4.8
+        }
+    ];
+    
+    grid.innerHTML = agents.map(agent => createAgentCard(agent)).join('');
+}
+
+function createAgentCard(agent) {
+    return `
+        <div class="agent-card" onclick="openAgent(${agent.id})">
+            <div class="agent-header">
+                <div class="agent-icon">${agent.icon}</div>
+                <div class="agent-info">
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-category">${agent.category}</div>
+                </div>
+            </div>
+            
+            <span class="agent-badge badge-${agent.status}">${agent.status === 'active' ? '✅ Actif' : '🧪 Beta'}</span>
+            
+            <div class="agent-description">${agent.description}</div>
+            
+            <ul class="agent-features">
+                ${agent.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+            
+            <div class="agent-stats">
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.conversations}</div>
+                    <div class="agent-stat-label">Conversations</div>
+                </div>
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.tasks}</div>
+                    <div class="agent-stat-label">Tâches</div>
+                </div>
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.satisfaction}</div>
+                    <div class="agent-stat-label">Note</div>
+                </div>
+            </div>
+            
+            <div class="agent-actions" onclick="event.stopPropagation()">
+                <button class="btn-action btn-use" onclick="useAgent(${agent.id})">Utiliser</button>
+                <button class="btn-action btn-test" onclick="testAgent(${agent.id})">Tester</button>
+                <button class="btn-action btn-config" onclick="configAgent(${agent.id})">⚙️</button>
+            </div>
+        </div>
+    `;
+}
+
+async function loadMarketplace() {
+    const grid = document.getElementById('marketplaceGrid');
+    grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #666;">Marketplace - Agents communautaires à venir</p>';
+}
+
+async function loadConversations() {
+    try {
+        const response = await fetch('/api/agents/conversations/recent');
+        const data = await response.json();
+        
+        const container = document.getElementById('conversationsList');
+        container.innerHTML = data.conversations.map(conv => `
+            <div class="conversation-item" onclick="openConversation('${conv.agent_name}')">
+                <div class="conversation-header">
+                    <div class="conversation-icon">${conv.icon}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-agent">${conv.agent_name}</div>
+                        <div class="conversation-message">${conv.first_message}</div>
+                    </div>
+                </div>
+                <div class="conversation-meta">
+                    <span>${conv.time_ago}</span>
+                    <span>💬 ${conv.message_count} messages</span>
+                    <span>⭐ ${conv.rating}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erreur chargement conversations:', error);
+    }
+}
+
+async function loadPerformance() {
+    try {
+        const response = await fetch('/api/agents/performance');
+        const data = await response.json();
+        
+        const grid = document.getElementById('performanceGrid');
+        grid.innerHTML = data.performances.map(perf => `
+            <div class="performance-card">
+                <div class="performance-header">
+                    <div class="performance-icon">${perf.icon}</div>
+                    <div class="performance-info">
+                        <div class="performance-name">${perf.agent_name}</div>
+                        <div class="performance-trend">↑ ${perf.trend}</div>
+                    </div>
+                </div>
+                <div class="performance-stats">
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.conversations}</div>
+                        <div class="perf-stat-label">Conversations</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.tasks}</div>
+                        <div class="perf-stat-label">Tâches</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.time_saved}h</div>
+                        <div class="perf-stat-label">Temps économisé</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.satisfaction}</div>
+                        <div class="perf-stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erreur chargement performance:', error);
+    }
+}
+
+// ==================== ACTIONS ====================
+function createCustomAgent() {
+    alert('Création d\'agent personnalisé - À implémenter');
+}
+
+function openAgent(id) {
+    window.location.href = `/chat?agent=${id}`;
+}
+
+function useAgent(id) {
+    window.location.href = `/chat?agent=${id}`;
+}
+
+function testAgent(id) {
+    alert(`Test de l'agent ${id} - À implémenter`);
+}
+
+function configAgent(id) {
+    alert(`Configuration de l'agent ${id} - À implémenter`);
+}
+
+function openConversation(agentName) {
+    window.location.href = `/chat?agent=${agentName}`;
+}
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadMyAgents();
+});
+</script>
+{% endblock %}

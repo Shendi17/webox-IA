@@ -1,0 +1,470 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}CRM - WeBox IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/modals.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-text">
+                <h1>👥 CRM</h1>
+                <p>Gérez vos leads et suivez votre pipeline de ventes</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-primary" onclick="openCreateLeadModal()">
+                    + Ajouter un Lead
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="section">
+        <div class="filters-bar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <input type="text" id="searchInput" placeholder="🔍 Rechercher un lead..." 
+                   style="flex: 1; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 8px;">
+            
+            <select id="statusFilter" style="padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <option value="">Tous les statuts</option>
+                <option value="new">🆕 Nouveau</option>
+                <option value="contacted">📞 Contacté</option>
+                <option value="qualified">✅ Qualifié</option>
+                <option value="proposal">📄 Proposition</option>
+                <option value="negotiation">🤝 Négociation</option>
+                <option value="won">🎉 Gagné</option>
+                <option value="lost">❌ Perdu</option>
+            </select>
+
+            <button class="btn btn-secondary" onclick="loadLeads()">
+                🔄 Actualiser
+            </button>
+        </div>
+
+        <!-- Liste des leads -->
+        <div id="leadsContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <p>Chargement des leads...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Créer Lead -->
+<div id="createLeadModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>👤 Ajouter un Lead</h2>
+            <button class="modal-close" onclick="closeCreateLeadModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createLeadForm" onsubmit="createLead(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Prénom</label>
+                        <input type="text" name="first_name" placeholder="Jean">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" name="last_name" placeholder="Dupont">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" required placeholder="jean.dupont@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" name="phone" placeholder="+33 6 12 34 56 78">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Entreprise</label>
+                        <input type="text" name="company" placeholder="ACME Corp">
+                    </div>
+                    <div class="form-group">
+                        <label>Poste</label>
+                        <input type="text" name="job_title" placeholder="Directeur Marketing">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Statut</label>
+                    <select name="status">
+                        <option value="new">🆕 Nouveau</option>
+                        <option value="contacted">📞 Contacté</option>
+                        <option value="qualified">✅ Qualifié</option>
+                        <option value="proposal">📄 Proposition</option>
+                        <option value="negotiation">🤝 Négociation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Valeur estimée (€)</label>
+                    <input type="number" name="estimated_value" placeholder="5000" min="0" step="100">
+                </div>
+
+                <div class="form-group">
+                    <label>Source</label>
+                    <input type="text" name="source" placeholder="Site web, LinkedIn, Recommandation...">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea name="notes" rows="3" placeholder="Notes sur ce lead..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateLeadModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        💾 Créer le Lead
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Détails Lead -->
+<div id="leadDetailsModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h2 id="leadDetailsTitle">👤 Détails du Lead</h2>
+            <button class="modal-close" onclick="closeLeadDetailsModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="leadDetailsContent">
+            <!-- Chargé dynamiquement -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentLeadId = null;
+
+// Charger les leads
+async function loadLeads() {
+    const container = document.getElementById('leadsContainer');
+    const status = document.getElementById('statusFilter').value;
+    const search = document.getElementById('searchInput').value;
+
+    try {
+        let url = '/api/marketing/leads?';
+        if (status) url += `status=${status}&`;
+        if (search) url += `search=${search}&`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.success && data.leads.length > 0) {
+            displayLeads(data.leads);
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <p>Aucun lead trouvé</p>
+                    <button class="btn btn-primary" onclick="openCreateLeadModal()">
+                        + Ajouter votre premier lead
+                    </button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <p>Erreur lors du chargement des leads</p>
+            </div>
+        `;
+    }
+}
+
+// Afficher les leads
+function displayLeads(leads) {
+    const container = document.getElementById('leadsContainer');
+    
+    const statusColors = {
+        'new': '#667eea',
+        'contacted': '#11998e',
+        'qualified': '#38ef7d',
+        'proposal': '#f093fb',
+        'negotiation': '#4facfe',
+        'won': '#00f2fe',
+        'lost': '#f5576c'
+    };
+
+    const statusLabels = {
+        'new': '🆕 Nouveau',
+        'contacted': '📞 Contacté',
+        'qualified': '✅ Qualifié',
+        'proposal': '📄 Proposition',
+        'negotiation': '🤝 Négociation',
+        'won': '🎉 Gagné',
+        'lost': '❌ Perdu'
+    };
+
+    container.innerHTML = `
+        <div class="cards-grid">
+            ${leads.map(lead => `
+                <div class="card" onclick="viewLeadDetails(${lead.id})">
+                    <div class="card-header">
+                        <h3>${lead.first_name || ''} ${lead.last_name || 'Lead sans nom'}</h3>
+                        <span class="badge" style="background: ${statusColors[lead.status]}20; color: ${statusColors[lead.status]};">
+                            ${statusLabels[lead.status] || lead.status}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>📧</strong> ${lead.email}</p>
+                        ${lead.phone ? `<p><strong>📞</strong> ${lead.phone}</p>` : ''}
+                        ${lead.company ? `<p><strong>🏢</strong> ${lead.company}</p>` : ''}
+                        ${lead.job_title ? `<p><strong>💼</strong> ${lead.job_title}</p>` : ''}
+                        <p><strong>💰</strong> ${(lead.estimated_value || 0).toLocaleString('fr-FR')} €</p>
+                        <p><strong>🎯</strong> Score: ${lead.score || 0}/100</p>
+                    </div>
+                    <div class="card-footer">
+                        <small>Créé le ${new Date(lead.created_at).toLocaleDateString('fr-FR')}</small>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Voir les détails d'un lead
+async function viewLeadDetails(leadId) {
+    currentLeadId = leadId;
+    
+    try {
+        const response = await fetch(`/api/marketing/leads/${leadId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayLeadDetails(data.lead);
+            document.getElementById('leadDetailsModal').classList.add('active');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors du chargement des détails', 'error');
+    }
+}
+
+// Afficher les détails du lead
+function displayLeadDetails(lead) {
+    const statusColors = {
+        'new': '#667eea',
+        'contacted': '#11998e',
+        'qualified': '#38ef7d',
+        'proposal': '#f093fb',
+        'negotiation': '#4facfe',
+        'won': '#00f2fe',
+        'lost': '#f5576c'
+    };
+
+    document.getElementById('leadDetailsTitle').textContent = 
+        `👤 ${lead.first_name || ''} ${lead.last_name || 'Lead'}`;
+
+    document.getElementById('leadDetailsContent').innerHTML = `
+        <div style="display: grid; gap: 1.5rem;">
+            <!-- Informations principales -->
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                <h3 style="margin-bottom: 1rem;">📋 Informations</h3>
+                <div style="display: grid; gap: 0.5rem;">
+                    <p><strong>Email:</strong> ${lead.email}</p>
+                    ${lead.phone ? `<p><strong>Téléphone:</strong> ${lead.phone}</p>` : ''}
+                    ${lead.company ? `<p><strong>Entreprise:</strong> ${lead.company}</p>` : ''}
+                    ${lead.job_title ? `<p><strong>Poste:</strong> ${lead.job_title}</p>` : ''}
+                    <p><strong>Statut:</strong> 
+                        <span class="badge" style="background: ${statusColors[lead.status]}20; color: ${statusColors[lead.status]};">
+                            ${lead.status}
+                        </span>
+                    </p>
+                    <p><strong>Valeur estimée:</strong> ${(lead.estimated_value || 0).toLocaleString('fr-FR')} €</p>
+                    <p><strong>Score:</strong> ${lead.score || 0}/100</p>
+                    ${lead.source ? `<p><strong>Source:</strong> ${lead.source}</p>` : ''}
+                </div>
+            </div>
+
+            <!-- Notes -->
+            ${lead.notes ? `
+                <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px;">
+                    <h3 style="margin-bottom: 1rem;">📝 Notes</h3>
+                    <p>${lead.notes}</p>
+                </div>
+            ` : ''}
+
+            <!-- Actions -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="addInteraction(${lead.id})">
+                    💬 Ajouter une interaction
+                </button>
+                <button class="btn btn-secondary" onclick="updateLeadScore(${lead.id})">
+                    🎯 Recalculer le score
+                </button>
+                <button class="btn btn-secondary" onclick="editLead(${lead.id})">
+                    ✏️ Modifier
+                </button>
+                <button class="btn btn-danger" onclick="deleteLead(${lead.id})">
+                    🗑️ Supprimer
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Créer un lead
+async function createLead(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const leadData = {
+        first_name: formData.get('first_name'),
+        last_name: formData.get('last_name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        company: formData.get('company'),
+        job_title: formData.get('job_title'),
+        status: formData.get('status'),
+        estimated_value: parseFloat(formData.get('estimated_value')) || 0,
+        source: formData.get('source'),
+        notes: formData.get('notes')
+    };
+
+    try {
+        const response = await fetch('/api/marketing/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(leadData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('✅ Lead créé avec succès !', 'success');
+            closeCreateLeadModal();
+            form.reset();
+            loadLeads();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur lors de la création'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la création du lead', 'error');
+    }
+}
+
+// Mettre à jour le score
+async function updateLeadScore(leadId) {
+    try {
+        const response = await fetch(`/api/marketing/leads/${leadId}/score`, {
+            method: 'POST'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification(`✅ Score mis à jour: ${data.score}/100`, 'success');
+            viewLeadDetails(leadId);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors du calcul du score', 'error');
+    }
+}
+
+// Ajouter une interaction
+function addInteraction(leadId) {
+    const type = prompt('Type d\'interaction:\n- email\n- call\n- meeting\n- note');
+    if (!type) return;
+
+    const content = prompt('Contenu de l\'interaction:');
+    if (!content) return;
+
+    fetch(`/api/marketing/leads/${leadId}/interactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            interaction_type: type,
+            content: content
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✅ Interaction ajoutée !', 'success');
+            viewLeadDetails(leadId);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur', 'error');
+    });
+}
+
+// Supprimer un lead
+async function deleteLead(leadId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce lead ?')) return;
+
+    try {
+        const response = await fetch(`/api/marketing/leads/${leadId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('✅ Lead supprimé', 'success');
+            closeLeadDetailsModal();
+            loadLeads();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la suppression', 'error');
+    }
+}
+
+// Modals
+function openCreateLeadModal() {
+    document.getElementById('createLeadModal').classList.add('active');
+}
+
+function closeCreateLeadModal() {
+    document.getElementById('createLeadModal').classList.remove('active');
+}
+
+function closeLeadDetailsModal() {
+    document.getElementById('leadDetailsModal').classList.remove('active');
+}
+
+// Notification
+function showNotification(message, type) {
+    // Ne pas afficher d'alerte pour éviter les popups intrusifs}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    loadLeads();
+
+    // Recherche en temps réel
+    document.getElementById('searchInput').addEventListener('input', function() {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => loadLeads(), 500);
+    });
+
+    // Filtre par statut
+    document.getElementById('statusFilter').addEventListener('change', loadLeads);
+});
+</script>
+{% endblock %}

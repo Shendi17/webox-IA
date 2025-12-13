@@ -1,0 +1,433 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}📄 Analyse Document - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .document-detail {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .document-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .document-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .document-meta {
+        display: flex;
+        gap: 2rem;
+        color: #666;
+        flex-wrap: wrap;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .main-content, .sidebar-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .summary-text {
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .key-points-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .key-points-list li {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        padding-left: 2.5rem;
+        position: relative;
+    }
+
+    .key-points-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 1rem;
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .entities-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .entity-group {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .entity-group-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #667eea;
+    }
+
+    .entity-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .entity-tag {
+        padding: 0.25rem 0.75rem;
+        background: white;
+        border-radius: 15px;
+        font-size: 0.875rem;
+    }
+
+    .qa-section {
+        margin-top: 2rem;
+    }
+
+    .qa-input-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .qa-input {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+
+    .btn-ask {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .qa-item {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .qa-question {
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .qa-answer {
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .categories-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .category-badge {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="document-detail">
+    <div class="document-header">
+        <div class="document-title" id="documentTitle">
+            <span id="fileIcon">📄</span>
+            <span id="fileName">Chargement...</span>
+        </div>
+        <div class="document-meta" id="documentMeta">
+            <!-- Métadonnées -->
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="main-content">
+            <!-- Résumé -->
+            <div class="card">
+                <div class="card-title">📝 Résumé</div>
+                <div class="summary-text" id="summary">Chargement...</div>
+            </div>
+
+            <!-- Points clés -->
+            <div class="card">
+                <div class="card-title">🎯 Points clés</div>
+                <ul class="key-points-list" id="keyPoints">
+                    <!-- Points clés -->
+                </ul>
+            </div>
+
+            <!-- Entités -->
+            <div class="card">
+                <div class="card-title">🏷️ Entités extraites</div>
+                <div class="entities-grid" id="entities">
+                    <!-- Entités -->
+                </div>
+            </div>
+
+            <!-- Questions/Réponses -->
+            <div class="card">
+                <div class="card-title">💬 Questions & Réponses</div>
+                <div class="qa-input-group">
+                    <input type="text" class="qa-input" id="questionInput" 
+                           placeholder="Pose une question sur le document...">
+                    <button class="btn-ask" onclick="askQuestion()">Demander</button>
+                </div>
+                <div id="qaList">
+                    <!-- Q&A -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- Statistiques -->
+            <div class="card">
+                <div class="card-title">📊 Statistiques</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="pageCount">0</div>
+                        <div class="stat-label">Pages</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="viewsCount">0</div>
+                        <div class="stat-label">Vues</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Catégories -->
+            <div class="card">
+                <div class="card-title">📂 Catégories</div>
+                <div class="categories-list" id="categories">
+                    <!-- Catégories -->
+                </div>
+            </div>
+
+            <!-- Métadonnées -->
+            <div class="card">
+                <div class="card-title">ℹ️ Informations</div>
+                <div id="metadata">
+                    <!-- Métadonnées -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const documentId = {{ document_id }};
+    let documentData = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadDocument();
+    });
+
+    async function loadDocument() {
+        try {
+            const response = await fetch(`/api/documents/${documentId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                documentData = data.document;
+                displayDocument(documentData);
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    function displayDocument(doc) {
+        // Icône selon le type
+        const icons = {
+            'pdf': '📄',
+            'docx': '📝',
+            'xlsx': '📊',
+            'image': '🖼️'
+        };
+        document.getElementById('fileIcon').textContent = icons[doc.file_type] || '📄';
+        document.getElementById('fileName').textContent = doc.original_filename;
+
+        // Métadonnées
+        document.getElementById('documentMeta').innerHTML = `
+            <span>📅 ${new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
+            <span>📏 ${(doc.file_size / 1024).toFixed(2)} KB</span>
+            <span>🌍 ${doc.language || 'N/A'}</span>
+            <span>😊 ${doc.sentiment || 'N/A'}</span>
+        `;
+
+        // Résumé
+        document.getElementById('summary').textContent = doc.summary || 'Analyse en cours...';
+
+        // Points clés
+        const keyPoints = doc.key_points || [];
+        document.getElementById('keyPoints').innerHTML = keyPoints.length > 0
+            ? keyPoints.map(point => `<li>${point}</li>`).join('')
+            : '<li>Analyse en cours...</li>';
+
+        // Entités
+        const entities = doc.entities || {};
+        const entitiesHtml = Object.entries(entities).map(([type, items]) => {
+            if (!items || items.length === 0) return '';
+            return `
+                <div class="entity-group">
+                    <div class="entity-group-title">${type}</div>
+                    <div class="entity-tags">
+                        ${items.map(item => `<span class="entity-tag">${item}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('entities').innerHTML = entitiesHtml || '<p>Aucune entité extraite</p>';
+
+        // Stats
+        document.getElementById('pageCount').textContent = doc.page_count || 0;
+        document.getElementById('viewsCount').textContent = doc.views_count || 0;
+
+        // Catégories
+        const categories = doc.categories || [];
+        document.getElementById('categories').innerHTML = categories.length > 0
+            ? categories.map(cat => `<span class="category-badge">${cat}</span>`).join('')
+            : '<p>Aucune catégorie</p>';
+
+        // Métadonnées
+        const metadata = doc.document_metadata || {};
+        document.getElementById('metadata').innerHTML = `
+            <p><strong>Type:</strong> ${metadata.document_type || 'N/A'}</p>
+            <p><strong>Statut:</strong> ${doc.status}</p>
+        `;
+
+        // Q&A
+        displayQA(doc.qa_pairs || []);
+    }
+
+    function displayQA(qaPairs) {
+        const list = document.getElementById('qaList');
+        if (qaPairs.length === 0) {
+            list.innerHTML = '<p style="color: #666;">Aucune question posée</p>';
+            return;
+        }
+
+        list.innerHTML = qaPairs.map(qa => `
+            <div class="qa-item">
+                <div class="qa-question">❓ ${qa.question}</div>
+                <div class="qa-answer">💡 ${qa.answer}</div>
+            </div>
+        `).join('');
+    }
+
+    async function askQuestion() {
+        const input = document.getElementById('questionInput');
+        const question = input.value.trim();
+
+        if (!question) {
+            alert('Pose une question !');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/documents/${documentId}/question`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                input.value = '';
+                await loadDocument(); // Recharger pour afficher la nouvelle Q&A
+            } else {
+                alert('❌ Erreur: ' + (data.detail || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors de la question');
+        }
+    }
+
+    // Enter pour poser une question
+    document.getElementById('questionInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            askQuestion();
+        }
+    });
+</script>
+{% endblock %}

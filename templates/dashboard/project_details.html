@@ -1,0 +1,525 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Détails Projet - WeBox IA{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Layout */
+.project-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    height: calc(100vh - 100px);
+}
+
+/* Sidebar Projet */
+.project-sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.project-header {
+    margin-bottom: 2rem;
+}
+
+.project-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.project-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.project-type {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Stats */
+.project-stats {
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+/* Actions */
+.project-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-editor {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-deploy {
+    background: #28a745;
+    color: white;
+}
+
+.btn-git {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-settings {
+    background: #e0e0e0;
+    color: #666;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Main Content */
+.project-main {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+    margin-bottom: -2px;
+}
+
+.tab:hover {
+    color: #667eea;
+}
+
+.tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Files List */
+.files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.file-icon {
+    font-size: 1.5rem;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.file-meta {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Commits List */
+.commits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.commit-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.commit-message {
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.commit-meta {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: 3rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-layout">
+    <!-- Sidebar -->
+    <div class="project-sidebar">
+        <div class="project-header">
+            <div class="project-icon" id="projectIcon">🌐</div>
+            <div class="project-name" id="projectName">Chargement...</div>
+            <div class="project-type" id="projectType">-</div>
+        </div>
+        
+        <div class="project-stats">
+            <h3 style="margin-bottom: 1rem; color: #1a1a2e;">📊 Statistiques</h3>
+            <div class="stat-item">
+                <span class="stat-label">Fichiers</span>
+                <span class="stat-value" id="statFiles">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Lignes</span>
+                <span class="stat-value" id="statLines">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Taille</span>
+                <span class="stat-value" id="statSize">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Commits</span>
+                <span class="stat-value" id="statCommits">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Déploiements</span>
+                <span class="stat-value" id="statDeploys">-</span>
+            </div>
+        </div>
+        
+        <div class="project-actions">
+            <button class="action-btn btn-editor" onclick="openEditor()">
+                📝 Ouvrir l'Éditeur
+            </button>
+            <button class="action-btn btn-deploy" onclick="deployProject()">
+                🚀 Déployer
+            </button>
+            <button class="action-btn btn-git" onclick="openGit()">
+                🔀 Git
+            </button>
+            <button class="action-btn btn-settings" onclick="openSettings()">
+                ⚙️ Paramètres
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="project-main">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">📋 Vue d'ensemble</button>
+            <button class="tab" onclick="switchTab('files')">📁 Fichiers</button>
+            <button class="tab" onclick="switchTab('commits')">🔀 Commits</button>
+            <button class="tab" onclick="switchTab('deployments')">🚀 Déploiements</button>
+        </div>
+        
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overviewTab">
+            <h2 style="margin-bottom: 1rem;">Vue d'ensemble</h2>
+            
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0.5rem;">Description</h3>
+                <p id="projectDescription" style="color: #666;">Chargement...</p>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0.5rem;">Chemin local</h3>
+                <code id="projectPath" style="color: #667eea;">-</code>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="margin-bottom: 0.5rem;">URLs</h3>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div>
+                        <strong>Production:</strong> <a href="#" id="prodUrl" target="_blank">-</a>
+                    </div>
+                    <div>
+                        <strong>Staging:</strong> <a href="#" id="stagingUrl" target="_blank">-</a>
+                    </div>
+                    <div>
+                        <strong>Git:</strong> <a href="#" id="gitUrl" target="_blank">-</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Files Tab -->
+        <div class="tab-content" id="filesTab">
+            <h2 style="margin-bottom: 1rem;">Fichiers du projet</h2>
+            <div class="files-list" id="filesList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des fichiers...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Commits Tab -->
+        <div class="tab-content" id="commitsTab">
+            <h2 style="margin-bottom: 1rem;">Historique des commits</h2>
+            <div class="commits-list" id="commitsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des commits...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Deployments Tab -->
+        <div class="tab-content" id="deploymentsTab">
+            <h2 style="margin-bottom: 1rem;">Historique des déploiements</h2>
+            <div id="deploymentsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des déploiements...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const projectId = window.location.pathname.split('/')[2];
+let project = null;
+
+// Charger les détails du projet
+async function loadProject() {
+    try {
+        const response = await fetch(`/api/projects/${projectId}`);
+        const data = await response.json();
+        
+        project = data.project;
+        
+        // Mettre à jour l'interface
+        document.getElementById('projectIcon').textContent = getProjectIcon(project.project_type);
+        document.getElementById('projectName').textContent = project.name;
+        document.getElementById('projectType').textContent = project.framework || project.project_type;
+        document.getElementById('projectDescription').textContent = project.description || 'Aucune description';
+        document.getElementById('projectPath').textContent = project.local_path;
+        
+        // Stats
+        document.getElementById('statFiles').textContent = project.total_files || 0;
+        document.getElementById('statLines').textContent = formatNumber(project.total_lines || 0);
+        document.getElementById('statSize').textContent = formatBytes(project.total_size || 0);
+        document.getElementById('statCommits').textContent = data.stats.commits_count || 0;
+        document.getElementById('statDeploys').textContent = data.stats.deployments_count || 0;
+        
+        // URLs
+        document.getElementById('prodUrl').textContent = project.prod_url || 'Non déployé';
+        document.getElementById('prodUrl').href = project.prod_url || '#';
+        document.getElementById('stagingUrl').textContent = project.staging_url || 'Non configuré';
+        document.getElementById('stagingUrl').href = project.staging_url || '#';
+        document.getElementById('gitUrl').textContent = project.git_repo_url || 'Non configuré';
+        document.getElementById('gitUrl').href = project.git_repo_url || '#';
+        
+    } catch (error) {
+        console.error('Erreur chargement projet:', error);
+        alert('Erreur lors du chargement du projet');
+    }
+}
+
+// Charger les fichiers
+async function loadFiles() {
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files`);
+        const data = await response.json();
+        
+        const filesList = document.getElementById('filesList');
+        
+        if (data.files.length === 0) {
+            filesList.innerHTML = '<p style="text-align: center; color: #666;">Aucun fichier</p>';
+            return;
+        }
+        
+        filesList.innerHTML = data.files.map(file => `
+            <div class="file-item" onclick="openFile('${file.path}')">
+                <div class="file-icon">${getFileIcon(file.extension)}</div>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-meta">${file.path} • ${formatBytes(file.size)} • ${file.lines} lignes</div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erreur chargement fichiers:', error);
+    }
+}
+
+// Helpers
+function getProjectIcon(type) {
+    const icons = {
+        'static': '📄',
+        'react': '⚛️',
+        'vue': '💚',
+        'nextjs': '▲',
+        'django': '🐍',
+        'fastapi': '⚡'
+    };
+    return icons[type] || '🌐';
+}
+
+function getFileIcon(ext) {
+    const icons = {
+        '.html': '📄',
+        '.css': '🎨',
+        '.js': '📜',
+        '.jsx': '⚛️',
+        '.ts': '📘',
+        '.tsx': '⚛️',
+        '.py': '🐍',
+        '.json': '📋',
+        '.md': '📝'
+    };
+    return icons[ext] || '📄';
+}
+
+function formatNumber(num) {
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'k';
+    }
+    return num;
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Tabs
+function switchTab(tab) {
+    // Mettre à jour les onglets
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tab + 'Tab').classList.add('active');
+    
+    // Charger les données si nécessaire
+    if (tab === 'files' && document.getElementById('filesList').querySelector('.loading')) {
+        loadFiles();
+    }
+}
+
+// Actions
+function openEditor() {
+    window.location.href = `/projects/${projectId}/editor`;
+}
+
+function deployProject() {
+    alert('Déploiement - À implémenter');
+}
+
+function openGit() {
+    alert('Git - À implémenter');
+}
+
+function openSettings() {
+    alert('Paramètres - À implémenter');
+}
+
+function openFile(path) {
+    window.location.href = `/projects/${projectId}/editor?file=${encodeURIComponent(path)}`;
+}
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadProject();
+});
+</script>
+{% endblock %}

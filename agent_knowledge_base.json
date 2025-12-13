@@ -1,0 +1,237 @@
+{
+  "entries": {
+    "kb_20251027_110211_345244": {
+      "entry_id": "kb_20251027_110211_345244",
+      "domain": "ventes",
+      "title": "Techniques de Closing Efficaces",
+      "content": "Les meilleures techniques de closing:\n        1. Assumptive Close: Agir comme si la vente était déjà conclue\n        2. Alternative Close: Proposer deux options positives\n        3. Urgency Close: Créer un sentiment d'urgence\n        4. Summary Close: Récapituler les bénéfices\n        5. Question Close: Poser une question qui mène à la vente",
+      "tags": [
+        "ventes",
+        "closing",
+        "techniques",
+        "conversion"
+      ],
+      "created_at": "2025-10-27T11:02:11.345278",
+      "updated_at": "2025-10-27T11:02:11.345283",
+      "metadata": {}
+    },
+    "kb_20251027_110211_346817": {
+      "entry_id": "kb_20251027_110211_346817",
+      "domain": "ventes",
+      "title": "Qualification de Leads - Méthode BANT",
+      "content": "BANT pour qualifier les prospects:\n        - Budget: Le prospect a-t-il le budget?\n        - Authority: Est-ce le décideur?\n        - Need: A-t-il un besoin réel?\n        - Timeline: Quel est le timing d'achat?",
+      "tags": [
+        "ventes",
+        "prospection",
+        "qualification",
+        "leads"
+      ],
+      "created_at": "2025-10-27T11:02:11.346861",
+      "updated_at": "2025-10-27T11:02:11.346873",
+      "metadata": {}
+    },
+    "kb_20251027_110211_348315": {
+      "entry_id": "kb_20251027_110211_348315",
+      "domain": "marketing",
+      "title": "Framework AIDA pour le Copywriting",
+      "content": "AIDA - Structure de copywriting efficace:\n        - Attention: Capter l'attention avec un titre accrocheur\n        - Interest: Susciter l'intérêt avec des bénéfices\n        - Desire: Créer le désir avec des preuves sociales\n        - Action: Inciter à l'action avec un CTA clair",
+      "tags": [
+        "marketing",
+        "copywriting",
+        "contenu",
+        "conversion"
+      ],
+      "created_at": "2025-10-27T11:02:11.348352",
+      "updated_at": "2025-10-27T11:02:11.348360",
+      "metadata": {}
+    },
+    "kb_20251027_110211_350120": {
+      "entry_id": "kb_20251027_110211_350120",
+      "domain": "marketing",
+      "title": "Métriques Marketing Essentielles",
+      "content": "KPIs marketing à suivre:\n        - CAC (Customer Acquisition Cost)\n        - LTV (Lifetime Value)\n        - ROI des campagnes\n        - Taux de conversion\n        - Engagement rate\n        - CTR (Click-Through Rate)",
+      "tags": [
+        "marketing",
+        "métriques",
+        "analytics",
+        "kpi"
+      ],
+      "created_at": "2025-10-27T11:02:11.350165",
+      "updated_at": "2025-10-27T11:02:11.350175",
+      "metadata": {}
+    },
+    "kb_20251027_110211_352000": {
+      "entry_id": "kb_20251027_110211_352000",
+      "domain": "finance",
+      "title": "Ratios Financiers Clés",
+      "content": "Ratios financiers essentiels:\n        - Marge brute = (CA - Coûts directs) / CA\n        - Marge nette = Bénéfice net / CA\n        - ROI = (Gain - Coût) / Coût\n        - Cash burn rate = Dépenses mensuelles\n        - Runway = Trésorerie / Burn rate",
+      "tags": [
+        "finance",
+        "ratios",
+        "analyse",
+        "métriques"
+      ],
+      "created_at": "2025-10-27T11:02:11.352040",
+      "updated_at": "2025-10-27T11:02:11.352047",
+      "metadata": {}
+    },
+    "kb_20251027_110211_354540": {
+      "entry_id": "kb_20251027_110211_354540",
+      "domain": "operations",
+      "title": "Principes Lean Management",
+      "content": "5 principes du Lean:\n        1. Définir la valeur du point de vue client\n        2. Identifier la chaîne de valeur\n        3. Créer un flux continu\n        4. Mettre en place un système tiré (pull)\n        5. Viser la perfection (amélioration continue)",
+      "tags": [
+        "operations",
+        "lean",
+        "processus",
+        "efficacité"
+      ],
+      "created_at": "2025-10-27T11:02:11.354587",
+      "updated_at": "2025-10-27T11:02:11.354597",
+      "metadata": {}
+    },
+    "kb_20251027_110211_356482": {
+      "entry_id": "kb_20251027_110211_356482",
+      "domain": "ressources_humaines",
+      "title": "Méthode STAR pour les Entretiens",
+      "content": "STAR - Structure d'entretien:\n        - Situation: Contexte de l'expérience\n        - Task: Tâche ou défi à relever\n        - Action: Actions entreprises\n        - Result: Résultats obtenus",
+      "tags": [
+        "rh",
+        "recrutement",
+        "entretien",
+        "évaluation"
+      ],
+      "created_at": "2025-10-27T11:02:11.356533",
+      "updated_at": "2025-10-27T11:02:11.356540",
+      "metadata": {}
+    },
+    "kb_20251027_110211_358378": {
+      "entry_id": "kb_20251027_110211_358378",
+      "domain": "produit",
+      "title": "Framework RICE pour Priorisation",
+      "content": "RICE - Prioriser les fonctionnalités:\n        - Reach: Nombre d'utilisateurs impactés\n        - Impact: Niveau d'impact (0.25 à 3)\n        - Confidence: Niveau de confiance (%)\n        - Effort: Effort nécessaire (jours/personne)\n        Score RICE = (Reach × Impact × Confidence) / Effort",
+      "tags": [
+        "produit",
+        "priorisation",
+        "roadmap",
+        "features"
+      ],
+      "created_at": "2025-10-27T11:02:11.358424",
+      "updated_at": "2025-10-27T11:02:11.358434",
+      "metadata": {}
+    }
+  },
+  "domain_index": {
+    "ventes": [
+      "kb_20251027_110211_345244",
+      "kb_20251027_110211_346817"
+    ],
+    "marketing": [
+      "kb_20251027_110211_348315",
+      "kb_20251027_110211_350120"
+    ],
+    "finance": [
+      "kb_20251027_110211_352000"
+    ],
+    "operations": [
+      "kb_20251027_110211_354540"
+    ],
+    "ressources_humaines": [
+      "kb_20251027_110211_356482"
+    ],
+    "produit": [
+      "kb_20251027_110211_358378"
+    ]
+  },
+  "tag_index": {
+    "ventes": [
+      "kb_20251027_110211_345244",
+      "kb_20251027_110211_346817"
+    ],
+    "closing": [
+      "kb_20251027_110211_345244"
+    ],
+    "techniques": [
+      "kb_20251027_110211_345244"
+    ],
+    "conversion": [
+      "kb_20251027_110211_345244",
+      "kb_20251027_110211_348315"
+    ],
+    "prospection": [
+      "kb_20251027_110211_346817"
+    ],
+    "qualification": [
+      "kb_20251027_110211_346817"
+    ],
+    "leads": [
+      "kb_20251027_110211_346817"
+    ],
+    "marketing": [
+      "kb_20251027_110211_348315",
+      "kb_20251027_110211_350120"
+    ],
+    "copywriting": [
+      "kb_20251027_110211_348315"
+    ],
+    "contenu": [
+      "kb_20251027_110211_348315"
+    ],
+    "métriques": [
+      "kb_20251027_110211_350120",
+      "kb_20251027_110211_352000"
+    ],
+    "analytics": [
+      "kb_20251027_110211_350120"
+    ],
+    "kpi": [
+      "kb_20251027_110211_350120"
+    ],
+    "finance": [
+      "kb_20251027_110211_352000"
+    ],
+    "ratios": [
+      "kb_20251027_110211_352000"
+    ],
+    "analyse": [
+      "kb_20251027_110211_352000"
+    ],
+    "operations": [
+      "kb_20251027_110211_354540"
+    ],
+    "lean": [
+      "kb_20251027_110211_354540"
+    ],
+    "processus": [
+      "kb_20251027_110211_354540"
+    ],
+    "efficacité": [
+      "kb_20251027_110211_354540"
+    ],
+    "rh": [
+      "kb_20251027_110211_356482"
+    ],
+    "recrutement": [
+      "kb_20251027_110211_356482"
+    ],
+    "entretien": [
+      "kb_20251027_110211_356482"
+    ],
+    "évaluation": [
+      "kb_20251027_110211_356482"
+    ],
+    "produit": [
+      "kb_20251027_110211_358378"
+    ],
+    "priorisation": [
+      "kb_20251027_110211_358378"
+    ],
+    "roadmap": [
+      "kb_20251027_110211_358378"
+    ],
+    "features": [
+      "kb_20251027_110211_358378"
+    ]
+  },
+  "last_updated": "2025-10-27T11:02:11.358621"
+}

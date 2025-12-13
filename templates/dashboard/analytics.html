@@ -1,0 +1,780 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Analytics - WeBox Studio Créatif{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Page Header */
+.analytics-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-export {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Filtres temporels */
+.time-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.time-filter-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.time-filter-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.time-filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.custom-date-range {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.date-input {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-trend {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.trend-up {
+    color: #28a745;
+}
+
+.trend-down {
+    color: #dc3545;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Charts */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.chart-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.chart-filter {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+/* Table */
+.data-table-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.table-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.table-search {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    width: 300px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead {
+    background: #f8f9fa;
+}
+
+.data-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #1a1a2e;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* Loading */
+.loading-spinner {
+    text-align: center;
+    padding: 3rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-search {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="analytics-header">
+    <div class="header-content">
+        <div>
+            <h1 class="header-title">📊 Analytics</h1>
+            <p class="header-subtitle">Analysez vos performances Studio Créatif</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-export" onclick="exportData('csv')">
+                📥 Export CSV
+            </button>
+            <button class="btn-export" onclick="exportData('pdf')">
+                📄 Export PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Filtres temporels -->
+<div class="time-filters">
+    <button class="time-filter-btn active" onclick="setTimeRange('7d')">7 jours</button>
+    <button class="time-filter-btn" onclick="setTimeRange('30d')">30 jours</button>
+    <button class="time-filter-btn" onclick="setTimeRange('90d')">90 jours</button>
+    <button class="time-filter-btn" onclick="setTimeRange('1y')">1 an</button>
+    <button class="time-filter-btn" onclick="setTimeRange('all')">Tout</button>
+    
+    <div class="custom-date-range">
+        <input type="date" class="date-input" id="startDate">
+        <span>→</span>
+        <input type="date" class="date-input" id="endDate">
+        <button class="time-filter-btn" onclick="applyCustomRange()">Appliquer</button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">🎙️</span>
+            <span class="stat-trend trend-up">↑ 12%</span>
+        </div>
+        <div class="stat-value" id="totalPodcasts">0</div>
+        <div class="stat-label">Podcasts créés</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">👤</span>
+            <span class="stat-trend trend-up">↑ 8%</span>
+        </div>
+        <div class="stat-value" id="totalAvatars">0</div>
+        <div class="stat-label">Avatars générés</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">📺</span>
+            <span class="stat-trend trend-up">↑ 15%</span>
+        </div>
+        <div class="stat-value" id="totalSeries">0</div>
+        <div class="stat-label">Séries créées</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">📱</span>
+            <span class="stat-trend trend-up">↑ 20%</span>
+        </div>
+        <div class="stat-value" id="totalPWA">0</div>
+        <div class="stat-label">PWA générées</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">📄</span>
+            <span class="stat-trend trend-up">↑ 25%</span>
+        </div>
+        <div class="stat-value" id="totalDocuments">0</div>
+        <div class="stat-label">Documents analysés</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">🤖</span>
+            <span class="stat-trend trend-up">↑ 30%</span>
+        </div>
+        <div class="stat-value" id="totalAgents">0</div>
+        <div class="stat-label">Agents IA actifs</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">✨</span>
+            <span class="stat-trend trend-up">↑ 18%</span>
+        </div>
+        <div class="stat-value" id="totalGenerations">0</div>
+        <div class="stat-label">Générations totales</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">💰</span>
+            <span class="stat-trend trend-down">↓ 5%</span>
+        </div>
+        <div class="stat-value" id="totalCost">$0</div>
+        <div class="stat-label">Coûts API</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <!-- Chart 1: Activité par jour -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">📈 Activité quotidienne</h3>
+            <select class="chart-filter" onchange="updateActivityChart(this.value)">
+                <option value="all">Tous</option>
+                <option value="podcast">Podcasts</option>
+                <option value="avatar">Avatars</option>
+                <option value="series">Séries</option>
+                <option value="pwa">PWA</option>
+            </select>
+        </div>
+        <div class="chart-container">
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 2: Répartition par type -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">🎯 Répartition par type</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="distributionChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 3: Coûts API -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">💰 Coûts API mensuels</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="costsChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 4: Taux de succès -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">✅ Taux de succès</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="successChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Table des dernières activités -->
+<div class="data-table-card">
+    <div class="table-header">
+        <h3 class="table-title">📋 Dernières activités</h3>
+        <input type="text" class="table-search" placeholder="🔍 Rechercher..." id="tableSearch">
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Nom</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Coût</th>
+            </tr>
+        </thead>
+        <tbody id="activityTableBody">
+            <tr>
+                <td colspan="5" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Chargement des données...</p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+let currentTimeRange = '7d';
+let activityChartInstance = null;
+let distributionChartInstance = null;
+let costsChartInstance = null;
+let successChartInstance = null;
+
+// ==================== CHARGEMENT ====================
+async function loadAnalytics() {
+    try {
+        const response = await fetch(`/api/analytics?range=${currentTimeRange}`);
+        const data = await response.json();
+        
+        updateStats(data.stats);
+        updateCharts(data.charts);
+        updateActivityTable(data.activities);
+    } catch (error) {
+        console.error('Erreur chargement analytics:', error);
+        // Charger des données de démo
+        loadDemoData();
+    }
+}
+
+function loadDemoData() {
+    updateStats({
+        podcasts: 45,
+        avatars: 32,
+        series: 18,
+        pwa: 12,
+        documents: 67,
+        agents: 8,
+        generations: 234,
+        cost: 127.50
+    });
+    
+    updateCharts({
+        activity: generateDemoActivityData(),
+        distribution: {
+            labels: ['Podcasts', 'Avatars', 'Séries', 'PWA', 'Documents', 'Agents'],
+            data: [45, 32, 18, 12, 67, 8]
+        },
+        costs: generateDemoCostsData(),
+        success: { success: 92, failed: 8 }
+    });
+    
+    updateActivityTable(generateDemoActivities());
+}
+
+// ==================== STATS ====================
+function updateStats(stats) {
+    document.getElementById('totalPodcasts').textContent = stats.podcasts || 0;
+    document.getElementById('totalAvatars').textContent = stats.avatars || 0;
+    document.getElementById('totalSeries').textContent = stats.series || 0;
+    document.getElementById('totalPWA').textContent = stats.pwa || 0;
+    document.getElementById('totalDocuments').textContent = stats.documents || 0;
+    document.getElementById('totalAgents').textContent = stats.agents || 0;
+    document.getElementById('totalGenerations').textContent = stats.generations || 0;
+    document.getElementById('totalCost').textContent = `$${(stats.cost || 0).toFixed(2)}`;
+}
+
+// ==================== CHARTS ====================
+function updateCharts(charts) {
+    createActivityChart(charts.activity);
+    createDistributionChart(charts.distribution);
+    createCostsChart(charts.costs);
+    createSuccessChart(charts.success);
+}
+
+function createActivityChart(data) {
+    const ctx = document.getElementById('activityChart');
+    
+    if (activityChartInstance) {
+        activityChartInstance.destroy();
+    }
+    
+    activityChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Activités',
+                data: data.data,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function createDistributionChart(data) {
+    const ctx = document.getElementById('distributionChart');
+    
+    if (distributionChartInstance) {
+        distributionChartInstance.destroy();
+    }
+    
+    distributionChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.data,
+                backgroundColor: [
+                    '#667eea',
+                    '#764ba2',
+                    '#f093fb',
+                    '#4facfe',
+                    '#43e97b',
+                    '#fa709a'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function createCostsChart(data) {
+    const ctx = document.getElementById('costsChart');
+    
+    if (costsChartInstance) {
+        costsChartInstance.destroy();
+    }
+    
+    costsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Coûts ($)',
+                data: data.data,
+                backgroundColor: '#667eea'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function createSuccessChart(data) {
+    const ctx = document.getElementById('successChart');
+    
+    if (successChartInstance) {
+        successChartInstance.destroy();
+    }
+    
+    successChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Succès', 'Échecs'],
+            datasets: [{
+                data: [data.success, data.failed],
+                backgroundColor: ['#28a745', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// ==================== TABLE ====================
+function updateActivityTable(activities) {
+    const tbody = document.getElementById('activityTableBody');
+    
+    if (activities.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #666;">Aucune activité</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = activities.map(activity => `
+        <tr>
+            <td>${getTypeIcon(activity.type)} ${activity.type}</td>
+            <td>${activity.name}</td>
+            <td><span class="project-badge badge-status-${activity.status}">${activity.status}</span></td>
+            <td>${formatDate(activity.date)}</td>
+            <td>$${activity.cost.toFixed(2)}</td>
+        </tr>
+    `).join('');
+}
+
+function getTypeIcon(type) {
+    const icons = {
+        'podcast': '🎙️',
+        'avatar': '👤',
+        'series': '📺',
+        'pwa': '📱',
+        'document': '📄',
+        'agent': '🤖'
+    };
+    return icons[type] || '✨';
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// ==================== FILTRES ====================
+function setTimeRange(range) {
+    currentTimeRange = range;
+    
+    document.querySelectorAll('.time-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    loadAnalytics();
+}
+
+function applyCustomRange() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (!startDate || !endDate) {
+        alert('Veuillez sélectionner les deux dates');
+        return;
+    }
+    
+    currentTimeRange = `custom:${startDate}:${endDate}`;
+    loadAnalytics();
+}
+
+function updateActivityChart(filter) {
+    // Recharger le graphique avec le filtre
+    loadAnalytics();
+}
+
+// ==================== EXPORT ====================
+function exportData(format) {
+    alert(`Export ${format.toUpperCase()} - À implémenter`);
+    // TODO: Implémenter l'export réel
+}
+
+// ==================== RECHERCHE TABLE ====================
+document.getElementById('tableSearch').addEventListener('input', (e) => {
+    const search = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#activityTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+    });
+});
+
+// ==================== DEMO DATA ====================
+function generateDemoActivityData() {
+    const labels = [];
+    const data = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }));
+        data.push(Math.floor(Math.random() * 30) + 10);
+    }
+    
+    return { labels, data };
+}
+
+function generateDemoCostsData() {
+    return {
+        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+        data: [45.20, 67.80, 52.30, 89.50, 73.20, 127.50]
+    };
+}
+
+function generateDemoActivities() {
+    return [
+        { type: 'podcast', name: 'Episode Marketing Digital', status: 'active', date: new Date(), cost: 2.50 },
+        { type: 'avatar', name: 'Avatar Professionnel', status: 'active', date: new Date(), cost: 1.20 },
+        { type: 'series', name: 'Série Formation IA', status: 'active', date: new Date(), cost: 5.80 },
+        { type: 'pwa', name: 'App E-commerce', status: 'active', date: new Date(), cost: 0.00 },
+        { type: 'document', name: 'Analyse Contrat', status: 'active', date: new Date(), cost: 0.50 }
+    ];
+}
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+{% endblock %}

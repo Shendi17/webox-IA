@@ -1,0 +1,1134 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Mon Profil - WeBox Studio Créatif{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Page Header */
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.avatar-container {
+    position: relative;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+}
+
+.avatar-upload {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: white;
+    color: #667eea;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+}
+
+.avatar-upload:hover {
+    transform: scale(1.1);
+}
+
+.profile-details {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.profile-email {
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.profile-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-trend {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.trend-up {
+    color: #28a745;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Tabs */
+.profile-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Informations personnelles */
+.info-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 1.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.form-input {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-textarea {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Préférences IA */
+.preferences-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.preference-item {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+}
+
+.preference-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.preference-title {
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background: #ccc;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.toggle-switch.active {
+    background: #667eea;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.toggle-switch.active .toggle-slider {
+    left: 33px;
+}
+
+.preference-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.model-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.model-option {
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.model-option:hover {
+    border-color: #667eea;
+}
+
+.model-option.selected {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.model-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.model-name {
+    font-weight: 600;
+}
+
+/* API Keys */
+.api-keys-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.api-key-item {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.api-key-info {
+    flex: 1;
+}
+
+.api-key-name {
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.api-key-value {
+    font-family: 'Courier New', monospace;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.api-key-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    padding: 0.5rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-icon:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Thème */
+.theme-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.theme-option {
+    border: 3px solid #e0e0e0;
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.theme-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.theme-option.selected {
+    border-color: #667eea;
+}
+
+.theme-preview {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+}
+
+.theme-preview-header {
+    height: 40px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-preview-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.theme-preview-content {
+    flex: 1;
+    padding: 1rem;
+}
+
+.theme-preview-box {
+    height: 20px;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.theme-light .theme-preview-header {
+    background: #f8f9fa;
+}
+
+.theme-light .theme-preview-content {
+    background: white;
+}
+
+.theme-light .theme-preview-box {
+    background: #e0e0e0;
+}
+
+.theme-dark .theme-preview-header {
+    background: #2d3748;
+}
+
+.theme-dark .theme-preview-content {
+    background: #1a202c;
+}
+
+.theme-dark .theme-preview-box {
+    background: #4a5568;
+}
+
+.theme-blue .theme-preview-header {
+    background: #667eea;
+}
+
+.theme-blue .theme-preview-content {
+    background: #e3f2fd;
+}
+
+.theme-blue .theme-preview-box {
+    background: #90caf9;
+}
+
+.theme-name {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    background: white;
+}
+
+/* Activité récente */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.activity-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.activity-description {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.activity-time {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* Actions */
+.actions-section {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-save {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-cancel {
+    padding: 0.75rem 2rem;
+    background: white;
+    color: #666;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="profile-header">
+    <div class="header-content">
+        <div class="profile-info">
+            <div class="avatar-container">
+                <div class="profile-avatar" onclick="uploadAvatar()">
+                    {{ user.name[0].upper() if user else 'U' }}
+                </div>
+                <div class="avatar-upload" onclick="uploadAvatar()">
+                    📷
+                </div>
+            </div>
+            
+            <div class="profile-details">
+                <div class="profile-name">{{ user.name if user else 'Utilisateur' }}</div>
+                <div class="profile-email">{{ user.email if user else 'user@example.com' }}</div>
+                <span class="profile-badge">✨ Membre Premium</span>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-primary" onclick="exportData()">
+                📥 Exporter mes données
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats personnelles -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">✨</span>
+            <span class="stat-trend trend-up">↑ 15%</span>
+        </div>
+        <div class="stat-value" id="totalCreations">0</div>
+        <div class="stat-label">Créations totales</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">🏗️</span>
+            <span class="stat-trend trend-up">↑ 8%</span>
+        </div>
+        <div class="stat-value" id="totalProjects">0</div>
+        <div class="stat-label">Projets actifs</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">💬</span>
+            <span class="stat-trend trend-up">↑ 22%</span>
+        </div>
+        <div class="stat-value" id="totalMessages">0</div>
+        <div class="stat-label">Messages IA</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-icon">⏱️</span>
+            <span class="stat-trend trend-up">↑ 5%</span>
+        </div>
+        <div class="stat-value" id="timeSpent">0h</div>
+        <div class="stat-label">Temps d'utilisation</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="profile-tabs">
+    <button class="tab-btn active" onclick="switchTab('info')">👤 Informations</button>
+    <button class="tab-btn" onclick="switchTab('preferences')">⚙️ Préférences IA</button>
+    <button class="tab-btn" onclick="switchTab('api')">🔑 API Keys</button>
+    <button class="tab-btn" onclick="switchTab('theme')">🎨 Thème</button>
+    <button class="tab-btn" onclick="switchTab('activity')">📊 Activité</button>
+</div>
+
+<!-- Tab: Informations -->
+<div class="tab-content active" id="info-content">
+    <div class="info-section">
+        <h3 class="section-title">Informations personnelles</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Nom complet</label>
+                <input type="text" class="form-input" id="userName" value="{{ user.name if user else '' }}" placeholder="Votre nom">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="userEmail" value="{{ user.email if user else '' }}" placeholder="votre@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Téléphone</label>
+                <input type="tel" class="form-input" id="userPhone" placeholder="+33 6 12 34 56 78">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Entreprise</label>
+                <input type="text" class="form-input" id="userCompany" placeholder="Nom de votre entreprise">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Poste</label>
+                <input type="text" class="form-input" id="userPosition" placeholder="Votre poste">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Site web</label>
+                <input type="url" class="form-input" id="userWebsite" placeholder="https://votresite.com">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Bio</label>
+            <textarea class="form-textarea" id="userBio" placeholder="Parlez-nous de vous..."></textarea>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h3 class="section-title">Sécurité</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Mot de passe actuel</label>
+                <input type="password" class="form-input" placeholder="••••••••">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Nouveau mot de passe</label>
+                <input type="password" class="form-input" placeholder="••••••••">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirmer le mot de passe</label>
+                <input type="password" class="form-input" placeholder="••••••••">
+            </div>
+        </div>
+    </div>
+    
+    <div class="actions-section">
+        <button class="btn-cancel" onclick="cancelChanges()">Annuler</button>
+        <button class="btn-save" onclick="saveProfile()">💾 Sauvegarder</button>
+    </div>
+</div>
+
+<!-- Tab: Préférences IA -->
+<div class="tab-content" id="preferences-content">
+    <div class="info-section">
+        <h3 class="section-title">Modèles IA préférés</h3>
+        
+        <div class="preferences-grid">
+            <div class="preference-item">
+                <div class="preference-header">
+                    <span class="preference-title">🎨 Génération d'images</span>
+                </div>
+                <div class="preference-description">Choisissez votre modèle par défaut pour la génération d'images</div>
+                <div class="model-selector">
+                    <div class="model-option selected" onclick="selectModel(this, 'image')">
+                        <div class="model-icon">🎨</div>
+                        <div class="model-name">DALL-E 3</div>
+                    </div>
+                    <div class="model-option" onclick="selectModel(this, 'image')">
+                        <div class="model-icon">🖼️</div>
+                        <div class="model-name">Stable Diffusion</div>
+                    </div>
+                    <div class="model-option" onclick="selectModel(this, 'image')">
+                        <div class="model-icon">✨</div>
+                        <div class="model-name">Midjourney</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preference-item">
+                <div class="preference-header">
+                    <span class="preference-title">💬 Chat IA</span>
+                </div>
+                <div class="preference-description">Choisissez votre modèle par défaut pour les conversations</div>
+                <div class="model-selector">
+                    <div class="model-option selected" onclick="selectModel(this, 'chat')">
+                        <div class="model-icon">🤖</div>
+                        <div class="model-name">Gemini 2.0</div>
+                    </div>
+                    <div class="model-option" onclick="selectModel(this, 'chat')">
+                        <div class="model-icon">💡</div>
+                        <div class="model-name">GPT-4</div>
+                    </div>
+                    <div class="model-option" onclick="selectModel(this, 'chat')">
+                        <div class="model-icon">🧠</div>
+                        <div class="model-name">Claude 3</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preference-item">
+                <div class="preference-header">
+                    <span class="preference-title">🎙️ Synthèse vocale</span>
+                </div>
+                <div class="preference-description">Choisissez votre moteur de synthèse vocale préféré</div>
+                <div class="model-selector">
+                    <div class="model-option selected" onclick="selectModel(this, 'tts')">
+                        <div class="model-icon">🎤</div>
+                        <div class="model-name">ElevenLabs</div>
+                    </div>
+                    <div class="model-option" onclick="selectModel(this, 'tts')">
+                        <div class="model-icon">🔊</div>
+                        <div class="model-name">OpenAI TTS</div>
+                    </div>
+                    <div class="model-option" onclick="selectModel(this, 'tts')">
+                        <div class="model-icon">📢</div>
+                        <div class="model-name">Google TTS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h3 class="section-title">Options avancées</h3>
+        <div class="preferences-grid">
+            <div class="preference-item">
+                <div class="preference-header">
+                    <span class="preference-title">Suggestions automatiques</span>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="preference-description">Afficher des suggestions intelligentes pendant l'utilisation</div>
+            </div>
+            
+            <div class="preference-item">
+                <div class="preference-header">
+                    <span class="preference-title">Historique des prompts</span>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="preference-description">Sauvegarder automatiquement vos prompts pour réutilisation</div>
+            </div>
+            
+            <div class="preference-item">
+                <div class="preference-header">
+                    <span class="preference-title">Notifications</span>
+                    <div class="toggle-switch" onclick="toggleSwitch(this)">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="preference-description">Recevoir des notifications pour les générations terminées</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="actions-section">
+        <button class="btn-cancel" onclick="cancelChanges()">Annuler</button>
+        <button class="btn-save" onclick="savePreferences()">💾 Sauvegarder</button>
+    </div>
+</div>
+
+<!-- Tab: API Keys -->
+<div class="tab-content" id="api-content">
+    <div class="info-section">
+        <h3 class="section-title">Mes clés API</h3>
+        <div class="api-keys-list">
+            <div class="api-key-item">
+                <div class="api-key-info">
+                    <div class="api-key-name">🔑 Clé API WeBox</div>
+                    <div class="api-key-value">webox_••••••••••••••••••••••••1234</div>
+                </div>
+                <div class="api-key-actions">
+                    <button class="btn-icon" onclick="copyApiKey('webox')">📋</button>
+                    <button class="btn-icon" onclick="regenerateApiKey('webox')">🔄</button>
+                    <button class="btn-icon" onclick="deleteApiKey('webox')">🗑️</button>
+                </div>
+            </div>
+            
+            <div class="api-key-item">
+                <div class="api-key-info">
+                    <div class="api-key-name">🎨 DALL-E API Key</div>
+                    <div class="api-key-value">sk-••••••••••••••••••••••••5678</div>
+                </div>
+                <div class="api-key-actions">
+                    <button class="btn-icon" onclick="copyApiKey('dalle')">📋</button>
+                    <button class="btn-icon" onclick="editApiKey('dalle')">✏️</button>
+                    <button class="btn-icon" onclick="deleteApiKey('dalle')">🗑️</button>
+                </div>
+            </div>
+            
+            <div class="api-key-item">
+                <div class="api-key-info">
+                    <div class="api-key-name">🤖 OpenAI API Key</div>
+                    <div class="api-key-value">sk-••••••••••••••••••••••••9012</div>
+                </div>
+                <div class="api-key-actions">
+                    <button class="btn-icon" onclick="copyApiKey('openai')">📋</button>
+                    <button class="btn-icon" onclick="editApiKey('openai')">✏️</button>
+                    <button class="btn-icon" onclick="deleteApiKey('openai')">🗑️</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions-section">
+            <button class="btn-primary" onclick="addApiKey()">➕ Ajouter une clé API</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Thème -->
+<div class="tab-content" id="theme-content">
+    <div class="info-section">
+        <h3 class="section-title">Choisissez votre thème</h3>
+        <div class="theme-selector">
+            <div class="theme-option theme-light selected" onclick="selectTheme(this, 'light')">
+                <div class="theme-preview">
+                    <div class="theme-preview-header">
+                        <div class="theme-preview-dot"></div>
+                        <div class="theme-preview-dot"></div>
+                        <div class="theme-preview-dot"></div>
+                    </div>
+                    <div class="theme-preview-content">
+                        <div class="theme-preview-box"></div>
+                        <div class="theme-preview-box"></div>
+                    </div>
+                </div>
+                <div class="theme-name">☀️ Clair</div>
+            </div>
+            
+            <div class="theme-option theme-dark" onclick="selectTheme(this, 'dark')">
+                <div class="theme-preview">
+                    <div class="theme-preview-header">
+                        <div class="theme-preview-dot"></div>
+                        <div class="theme-preview-dot"></div>
+                        <div class="theme-preview-dot"></div>
+                    </div>
+                    <div class="theme-preview-content">
+                        <div class="theme-preview-box"></div>
+                        <div class="theme-preview-box"></div>
+                    </div>
+                </div>
+                <div class="theme-name">🌙 Sombre</div>
+            </div>
+            
+            <div class="theme-option theme-blue" onclick="selectTheme(this, 'blue')">
+                <div class="theme-preview">
+                    <div class="theme-preview-header">
+                        <div class="theme-preview-dot"></div>
+                        <div class="theme-preview-dot"></div>
+                        <div class="theme-preview-dot"></div>
+                    </div>
+                    <div class="theme-preview-content">
+                        <div class="theme-preview-box"></div>
+                        <div class="theme-preview-box"></div>
+                    </div>
+                </div>
+                <div class="theme-name">💙 Bleu</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="actions-section">
+        <button class="btn-save" onclick="applyTheme()">🎨 Appliquer le thème</button>
+    </div>
+</div>
+
+<!-- Tab: Activité -->
+<div class="tab-content" id="activity-content">
+    <div class="info-section">
+        <h3 class="section-title">Activité récente</h3>
+        <div class="activity-list" id="activityList">
+            <!-- Activités chargées dynamiquement -->
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTab = 'info';
+
+// ==================== TABS ====================
+function switchTab(tab) {
+    currentTab = tab;
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tab + '-content').classList.add('active');
+    
+    if (tab === 'activity') {
+        loadActivity();
+    }
+}
+
+// ==================== STATS ====================
+function updateStats() {
+    document.getElementById('totalCreations').textContent = '234';
+    document.getElementById('totalProjects').textContent = '12';
+    document.getElementById('totalMessages').textContent = '1.5k';
+    document.getElementById('timeSpent').textContent = '48h';
+}
+
+// ==================== AVATAR ====================
+function uploadAvatar() {
+    alert('Upload d\'avatar - À implémenter');
+}
+
+// ==================== PROFILE ====================
+function saveProfile() {
+    const profile = {
+        name: document.getElementById('userName').value,
+        email: document.getElementById('userEmail').value,
+        phone: document.getElementById('userPhone').value,
+        company: document.getElementById('userCompany').value,
+        position: document.getElementById('userPosition').value,
+        website: document.getElementById('userWebsite').value,
+        bio: document.getElementById('userBio').value
+    };
+    
+    console.log('Profil sauvegardé:', profile);
+    alert('Profil mis à jour avec succès ! ✅');
+}
+
+function cancelChanges() {
+    if (confirm('Annuler les modifications ?')) {
+        location.reload();
+    }
+}
+
+function exportData() {
+    alert('Export des données - À implémenter');
+}
+
+// ==================== PREFERENCES ====================
+function selectModel(element, type) {
+    element.parentElement.querySelectorAll('.model-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+}
+
+function toggleSwitch(element) {
+    element.classList.toggle('active');
+}
+
+function savePreferences() {
+    alert('Préférences sauvegardées avec succès ! ✅');
+}
+
+// ==================== API KEYS ====================
+function copyApiKey(key) {
+    alert(`Clé ${key} copiée dans le presse-papier !`);
+}
+
+function regenerateApiKey(key) {
+    if (confirm(`Régénérer la clé ${key} ? L'ancienne clé sera invalidée.`)) {
+        alert(`Nouvelle clé ${key} générée !`);
+    }
+}
+
+function editApiKey(key) {
+    const newKey = prompt(`Entrez votre nouvelle clé ${key}:`);
+    if (newKey) {
+        alert(`Clé ${key} mise à jour !`);
+    }
+}
+
+function deleteApiKey(key) {
+    if (confirm(`Supprimer la clé ${key} ?`)) {
+        alert(`Clé ${key} supprimée !`);
+    }
+}
+
+function addApiKey() {
+    alert('Ajout d\'une clé API - À implémenter');
+}
+
+// ==================== THEME ====================
+function selectTheme(element, theme) {
+    document.querySelectorAll('.theme-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+}
+
+function applyTheme() {
+    alert('Thème appliqué avec succès ! 🎨');
+}
+
+// ==================== ACTIVITY ====================
+async function loadActivity() {
+    const activities = [
+        { icon: '✨', title: 'Génération d\'image', description: 'Logo professionnel créé', time: 'Il y a 2 heures' },
+        { icon: '💬', title: 'Conversation IA', description: '45 messages échangés avec Gemini', time: 'Il y a 5 heures' },
+        { icon: '🏗️', title: 'Nouveau projet', description: 'Projet "Mon App" créé', time: 'Hier' },
+        { icon: '📝', title: 'Article publié', description: 'Guide IA pour débutants', time: 'Il y a 2 jours' },
+        { icon: '🤖', title: 'Agent créé', description: 'Support Client Pro activé', time: 'Il y a 3 jours' }
+    ];
+    
+    const list = document.getElementById('activityList');
+    list.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon">${activity.icon}</div>
+            <div class="activity-details">
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-description">${activity.description}</div>
+            </div>
+            <div class="activity-time">${activity.time}</div>
+        </div>
+    `).join('');
+}
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    updateStats();
+});
+</script>
+{% endblock %}

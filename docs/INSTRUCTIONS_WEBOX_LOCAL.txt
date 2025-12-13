@@ -1,0 +1,138 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║              🔧 CONFIGURER WEBOX.LOCAL - INSTRUCTIONS SIMPLES               ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+❌ PROBLÈME ACTUEL
+═══════════════════════════════════════════════════════════════════════════════
+
+Erreur : DNS_PROBE_POSSIBLE
+Message : L'adresse DNS de webox.local est introuvable
+
+Cause : Le fichier hosts Windows n'est pas configuré
+
+
+✅ SOLUTION RAPIDE (3 ÉTAPES)
+═══════════════════════════════════════════════════════════════════════════════
+
+MÉTHODE 1 : DOUBLE-CLIC (LA PLUS SIMPLE)
+─────────────────────────────────────────
+
+1. Double-cliquez sur le fichier :
+   📁 CONFIGURER-WEBOX-LOCAL.bat
+
+2. Cliquez sur "Oui" quand Windows demande l'autorisation
+
+3. Suivez les instructions à l'écran
+
+4. Accédez à : http://webox.local:8501
+
+
+MÉTHODE 2 : POWERSHELL ADMINISTRATEUR
+──────────────────────────────────────
+
+1. Clic droit sur l'icône PowerShell
+   → Sélectionnez "Exécuter en tant qu'administrateur"
+
+2. Naviguez vers le dossier :
+   cd c:\Users\Anthony\CascadeProjects\webox
+
+3. Exécutez le script :
+   .\fix-webox-local.ps1
+
+4. Accédez à : http://webox.local:8501
+
+
+MÉTHODE 3 : MANUELLE (SI LES SCRIPTS NE MARCHENT PAS)
+──────────────────────────────────────────────────────
+
+1. Clic droit sur Notepad → "Exécuter en tant qu'administrateur"
+
+2. Fichier → Ouvrir → Naviguez vers :
+   C:\Windows\System32\drivers\etc\hosts
+
+3. À la fin du fichier, ajoutez cette ligne :
+   127.0.0.1    webox.local
+
+4. Fichier → Enregistrer
+
+5. Ouvrez PowerShell (en admin) et exécutez :
+   ipconfig /flushdns
+
+6. Accédez à : http://webox.local:8501
+
+
+⚠️  IMPORTANT : N'OUBLIEZ PAS LE PORT :8501
+═══════════════════════════════════════════════════════════════════════════════
+
+L'URL complète est : http://webox.local:8501
+                                        ^^^^
+                                    Le port est obligatoire !
+
+
+🌐 URLS DISPONIBLES APRÈS CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ http://localhost:8501        (fonctionne toujours)
+✅ http://127.0.0.1:8501         (fonctionne toujours)
+✅ http://webox.local:8501       (après configuration)
+
+
+💡 ALTERNATIVE SIMPLE
+═══════════════════════════════════════════════════════════════════════════════
+
+Si vous voulez éviter toute configuration, utilisez simplement :
+
+   → http://localhost:8501
+
+Cela fonctionne immédiatement sans aucune configuration !
+
+
+🔍 VÉRIFICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour vérifier que la configuration a fonctionné :
+
+1. Ouvrez PowerShell
+
+2. Exécutez : ping webox.local
+
+3. Vous devriez voir :
+   Envoi d'une requête 'ping' sur webox.local [127.0.0.1]...
+
+
+🐛 SI ÇA NE MARCHE TOUJOURS PAS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Vérifiez que l'application Streamlit est bien lancée :
+   .\lancer-webox.ps1
+
+2. Videz le cache DNS :
+   ipconfig /flushdns
+
+3. Redémarrez votre navigateur
+
+4. Essayez en navigation privée
+
+5. Utilisez http://localhost:8501 à la place
+
+
+📞 FICHIERS D'AIDE
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 SOLUTION_DNS.md              → Guide détaillé du problème DNS
+📖 CONFIGURATION_RAPIDE.md      → Configuration générale
+📖 INSTRUCTIONS_FINALES.txt     → Instructions complètes
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    RÉSUMÉ : UTILISEZ LOCALHOST:8501 !
+
+                        http://localhost:8501
+
+              C'est plus simple et fonctionne immédiatement !
+
+═══════════════════════════════════════════════════════════════════════════════

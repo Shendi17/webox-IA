@@ -1,0 +1,174 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Présentations IA - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+.creator-card { background: white; border-radius: 15px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-weight: 600; margin-bottom: 0.5rem; color: #333; }
+.form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; }
+.btn-generate { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1.1rem; width: 100%; }
+.presentations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.presentation-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+.presentation-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.presentation-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+.presentation-meta { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+.presentation-actions { display: flex; gap: 0.5rem; }
+.btn-download { background: #28a745; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; flex: 1; }
+.btn-delete { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 Présentations IA</h1>
+    <p>Créez des présentations professionnelles en quelques secondes</p>
+</div>
+
+<!-- Créateur -->
+<div class="creator-card">
+    <h2>✨ Créer une présentation</h2>
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Titre</label>
+            <input type="text" id="presentationTitle" placeholder="Ex: Stratégie Marketing 2025">
+        </div>
+        <div class="form-group">
+            <label>Nombre de slides</label>
+            <input type="number" id="numSlides" value="10" min="5" max="50">
+        </div>
+        <div class="form-group">
+            <label>Audience</label>
+            <select id="audience">
+                <option value="investors">Investisseurs</option>
+                <option value="clients">Clients</option>
+                <option value="team">Équipe</option>
+                <option value="students">Étudiants</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Ton</label>
+            <select id="tone">
+                <option value="professional">Professionnel</option>
+                <option value="creative">Créatif</option>
+                <option value="technical">Technique</option>
+                <option value="casual">Décontracté</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Template</label>
+            <select id="template">
+                <option value="modern">Moderne</option>
+                <option value="corporate">Corporate</option>
+                <option value="startup">Startup</option>
+                <option value="minimalist">Minimaliste</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Sujet / Description</label>
+        <textarea id="topic" rows="4" placeholder="Décrivez le sujet de votre présentation..."></textarea>
+    </div>
+    <button class="btn-generate" onclick="generatePresentation()">🚀 Générer la présentation</button>
+</div>
+
+<!-- Liste -->
+<h2>📚 Mes présentations</h2>
+<div class="presentations-grid" id="presentationsGrid"></div>
+
+<script>
+let presentations = [];
+
+async function generatePresentation() {
+    const title = document.getElementById('presentationTitle').value;
+    const topic = document.getElementById('topic').value;
+    
+    if (!title || !topic) {
+        alert('Titre et sujet requis');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/presentations/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title,
+                topic,
+                num_slides: parseInt(document.getElementById('numSlides').value),
+                audience: document.getElementById('audience').value,
+                tone: document.getElementById('tone').value,
+                template: document.getElementById('template').value
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert(`✅ ${data.message}`);
+            document.getElementById('presentationTitle').value = '';
+            document.getElementById('topic').value = '';
+            setTimeout(() => loadPresentations(), 3000);
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function loadPresentations() {
+    try {
+        const response = await fetch('/api/presentations/list');
+        const data = await response.json();
+        if (data.success) {
+            presentations = data.presentations;
+            renderPresentations();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+function renderPresentations() {
+    const grid = document.getElementById('presentationsGrid');
+    if (presentations.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">Aucune présentation. Créez-en une !</p>';
+        return;
+    }
+    grid.innerHTML = presentations.map(p => `
+        <div class="presentation-card">
+            <div class="presentation-title">${p.title}</div>
+            <div class="presentation-meta">
+                📊 ${p.num_slides} slides • ${p.template} • ${p.status}
+            </div>
+            <div class="presentation-actions">
+                ${p.status === 'completed' ? `
+                    <button class="btn-download" onclick="window.open('${p.pptx_url}')">📥 PowerPoint</button>
+                    <button class="btn-download" onclick="window.open('${p.pdf_url}')">📄 PDF</button>
+                ` : '<button class="btn-download" disabled>⏳ Génération...</button>'}
+                <button class="btn-delete" onclick="deletePresentation(${p.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function deletePresentation(id) {
+    if (!confirm('Supprimer cette présentation ?')) return;
+    
+    try {
+        const response = await fetch(`/api/presentations/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Présentation supprimée');
+            await loadPresentations();
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadPresentations();
+});
+</script>
+{% endblock %}

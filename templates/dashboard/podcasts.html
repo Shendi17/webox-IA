@@ -1,0 +1,514 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}🎙️ Mes Podcasts - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+        .podcasts-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .btn-create {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Podcasts Grid */
+        .podcasts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .podcast-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .podcast-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .podcast-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .podcast-content {
+            padding: 1.5rem;
+        }
+
+        .podcast-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .podcast-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .podcast-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .podcast-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .podcast-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .podcast-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .podcast-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-play {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-play:hover {
+            background: #5568d3;
+        }
+
+        .btn-download {
+            background: #11998e;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #0e8577;
+        }
+
+        .btn-delete {
+            background: #ff4757;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #e63946;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-generating {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 15px;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        /* Audio Player Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="podcasts-page">
+            <div class="page-header">
+                <h1>🎙️ Mes Podcasts</h1>
+                <a href="/podcast/create" class="btn-create">+ Créer un Podcast</a>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎙️</div>
+                    <div class="stat-value" id="totalPodcasts">0</div>
+                    <div class="stat-label">Podcasts créés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">▶️</div>
+                    <div class="stat-value" id="totalPlays">0</div>
+                    <div class="stat-label">Lectures totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⬇️</div>
+                    <div class="stat-value" id="totalDownloads">0</div>
+                    <div class="stat-label">Téléchargements</div>
+                </div>
+            </div>
+
+            <!-- Podcasts Grid -->
+            <div class="podcasts-grid" id="podcastsGrid">
+                <!-- Podcasts will be loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">🎙️</div>
+                <h2>Aucun podcast pour le moment</h2>
+                <p>Créez votre premier podcast avec l'IA en quelques clics !</p>
+                <a href="/podcast/create" class="btn-create">Créer mon premier podcast</a>
+            </div>
+        </div>
+
+        <!-- Audio Player Modal -->
+        <div class="modal" id="playerModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="playerTitle">Lecture du podcast</h3>
+                    <button class="modal-close" onclick="closePlayer()">✖️</button>
+                </div>
+                <audio id="audioPlayer" controls></audio>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let podcasts = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadStats();
+            await loadPodcasts();
+        });
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/podcasts/stats/summary');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('totalPodcasts').textContent = data.stats.total_podcasts;
+                    document.getElementById('totalPlays').textContent = data.stats.total_plays;
+                    document.getElementById('totalDownloads').textContent = data.stats.total_downloads;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function loadPodcasts() {
+            try {
+                const response = await fetch('/api/podcasts/list');
+                const data = await response.json();
+
+                if (data.success) {
+                    podcasts = data.podcasts;
+                    displayPodcasts();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function displayPodcasts() {
+            const grid = document.getElementById('podcastsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (podcasts.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = podcasts.map(podcast => {
+                const statusClass = `status-${podcast.status}`;
+                const duration = Math.floor(podcast.duration / 60);
+                
+                return `
+                    <div class="podcast-card">
+                        <img src="${podcast.cover_url || 'https://via.placeholder.com/400x200?text=Podcast'}" 
+                             alt="${podcast.title}" 
+                             class="podcast-cover">
+                        <div class="podcast-content">
+                            <div class="podcast-title">${podcast.title}</div>
+                            <div class="podcast-meta">
+                                <div class="podcast-meta-item">
+                                    <span>⏱️</span>
+                                    <span>${duration} min</span>
+                                </div>
+                                <div class="podcast-meta-item">
+                                    <span>🎨</span>
+                                    <span>${podcast.style}</span>
+                                </div>
+                                <div class="podcast-meta-item">
+                                    <span class="status-badge ${statusClass}">${podcast.status}</span>
+                                </div>
+                            </div>
+                            <div class="podcast-description">${podcast.description || podcast.topic}</div>
+                            <div class="podcast-stats">
+                                <div class="podcast-stat">
+                                    <span>▶️</span>
+                                    <span>${podcast.plays_count || 0}</span>
+                                </div>
+                                <div class="podcast-stat">
+                                    <span>⬇️</span>
+                                    <span>${podcast.downloads_count || 0}</span>
+                                </div>
+                            </div>
+                            <div class="podcast-actions">
+                                ${podcast.status === 'completed' ? `
+                                    <button class="btn-action btn-play" onclick="playPodcast(${podcast.id}, '${podcast.audio_url}', '${podcast.title}')">
+                                        ▶️ Écouter
+                                    </button>
+                                    <button class="btn-action btn-download" onclick="downloadPodcast(${podcast.id}, '${podcast.audio_url}')">
+                                        ⬇️
+                                    </button>
+                                ` : `
+                                    <button class="btn-action" disabled>
+                                        ${podcast.status === 'generating' ? '⏳ Génération...' : '❌ Échec'}
+                                    </button>
+                                `}
+                                <button class="btn-action btn-delete" onclick="deletePodcast(${podcast.id})">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function playPodcast(id, audioUrl, title) {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('audioPlayer');
+            const playerTitle = document.getElementById('playerTitle');
+
+            playerTitle.textContent = title;
+            player.src = audioUrl;
+            modal.classList.add('active');
+
+            // Increment play count
+            try {
+                await fetch(`/api/podcasts/${id}/play`, { method: 'POST' });
+                await loadStats();
+                await loadPodcasts();
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const player = document.getElementById('audioPlayer');
+            
+            player.pause();
+            modal.classList.remove('active');
+        }
+
+        async function downloadPodcast(id, audioUrl) {
+            try {
+                // Increment download count
+                await fetch(`/api/podcasts/${id}/download`, { method: 'POST' });
+                
+                // Download file
+                const a = document.createElement('a');
+                a.href = audioUrl;
+                a.download = `podcast_${id}.mp3`;
+                a.click();
+
+                await loadStats();
+                await loadPodcasts();
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function deletePodcast(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce podcast ?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/podcasts/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Podcast supprimé');
+                    await loadStats();
+                    await loadPodcasts();
+                } else {
+                    alert('❌ Erreur lors de la suppression');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('❌ Erreur lors de la suppression');
+            }
+        }
+    </script>
+</div>
+{% endblock %}

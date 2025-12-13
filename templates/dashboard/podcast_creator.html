@@ -1,0 +1,592 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}🎙️ Podcast Creator - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+        .podcast-creator {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .creator-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .creator-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Wizard Steps */
+        .wizard-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+            gap: 2rem;
+        }
+
+        .wizard-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .wizard-step.active .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .wizard-step.completed .step-number {
+            background: #11998e;
+            color: white;
+        }
+
+        .step-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .wizard-step.active .step-label {
+            color: #667eea;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Style Cards */
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .style-card {
+            padding: 2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .style-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+
+        .style-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .style-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .style-name {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .style-description {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        /* Voice Cards */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .voice-card {
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-card:hover {
+            border-color: #667eea;
+        }
+
+        .voice-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        /* Duration Slider */
+        .duration-slider {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .duration-value {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 1rem;
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9fa;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Summary */
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .summary-value {
+            color: #333;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="podcast-creator">
+            <div class="creator-header">
+                <h1>🎙️ Créateur de Podcast IA</h1>
+                <p>Créez des podcasts professionnels en quelques clics grâce à l'IA</p>
+            </div>
+
+            <!-- Wizard Steps -->
+            <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Sujet</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Style</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Voix</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Résumé</div>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="form-container">
+                <!-- Step 1: Topic -->
+                <div class="form-step active" data-step="1">
+                    <h2>📝 Quel est le sujet de votre podcast ?</h2>
+                    <div class="form-group">
+                        <label for="topic">Sujet principal</label>
+                        <input type="text" id="topic" placeholder="Ex: L'intelligence artificielle dans le quotidien">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description (optionnel)</label>
+                        <textarea id="description" placeholder="Décrivez plus en détail ce que vous voulez aborder..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Durée du podcast</label>
+                        <input type="range" id="duration" class="duration-slider" min="1" max="30" value="5">
+                        <div class="duration-value"><span id="durationValue">5</span> minutes</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Style -->
+                <div class="form-step" data-step="2">
+                    <h2>🎨 Choisissez le style de votre podcast</h2>
+                    <div class="style-grid" id="styleGrid">
+                        <!-- Styles will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Step 3: Voice -->
+                <div class="form-step" data-step="3">
+                    <h2>🎤 Sélectionnez une voix</h2>
+                    <div class="voice-grid" id="voiceGrid">
+                        <!-- Voices will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Step 4: Summary -->
+                <div class="form-step" data-step="4">
+                    <h2>✅ Résumé de votre podcast</h2>
+                    <div id="summary">
+                        <!-- Summary will be displayed here -->
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                        ← Précédent
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                        Suivant →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h2>Génération de votre podcast...</h2>
+                <p>Cela peut prendre quelques minutes</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let podcastData = {
+            topic: '',
+            description: '',
+            duration: 5,
+            style: '',
+            voice: '',
+            language: 'fr'
+        };
+
+        // Load styles and voices on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadStyles();
+            await loadVoices();
+            
+            // Duration slider
+            document.getElementById('duration').addEventListener('input', function() {
+                document.getElementById('durationValue').textContent = this.value;
+                podcastData.duration = parseInt(this.value);
+            });
+        });
+
+        async function loadStyles() {
+            try {
+                const response = await fetch('/api/podcasts/styles');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const grid = document.getElementById('styleGrid');
+                    grid.innerHTML = data.styles.map(style => `
+                        <div class="style-card" onclick="selectStyle('${style.id}')">
+                            <div class="style-icon">${style.icon}</div>
+                            <div class="style-name">${style.name}</div>
+                            <div class="style-description">${style.description}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function loadVoices() {
+            try {
+                const response = await fetch('/api/podcasts/voices');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const grid = document.getElementById('voiceGrid');
+                    grid.innerHTML = data.voices.map(voice => `
+                        <div class="voice-card" onclick="selectVoice('${voice.id}')">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">
+                                ${voice.gender === 'male' ? '👨' : voice.gender === 'female' ? '👩' : '🧑'}
+                            </div>
+                            <div style="font-weight: 600;">${voice.name}</div>
+                            <div style="font-size: 0.875rem; color: #666;">${voice.gender}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function selectStyle(styleId) {
+            document.querySelectorAll('.style-card').forEach(card => card.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            podcastData.style = styleId;
+        }
+
+        function selectVoice(voiceId) {
+            document.querySelectorAll('.voice-card').forEach(card => card.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            podcastData.voice = voiceId;
+        }
+
+        function updateStepDisplay() {
+            // Update wizard steps
+            document.querySelectorAll('.wizard-step').forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'completed');
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+
+            // Update form steps
+            document.querySelectorAll('.form-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Update buttons
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentStep === totalSteps ? '🎙️ Générer le Podcast' : 'Suivant →';
+        }
+
+        function nextStep() {
+            // Validation
+            if (currentStep === 1) {
+                const topic = document.getElementById('topic').value.trim();
+                if (!topic) {
+                    alert('Veuillez entrer un sujet pour votre podcast');
+                    return;
+                }
+                podcastData.topic = topic;
+                podcastData.description = document.getElementById('description').value.trim();
+            } else if (currentStep === 2) {
+                if (!podcastData.style) {
+                    alert('Veuillez sélectionner un style');
+                    return;
+                }
+            } else if (currentStep === 3) {
+                if (!podcastData.voice) {
+                    alert('Veuillez sélectionner une voix');
+                    return;
+                }
+            }
+
+            if (currentStep === totalSteps) {
+                generatePodcast();
+                return;
+            }
+
+            if (currentStep === totalSteps - 1) {
+                displaySummary();
+            }
+
+            currentStep++;
+            updateStepDisplay();
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function displaySummary() {
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-label">Sujet :</span>
+                    <span class="summary-value">${podcastData.topic}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Durée :</span>
+                    <span class="summary-value">${podcastData.duration} minutes</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Style :</span>
+                    <span class="summary-value">${podcastData.style}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Voix :</span>
+                    <span class="summary-value">${podcastData.voice}</span>
+                </div>
+            `;
+        }
+
+        async function generatePodcast() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('active');
+
+            try {
+                const response = await fetch('/api/podcasts/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(podcastData)
+                });
+
+                const data = await response.json();
+
+                overlay.classList.remove('active');
+
+                if (data.success) {
+                    alert('✅ Podcast généré avec succès !');
+                    window.location.href = '/podcasts';
+                } else {
+                    alert('❌ Erreur : ' + (data.error || 'Erreur inconnue'));
+                }
+            } catch (error) {
+                overlay.classList.remove('active');
+                alert('❌ Erreur lors de la génération : ' + error.message);
+            }
+        }
+
+        // Initialize
+        updateStepDisplay();
+    </script>
+</div>
+{% endblock %}

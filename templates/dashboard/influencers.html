@@ -1,0 +1,325 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Influenceurs IA - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.stat-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.stat-value { font-size: 2rem; font-weight: 700; color: #667eea; }
+.stat-label { color: #666; font-size: 0.9rem; }
+.influencers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.influencer-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+.influencer-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.influencer-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 1rem; }
+.influencer-name { font-size: 1.3rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
+.influencer-niche { text-align: center; color: #667eea; font-weight: 600; margin-bottom: 1rem; }
+.influencer-stats { display: flex; justify-content: space-around; margin-bottom: 1rem; padding: 1rem 0; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; }
+.influencer-stat { text-align: center; }
+.influencer-stat-value { font-size: 1.5rem; font-weight: 700; color: #667eea; }
+.influencer-stat-label { font-size: 0.8rem; color: #666; }
+.influencer-actions { display: flex; gap: 0.5rem; }
+.btn-generate { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; flex: 1; }
+.btn-edit { background: #4169e1; color: white; border: none; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; }
+.btn-delete { background: #dc3545; color: white; border: none; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; }
+.creator-form { background: white; border-radius: 15px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-weight: 600; margin-bottom: 0.5rem; color: #333; }
+.form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; }
+.btn-create { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1.1rem; }
+.content-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+.content-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.content-image { width: 100%; height: 250px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+.content-info { padding: 1rem; }
+.content-caption { color: #333; margin-bottom: 0.5rem; }
+.content-meta { font-size: 0.85rem; color: #666; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>👤 Influenceurs IA</h1>
+    <p>Créez et gérez vos influenceurs virtuels</p>
+</div>
+
+<!-- Statistiques -->
+<div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+        <div class="stat-value" id="totalInfluencers">0</div>
+        <div class="stat-label">Influenceurs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="totalContent">0</div>
+        <div class="stat-label">Contenus générés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="completedContent">0</div>
+        <div class="stat-label">Complétés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="pendingContent">0</div>
+        <div class="stat-label">En cours</div>
+    </div>
+</div>
+
+<!-- Créateur d'influenceur -->
+<h2>✨ Créer un influenceur</h2>
+<div class="creator-form">
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Nom</label>
+            <input type="text" id="influencerName" placeholder="Ex: Emma Digital">
+        </div>
+        <div class="form-group">
+            <label>Niche</label>
+            <select id="influencerNiche">
+                <option value="fitness">💪 Fitness</option>
+                <option value="fashion">👗 Fashion</option>
+                <option value="tech">💻 Tech</option>
+                <option value="lifestyle">🌟 Lifestyle</option>
+                <option value="beauty">💄 Beauty</option>
+                <option value="travel">✈️ Travel</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Genre</label>
+            <select id="influencerGender">
+                <option value="female">Féminin</option>
+                <option value="male">Masculin</option>
+                <option value="non-binary">Non-binaire</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Âge</label>
+            <select id="influencerAge">
+                <option value="18-25">18-25 ans</option>
+                <option value="25-35">25-35 ans</option>
+                <option value="35-45">35-45 ans</option>
+                <option value="45+">45+ ans</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Style</label>
+            <select id="influencerStyle">
+                <option value="casual">Casual</option>
+                <option value="professional">Professionnel</option>
+                <option value="sporty">Sportif</option>
+                <option value="elegant">Élégant</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Ton de voix</label>
+            <select id="influencerTone">
+                <option value="friendly">Amical</option>
+                <option value="professional">Professionnel</option>
+                <option value="funny">Drôle</option>
+                <option value="inspirational">Inspirant</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Description</label>
+        <textarea id="influencerDescription" rows="3" placeholder="Décrivez votre influenceur..."></textarea>
+    </div>
+    <button class="btn-create" onclick="createInfluencer()">✨ Créer l'influenceur</button>
+</div>
+
+<!-- Liste des influenceurs -->
+<h2>👥 Mes influenceurs</h2>
+<div class="influencers-grid" id="influencersGrid"></div>
+
+<!-- Contenu généré -->
+<h2>📸 Contenu généré</h2>
+<div class="content-grid" id="contentGrid"></div>
+
+<script>
+let influencers = [];
+let content = [];
+
+async function loadStats() {
+    try {
+        const response = await fetch('/influencers/api/stats');
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('totalInfluencers').textContent = data.stats.total_influencers;
+            document.getElementById('totalContent').textContent = data.stats.total_content;
+            document.getElementById('completedContent').textContent = data.stats.completed_content;
+            document.getElementById('pendingContent').textContent = data.stats.pending_content;
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function loadInfluencers() {
+    try {
+        const response = await fetch('/influencers/api/list');
+        const data = await response.json();
+        if (data.success) {
+            influencers = data.influencers;
+            renderInfluencers();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+function renderInfluencers() {
+    const grid = document.getElementById('influencersGrid');
+    if (influencers.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">Aucun influenceur. Créez-en un !</p>';
+        return;
+    }
+    grid.innerHTML = influencers.map(inf => `
+        <div class="influencer-card">
+            <div class="influencer-avatar">${getGenderEmoji(inf.gender)}</div>
+            <div class="influencer-name">${inf.name}</div>
+            <div class="influencer-niche">${getNicheEmoji(inf.niche)} ${inf.niche}</div>
+            <div class="influencer-stats">
+                <div class="influencer-stat">
+                    <div class="influencer-stat-value">${inf.total_posts}</div>
+                    <div class="influencer-stat-label">Posts</div>
+                </div>
+                <div class="influencer-stat">
+                    <div class="influencer-stat-value">${inf.total_images}</div>
+                    <div class="influencer-stat-label">Images</div>
+                </div>
+            </div>
+            <div class="influencer-actions">
+                <button class="btn-generate" onclick="generateContent(${inf.id})">📸 Générer</button>
+                <button class="btn-delete" onclick="deleteInfluencer(${inf.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getGenderEmoji(gender) {
+    const emojis = { 'female': '👩', 'male': '👨', 'non-binary': '🧑' };
+    return emojis[gender] || '👤';
+}
+
+function getNicheEmoji(niche) {
+    const emojis = { 'fitness': '💪', 'fashion': '👗', 'tech': '💻', 'lifestyle': '🌟', 'beauty': '💄', 'travel': '✈️' };
+    return emojis[niche] || '⭐';
+}
+
+async function createInfluencer() {
+    const name = document.getElementById('influencerName').value;
+    if (!name) { alert('Nom requis'); return; }
+    
+    try {
+        const response = await fetch('/influencers/api/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                description: document.getElementById('influencerDescription').value,
+                niche: document.getElementById('influencerNiche').value,
+                gender: document.getElementById('influencerGender').value,
+                age_range: document.getElementById('influencerAge').value,
+                style: document.getElementById('influencerStyle').value,
+                tone_of_voice: document.getElementById('influencerTone').value,
+                personality_traits: ['energetic', 'creative']
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert(`✅ ${data.message}`);
+            document.getElementById('influencerName').value = '';
+            document.getElementById('influencerDescription').value = '';
+            await loadInfluencers();
+            await loadStats();
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function generateContent(influencerId) {
+    const prompt = window.prompt('Décrivez le contenu à générer:', 'Photo professionnelle en studio');
+    if (!prompt) return;
+    
+    try {
+        const response = await fetch('/influencers/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                influencer_id: influencerId,
+                content_type: 'image',
+                prompt,
+                pose: 'standing',
+                location: 'studio',
+                outfit: 'casual',
+                generate_caption: true
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Génération lancée ! Rafraîchissez dans quelques secondes.');
+            setTimeout(() => { loadContent(); loadStats(); }, 3000);
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function deleteInfluencer(id) {
+    if (!confirm('Supprimer cet influenceur ?')) return;
+    
+    try {
+        const response = await fetch(`/influencers/api/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Influenceur supprimé');
+            await loadInfluencers();
+            await loadStats();
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function loadContent() {
+    try {
+        const response = await fetch('/influencers/api/content?limit=20');
+        const data = await response.json();
+        if (data.success) {
+            content = data.content;
+            renderContent();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+function renderContent() {
+    const grid = document.getElementById('contentGrid');
+    if (content.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">Aucun contenu généré</p>';
+        return;
+    }
+    grid.innerHTML = content.map(c => `
+        <div class="content-card">
+            <div class="content-image">
+                ${c.status === 'completed' ? '📸' : c.status === 'generating' ? '⏳' : '⏸️'}
+            </div>
+            <div class="content-info">
+                <div class="content-caption">${c.caption || c.prompt.substring(0, 50)}...</div>
+                <div class="content-meta">
+                    📊 ${c.status} • 💰 $${c.cost || 0}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadStats();
+    await loadInfluencers();
+    await loadContent();
+});
+</script>
+{% endblock %}

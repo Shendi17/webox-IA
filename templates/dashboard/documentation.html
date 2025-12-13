@@ -1,0 +1,443 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Documentation - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+* { pointer-events: auto !important; }
+
+.doc-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.doc-tab {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.doc-tab:hover {
+    color: #4169e1;
+}
+
+.doc-tab.active {
+    color: #4169e1;
+    border-bottom-color: #4169e1;
+}
+
+.doc-content {
+    display: none;
+}
+
+.doc-content.active {
+    display: block;
+}
+
+.doc-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.doc-card:hover {
+    border-color: #4169e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.doc-card h3 {
+    margin-bottom: 1rem;
+    color: #1a1a2e;
+}
+
+.doc-card p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.code-block {
+    background: #1a1a2e;
+    color: #ffd700;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.badge-success { background: #d4edda; color: #155724; }
+.badge-warning { background: #fff3cd; color: #856404; }
+.badge-info { background: #d1ecf1; color: #0c5460; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>📖 Documentation</h1>
+    <p>Guides complets, tutoriels et documentation technique</p>
+</div>
+
+<!-- Tabs -->
+<div class="doc-tabs">
+    <button class="doc-tab active" onclick="showTab('guides')">📚 Guides</button>
+    <button class="doc-tab" onclick="showTab('quickstart')">🚀 Démarrage Rapide</button>
+    <button class="doc-tab" onclick="showTab('api')">🔧 API & Intégrations</button>
+    <button class="doc-tab" onclick="showTab('faq')">❓ FAQ</button>
+</div>
+
+<!-- Tab: Guides -->
+<div id="guides" class="doc-content active">
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">📚 Guides Principaux</h2>
+        <p style="opacity: 0.9;">Documentation complète pour maîtriser WeBox Multi-IA</p>
+    </div>
+
+    <div class="doc-card">
+        <h3>🎨 Guide de Génération Multi-Média</h3>
+        <div>
+            <span class="badge badge-success">Débutant</span>
+            <span class="badge badge-info">Images, Audio, Vidéo</span>
+        </div>
+        <p style="margin-top: 1rem;">
+            Apprenez à générer des images avec DALL-E 3, Midjourney et Stable Diffusion. 
+            Créez des voix avec ElevenLabs et OpenAI TTS. Produisez des vidéos avec Runway.
+        </p>
+        <ul style="color: #666; line-height: 2;">
+            <li>✅ Configuration des clés API</li>
+            <li>✅ Prompts optimisés pour chaque IA</li>
+            <li>✅ Exemples concrets et cas d'usage</li>
+            <li>✅ Bonnes pratiques et astuces</li>
+        </ul>
+        <button class="sidebar-btn primary" style="margin-top: 1rem;" onclick="window.open('/static/docs/generation_media.pdf', '_blank')">
+            📄 Lire le guide complet
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>🤖 Guide des Agents IA Spécialisés</h3>
+        <div>
+            <span class="badge badge-success">Débutant</span>
+            <span class="badge badge-info">8 Agents</span>
+        </div>
+        <p style="margin-top: 1rem;">
+            Découvrez comment utiliser les 8 agents IA spécialisés pour automatiser vos tâches business : 
+            Ventes, Marketing, Finance, Opérations, RH, Service Client, Produit et Stratégie.
+        </p>
+        <ul style="color: #666; line-height: 2;">
+            <li>✅ Présentation de chaque agent</li>
+            <li>✅ Cas d'usage par secteur</li>
+            <li>✅ Exemples de prompts efficaces</li>
+            <li>✅ ROI et tarification</li>
+        </ul>
+        <button class="sidebar-btn primary" style="margin-top: 1rem;" onclick="window.location.href='/agents'">
+            🤖 Accéder aux agents
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>📚 Guide de la Bibliothèque de Prompts</h3>
+        <div>
+            <span class="badge badge-success">Débutant</span>
+            <span class="badge badge-info">100+ Prompts</span>
+        </div>
+        <p style="margin-top: 1rem;">
+            Organisez, sauvegardez et réutilisez vos meilleurs prompts. 
+            Accédez à une bibliothèque de prompts prédéfinis pour tous les cas d'usage.
+        </p>
+        <ul style="color: #666; line-height: 2;">
+            <li>✅ Créer et organiser vos prompts</li>
+            <li>✅ Utiliser les variables dynamiques</li>
+            <li>✅ Catégoriser par tags</li>
+            <li>✅ Partager avec votre équipe</li>
+        </ul>
+        <button class="sidebar-btn primary" style="margin-top: 1rem;" onclick="window.location.href='/prompts'">
+            📚 Accéder à la bibliothèque
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>📞 Guide de l'Assistant Vocal IA</h3>
+        <div>
+            <span class="badge badge-warning">Intermédiaire</span>
+            <span class="badge badge-info">Twilio, STT, TTS</span>
+        </div>
+        <p style="margin-top: 1rem;">
+            Créez des assistants vocaux intelligents pour vos clients. 
+            Intégration complète avec Twilio, Speech-to-Text et Text-to-Speech.
+        </p>
+        <ul style="color: #666; line-height: 2;">
+            <li>✅ Architecture du système</li>
+            <li>✅ Configuration Twilio</li>
+            <li>✅ 6 cas d'usage détaillés</li>
+            <li>✅ Tarification et ROI</li>
+        </ul>
+        <button class="sidebar-btn primary" style="margin-top: 1rem;" onclick="window.location.href='/voice'">
+            📞 Accéder à l'assistant vocal
+        </button>
+    </div>
+</div>
+
+<!-- Tab: Démarrage Rapide -->
+<div id="quickstart" class="doc-content">
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem; color: #1a1a2e;">🚀 Démarrage Rapide</h2>
+        <p style="color: #1a1a2e; opacity: 0.8;">Commencez à utiliser WeBox en 5 minutes</p>
+    </div>
+
+    <div class="doc-card">
+        <h3>1️⃣ Configuration des Clés API</h3>
+        <p>Avant de commencer, configurez vos clés API dans votre profil :</p>
+        <div class="code-block">
+# Clés API Requises (au moins une)
+OPENAI_API_KEY=sk-...          # Pour GPT-4, DALL-E
+ANTHROPIC_API_KEY=sk-ant-...   # Pour Claude
+GOOGLE_API_KEY=...             # Pour Gemini
+ELEVENLABS_API_KEY=...         # Pour voix IA
+        </div>
+        <button class="sidebar-btn primary" onclick="window.location.href='/profile'">
+            ⚙️ Configurer mes clés API
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>2️⃣ Premier Chat Multi-IA</h3>
+        <p>Testez le chat avec plusieurs IA simultanément :</p>
+        <ol style="color: #666; line-height: 2;">
+            <li>Allez sur la page <strong>Chat Multi-IA</strong></li>
+            <li>Sélectionnez 2-3 IA dans la sidebar (GPT-4, Claude, Gemini)</li>
+            <li>Posez une question : "Explique-moi l'IA en 3 phrases"</li>
+            <li>Comparez les réponses des différentes IA</li>
+        </ol>
+        <button class="sidebar-btn primary" onclick="window.location.href='/chat'">
+            💬 Lancer un chat
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>3️⃣ Première Génération d'Image</h3>
+        <p>Créez votre première image avec l'IA :</p>
+        <ol style="color: #666; line-height: 2;">
+            <li>Allez sur <strong>Génération Multi-Média</strong></li>
+            <li>Sélectionnez l'onglet <strong>Images</strong></li>
+            <li>Choisissez DALL-E 3 ou Stable Diffusion</li>
+            <li>Entrez un prompt : "Un chat astronaute dans l'espace, style cartoon"</li>
+            <li>Cliquez sur <strong>Générer</strong></li>
+        </ol>
+        <button class="sidebar-btn primary" onclick="window.location.href='/generation'">
+            🎨 Générer une image
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>4️⃣ Utiliser un Agent IA</h3>
+        <p>Automatisez une tâche avec un agent spécialisé :</p>
+        <ol style="color: #666; line-height: 2;">
+            <li>Allez sur <strong>Agents IA Spécialisés</strong></li>
+            <li>Choisissez un agent (ex: Agent Marketing)</li>
+            <li>Cliquez sur <strong>Lancer l'agent</strong></li>
+            <li>Posez votre question : "Crée-moi une stratégie Instagram pour une startup tech"</li>
+        </ol>
+        <button class="sidebar-btn primary" onclick="window.location.href='/agents'">
+            🤖 Utiliser un agent
+        </button>
+    </div>
+</div>
+
+<!-- Tab: API & Intégrations -->
+<div id="api" class="doc-content">
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: white; margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">🔧 API & Intégrations</h2>
+        <p style="opacity: 0.9;">Documentation technique pour les développeurs</p>
+    </div>
+
+    <div class="doc-card">
+        <h3>🔑 Clés API Supportées</h3>
+        <p>WeBox supporte les clés API suivantes :</p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+            <thead>
+                <tr style="background: #f8f9fa;">
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e0e0e0;">Service</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e0e0e0;">Variable</th>
+                    <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e0e0e0;">Fonctionnalités</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><strong>OpenAI</strong></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><code>OPENAI_API_KEY</code></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">GPT-4, DALL-E 3, TTS</td>
+                </tr>
+                <tr>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><strong>Anthropic</strong></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><code>ANTHROPIC_API_KEY</code></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">Claude 3</td>
+                </tr>
+                <tr>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><strong>Google</strong></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><code>GOOGLE_API_KEY</code></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">Gemini Pro</td>
+                </tr>
+                <tr>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><strong>ElevenLabs</strong></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;"><code>ELEVENLABS_API_KEY</code></td>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e0e0e0;">Voix IA</td>
+                </tr>
+                <tr>
+                    <td style="padding: 1rem;"><strong>Stability AI</strong></td>
+                    <td style="padding: 1rem;"><code>STABILITY_API_KEY</code></td>
+                    <td style="padding: 1rem;">Stable Diffusion</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="doc-card">
+        <h3>⚡ Automatisation Pipedream</h3>
+        <p>Intégrez WeBox avec Pipedream pour créer des workflows automatisés :</p>
+        <div class="code-block">
+# Exemple de workflow Pipedream
+1. Trigger: Nouveau email reçu (Gmail)
+2. Action: Analyser avec GPT-4 (WeBox)
+3. Action: Générer une réponse
+4. Action: Envoyer la réponse (Gmail)
+        </div>
+        <button class="sidebar-btn primary" onclick="window.location.href='/automation'">
+            ⚡ Voir les workflows
+        </button>
+    </div>
+
+    <div class="doc-card">
+        <h3>📞 API Assistant Vocal</h3>
+        <p>Endpoints disponibles pour l'assistant vocal :</p>
+        <div class="code-block">
+POST /api/voice/assistants          # Créer un assistant
+GET  /api/voice/assistants          # Lister les assistants
+PUT  /api/voice/assistants/{id}     # Modifier un assistant
+DELETE /api/voice/assistants/{id}   # Supprimer un assistant
+GET  /api/voice/calls               # Historique des appels
+POST /api/voice/twilio/webhook      # Webhook Twilio
+        </div>
+    </div>
+</div>
+
+<!-- Tab: FAQ -->
+<div id="faq" class="doc-content">
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">❓ Questions Fréquentes</h2>
+        <p style="opacity: 0.9;">Réponses aux questions les plus courantes</p>
+    </div>
+
+    <div class="doc-card">
+        <h3>💰 Combien coûte WeBox ?</h3>
+        <p>
+            WeBox est <strong>gratuit</strong> ! Vous payez uniquement les coûts des APIs que vous utilisez 
+            (OpenAI, Anthropic, etc.). Pas de frais cachés, pas d'abonnement.
+        </p>
+    </div>
+
+    <div class="doc-card">
+        <h3>🔑 Mes clés API sont-elles sécurisées ?</h3>
+        <p>
+            Oui ! Vos clés API sont <strong>chiffrées</strong> dans la base de données et ne sont jamais 
+            exposées côté client. Vous pouvez utiliser des clés globales (fichier .env) ou des clés 
+            personnelles (profil utilisateur).
+        </p>
+    </div>
+
+    <div class="doc-card">
+        <h3>🤖 Quelles IA sont intégrées ?</h3>
+        <p>
+            WeBox intègre <strong>16 IA</strong> directement :
+        </p>
+        <ul style="color: #666; line-height: 2;">
+            <li><strong>Texte :</strong> GPT-4, Claude 3, Gemini Pro, Mistral AI, Perplexity</li>
+            <li><strong>Images :</strong> DALL-E 3, Midjourney, Stable Diffusion, Leonardo AI</li>
+            <li><strong>Audio :</strong> ElevenLabs, OpenAI TTS, Whisper</li>
+            <li><strong>Vidéo :</strong> Runway, Synthesia</li>
+            <li><strong>Code :</strong> GitHub Copilot, Replit</li>
+        </ul>
+        <p>
+            + <strong>54 IA cataloguées</strong> accessibles via le catalogue.
+        </p>
+    </div>
+
+    <div class="doc-card">
+        <h3>📊 Puis-je comparer plusieurs IA ?</h3>
+        <p>
+            Oui ! C'est la fonctionnalité principale de WeBox. Vous pouvez sélectionner jusqu'à 
+            <strong>12 IA simultanément</strong> et comparer leurs réponses côte à côte.
+        </p>
+    </div>
+
+    <div class="doc-card">
+        <h3>🔄 Comment créer des workflows automatisés ?</h3>
+        <p>
+            Utilisez la page <strong>Combinaisons IA</strong> pour créer des workflows en chaînant 
+            plusieurs IA. Vous pouvez aussi utiliser <strong>Pipedream</strong> pour des automatisations 
+            avancées.
+        </p>
+    </div>
+
+    <div class="doc-card">
+        <h3>📱 WeBox est-il disponible sur mobile ?</h3>
+        <p>
+            L'interface web est <strong>responsive</strong> et fonctionne sur mobile. Une application 
+            mobile native est prévue pour 2025.
+        </p>
+    </div>
+
+    <div class="doc-card">
+        <h3>🆘 Comment obtenir de l'aide ?</h3>
+        <p>
+            Plusieurs options :
+        </p>
+        <ul style="color: #666; line-height: 2;">
+            <li>📖 Consultez cette documentation</li>
+            <li>📝 Lisez les articles du blog</li>
+            <li>💬 Utilisez le chat pour poser vos questions</li>
+            <li>📧 Contactez le support : support@webox.ai</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Masquer tous les contenus
+    document.querySelectorAll('.doc-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Désactiver tous les tabs
+    document.querySelectorAll('.doc-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Activer le tab et contenu sélectionné
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}</script>
+{% endblock %}

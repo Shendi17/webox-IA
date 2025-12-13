@@ -1,0 +1,175 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                        🤖 WEBOX MULTI-IA v1.0.0                             ║
+║                                                                              ║
+║              Plateforme Multi-IA inspirée de Polyia.io                      ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📋 DÉMARRAGE RAPIDE (5 MINUTES)
+═══════════════════════════════════════════════════════════════════════════════
+
+1️⃣  INSTALLER LES DÉPENDANCES
+   ────────────────────────────
+   Ouvrez PowerShell dans ce dossier et exécutez :
+   
+   pip install -r requirements.txt
+
+
+2️⃣  CONFIGURER VOS CLÉS API
+   ─────────────────────────
+   a) Copiez le fichier .env.example en .env
+   b) Éditez le fichier .env
+   c) Ajoutez au moins une clé API :
+   
+      OPENAI_API_KEY=sk-...        (pour GPT-4)
+      ANTHROPIC_API_KEY=sk-ant-... (pour Claude)
+      GOOGLE_API_KEY=AIza...       (pour Gemini)
+   
+   💡 Vous pouvez commencer avec une seule clé API !
+
+
+3️⃣  LANCER L'APPLICATION
+   ─────────────────────
+   Méthode 1 (Recommandée) :
+   .\start.ps1
+   
+   Méthode 2 (Alternative) :
+   streamlit run app.py
+   
+   L'application s'ouvrira dans votre navigateur à :
+   http://localhost:8501
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 FONCTIONNALITÉS PRINCIPALES
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Chat Multi-IA
+   → Discutez avec GPT-4, Claude et Gemini simultanément
+   → Comparez les réponses côte à côte
+
+✅ Assistants Spécialisés
+   → 6 assistants pré-configurés (Marketing, Dev, Business, etc.)
+   → Prêts à l'emploi
+
+✅ Bibliothèque de Prompts
+   → Prompts clé en main par catégorie
+   → Créez vos propres prompts
+
+✅ Vérification Croisée
+   → Validez les réponses avec une autre IA
+   → Améliorez la qualité
+
+✅ Organisation par Dossiers
+   → Organisez vos conversations par thématique
+   → Historique complet
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📚 DOCUMENTATION
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 README.md              → Vue d'ensemble du projet
+⚡ QUICKSTART.md          → Démarrage en 5 minutes
+📘 GUIDE_UTILISATION.md   → Guide complet et détaillé
+💡 EXEMPLES.md            → 15+ exemples concrets
+📁 STRUCTURE.md           → Architecture du projet
+📝 CHANGELOG.md           → Historique des versions
+🤝 CONTRIBUTING.md        → Guide de contribution
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🔑 OBTENIR VOS CLÉS API
+═══════════════════════════════════════════════════════════════════════════════
+
+OpenAI (GPT-4)
+   → https://platform.openai.com/api-keys
+   → Créez un compte et générez une clé
+
+Anthropic (Claude)
+   → https://console.anthropic.com/
+   → Créez un compte et générez une clé
+
+Google AI (Gemini)
+   → https://makersuite.google.com/app/apikey
+   → Créez une clé API gratuitement
+
+
+═══════════════════════════════════════════════════════════════════════════════
+💡 PREMIERS TESTS
+═══════════════════════════════════════════════════════════════════════════════
+
+Test Simple :
+   1. Sélectionnez une IA dans la barre latérale
+   2. Tapez : "Bonjour, présente-toi"
+   3. ✅ Ça marche !
+
+Test Multi-IA :
+   1. Sélectionnez 2-3 IA
+   2. Posez : "Quels sont les avantages de l'IA ?"
+   3. Comparez les réponses
+
+Test Assistant :
+   1. Allez dans "🎯 Assistants"
+   2. Choisissez "Rédacteur Marketing"
+   3. Demandez : "Rédige un slogan pour une startup tech"
+
+Test Prompt :
+   1. Allez dans "📚 Bibliothèque de Prompts"
+   2. Sélectionnez un prompt
+   3. Cliquez sur "Utiliser"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🐛 PROBLÈMES COURANTS
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ "Aucune IA configurée"
+   → Vérifiez votre fichier .env et vos clés API
+
+❌ "Module not found"
+   → Exécutez : pip install -r requirements.txt --force-reinstall
+
+❌ "Port already in use"
+   → Exécutez : streamlit run app.py --server.port 8502
+
+❌ L'application ne s'ouvre pas
+   → Ouvrez manuellement http://localhost:8501
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🎨 TECHNOLOGIES UTILISÉES
+═══════════════════════════════════════════════════════════════════════════════
+
+Frontend    → Streamlit (Interface moderne et interactive)
+Backend     → Python 3.8+ (Asynchrone avec asyncio)
+IA          → OpenAI, Anthropic, Google AI
+Config      → python-dotenv (Variables d'environnement)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+📞 SUPPORT
+═══════════════════════════════════════════════════════════════════════════════
+
+Documentation  → Consultez les fichiers .md
+Issues         → Ouvrez une issue sur GitHub
+Questions      → Consultez GUIDE_UTILISATION.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+🚀 PRÊT À DÉMARRER !
+═══════════════════════════════════════════════════════════════════════════════
+
+Commande rapide pour démarrer :
+
+   .\start.ps1
+
+Ou consultez QUICKSTART.md pour plus de détails.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                        Bon usage de WeBox Multi-IA ! 🎉
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,797 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Assistant Vocal - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+* { pointer-events: auto !important; }
+
+.tabs-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 1rem 2rem;
+    border: none;
+    background: none;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    color: #4169e1;
+    border-bottom-color: #4169e1;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: #4169e1;
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.assistants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.assistant-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.assistant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.assistant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.assistant-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.assistant-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.assistant-phone {
+    color: #4169e1;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.assistant-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4169e1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.assistant-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.calls-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.calls-table th {
+    background: #f8f9fa;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #1a1a2e;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.calls-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.call-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 10001;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.toast.success { border-left: 4px solid #28a745; }
+.toast.error { border-left: 4px solid #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📞 Assistant Vocal</h1>
+    <p>Créez et gérez vos assistants vocaux IA pour vos clients</p>
+</div>
+
+<div class="tabs-container">
+    <button class="tab-btn active" data-tab="overview">📊 Vue d'ensemble</button>
+    <button class="tab-btn" data-tab="assistants">🤖 Mes Assistants</button>
+    <button class="tab-btn" data-tab="create">➕ Créer un Assistant</button>
+    <button class="tab-btn" data-tab="calls">📞 Historique des Appels</button>
+</div>
+
+<!-- TAB: Vue d'ensemble -->
+<div class="tab-content active" id="tab-overview">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="dashboard-card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🤖</div>
+            <div style="font-size: 2rem; font-weight: bold; color: #4169e1; margin-bottom: 0.5rem;" id="totalAssistants">0</div>
+            <div style="color: #666;">Assistants actifs</div>
+        </div>
+        <div class="dashboard-card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📞</div>
+            <div style="font-size: 2rem; font-weight: bold; color: #28a745; margin-bottom: 0.5rem;" id="totalCalls">0</div>
+            <div style="color: #666;">Appels ce mois</div>
+        </div>
+        <div class="dashboard-card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⏱️</div>
+            <div style="font-size: 2rem; font-weight: bold; color: #ffc107; margin-bottom: 0.5rem;" id="avgDuration">0 min</div>
+            <div style="color: #666;">Durée moyenne</div>
+        </div>
+        <div class="dashboard-card" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⭐</div>
+            <div style="font-size: 2rem; font-weight: bold; color: #dc3545; margin-bottom: 0.5rem;" id="avgSatisfaction">0/5</div>
+            <div style="color: #666;">Satisfaction</div>
+        </div>
+    </div>
+
+    <!-- Architecture du système -->
+    <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1.5rem;">🏗️ Architecture du Système</h2>
+        <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 10px; font-family: monospace; line-height: 2;">
+            <div style="text-align: center;">
+                <div>📱 <strong>Client appelle</strong> → +33 1 23 45 67 89</div>
+                <div style="margin: 0.5rem 0;">↓</div>
+                <div>☁️ <strong>Twilio</strong> (Réception de l'appel)</div>
+                <div style="margin: 0.5rem 0;">↓</div>
+                <div>🎤 <strong>Speech-to-Text</strong> (Google Cloud / Whisper)</div>
+                <div style="margin: 0.5rem 0;">↓</div>
+                <div>🧠 <strong>IA WeBox</strong> (GPT-4 / Claude + Contexte client)</div>
+                <div style="margin: 0.5rem 0;">↓</div>
+                <div>🔊 <strong>Text-to-Speech</strong> (ElevenLabs / Google TTS)</div>
+                <div style="margin: 0.5rem 0;">↓</div>
+                <div>📞 <strong>Twilio</strong> → Réponse vocale au client</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cas d'usage -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="dashboard-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🍽️</div>
+            <h3>Restaurants</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+                Prise de réservations automatique 24/7, informations sur le menu, horaires d'ouverture.
+            </p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Exemple :</strong><br>
+                "Bonjour, je voudrais réserver pour 4 personnes ce soir à 20h"
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏥</div>
+            <h3>Cabinets Médicaux</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+                Prise de rendez-vous, rappels, informations pratiques, urgences.
+            </p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Exemple :</strong><br>
+                "Je souhaite prendre rendez-vous avec le Dr. Martin pour un contrôle"
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏪</div>
+            <h3>E-commerce</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+                Suivi de commande, retours, questions produits, support client.
+            </p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Exemple :</strong><br>
+                "Où en est ma commande numéro 12345 ?"
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
+            <h3>Entreprises B2B</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+                Qualification de leads, prise de RDV commerciaux, support technique.
+            </p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Exemple :</strong><br>
+                "Je voudrais une démo de votre solution CRM"
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏨</div>
+            <h3>Hôtels</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+                Réservations, disponibilités, services, informations touristiques.
+            </p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Exemple :</strong><br>
+                "Avez-vous une chambre double disponible du 15 au 20 juin ?"
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🚗</div>
+            <h3>Services Auto</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+                Prise de RDV révision, dépannage, devis, informations techniques.
+            </p>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Exemple :</strong><br>
+                "Je voudrais prendre RDV pour une révision de ma Peugeot 308"
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarification -->
+    <div class="dashboard-card">
+        <h2 style="margin-bottom: 1.5rem;">💰 Tarification Estimée</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="color: #4169e1; margin-bottom: 1rem;">Coûts par Appel</h3>
+                <div style="line-height: 2;">
+                    <div>📞 Twilio : <strong>~0.02€</strong></div>
+                    <div>🎤 STT : <strong>~0.01€</strong></div>
+                    <div>🧠 IA (GPT-4) : <strong>~0.05€</strong></div>
+                    <div>🔊 TTS : <strong>~0.02€</strong></div>
+                    <hr style="margin: 0.5rem 0;">
+                    <div style="font-size: 1.25rem; color: #28a745;"><strong>Total : ~0.10€</strong></div>
+                    <div style="font-size: 0.85rem; color: #999;">pour 5 minutes d'appel</div>
+                </div>
+            </div>
+
+            <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="color: #2196f3; margin-bottom: 1rem;">Tarif Client Suggéré</h3>
+                <div style="line-height: 2;">
+                    <div>📦 Starter : <strong>50€/mois</strong></div>
+                    <div style="font-size: 0.85rem; color: #666;">100 appels inclus</div>
+                    <div style="margin-top: 0.5rem;">🚀 Pro : <strong>150€/mois</strong></div>
+                    <div style="font-size: 0.85rem; color: #666;">500 appels inclus</div>
+                    <div style="margin-top: 0.5rem;">⭐ Enterprise : <strong>500€/mois</strong></div>
+                    <div style="font-size: 0.85rem; color: #666;">Appels illimités</div>
+                </div>
+            </div>
+
+            <div style="background: #fff3cd; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="color: #ffc107; margin-bottom: 1rem;">ROI Client</h3>
+                <div style="line-height: 2;">
+                    <div>💼 Économie : <strong>~2000€/mois</strong></div>
+                    <div style="font-size: 0.85rem; color: #666;">vs employé temps plein</div>
+                    <div style="margin-top: 0.5rem;">⏰ Disponibilité : <strong>24/7</strong></div>
+                    <div style="font-size: 0.85rem; color: #666;">Pas de congés, pas de pause</div>
+                    <div style="margin-top: 0.5rem;">📈 Satisfaction : <strong>+30%</strong></div>
+                    <div style="font-size: 0.85rem; color: #666;">Réponse immédiate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guide d'intégration -->
+    <div class="dashboard-card" style="margin-top: 2rem;">
+        <h2 style="margin-bottom: 1.5rem;">📚 Guide d'Intégration Twilio</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div>
+                <h3 style="color: #4169e1; margin-bottom: 1rem;">1️⃣ Créer un compte Twilio</h3>
+                <ol style="line-height: 2; color: #666;">
+                    <li>Aller sur <a href="https://www.twilio.com" target="_blank" style="color: #4169e1;">twilio.com</a></li>
+                    <li>S'inscrire (essai gratuit avec 15$ de crédit)</li>
+                    <li>Vérifier votre email et téléphone</li>
+                </ol>
+            </div>
+
+            <div>
+                <h3 style="color: #4169e1; margin-bottom: 1rem;">2️⃣ Acheter un numéro</h3>
+                <ol style="line-height: 2; color: #666;">
+                    <li>Console Twilio → Phone Numbers</li>
+                    <li>Buy a Number → Choisir pays (France)</li>
+                    <li>Sélectionner "Voice" capability</li>
+                    <li>Coût : ~1€/mois</li>
+                </ol>
+            </div>
+
+            <div>
+                <h3 style="color: #4169e1; margin-bottom: 1rem;">3️⃣ Configurer les Webhooks</h3>
+                <ol style="line-height: 2; color: #666;">
+                    <li>Sélectionner votre numéro</li>
+                    <li>Voice & Fax → Configure</li>
+                    <li>A Call Comes In → Webhook</li>
+                    <li>URL : <code style="background: #f8f9fa; padding: 0.25rem;">https://votre-domaine.com/api/voice/webhook/incoming</code></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technologies utilisées -->
+    <div class="dashboard-card" style="margin-top: 2rem; background: #f8f9fa;">
+        <h2 style="margin-bottom: 1.5rem;">🛠️ Stack Technologique</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="text-align: center; padding: 1rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">☁️</div>
+                <strong>Twilio</strong>
+                <div style="font-size: 0.85rem; color: #666;">Téléphonie cloud</div>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎤</div>
+                <strong>Google STT</strong>
+                <div style="font-size: 0.85rem; color: #666;">Reconnaissance vocale</div>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧠</div>
+                <strong>GPT-4 / Claude</strong>
+                <div style="font-size: 0.85rem; color: #666;">Intelligence artificielle</div>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔊</div>
+                <strong>ElevenLabs</strong>
+                <div style="font-size: 0.85rem; color: #666;">Synthèse vocale</div>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+                <strong>FastAPI</strong>
+                <div style="font-size: 0.85rem; color: #666;">Backend Python</div>
+            </div>
+            <div style="text-align: center; padding: 1rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">💾</div>
+                <strong>PostgreSQL</strong>
+                <div style="font-size: 0.85rem; color: #666;">Base de données</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: Mes Assistants -->
+<div class="tab-content" id="tab-assistants">
+    <div class="assistants-grid" id="assistantsGrid">
+        <!-- Les assistants seront chargés ici -->
+    </div>
+</div>
+
+<!-- TAB: Créer un Assistant -->
+<div class="tab-content" id="tab-create">
+    <div class="dashboard-card" style="max-width: 800px; margin: 0 auto;">
+        <h2 style="margin-bottom: 2rem;">➕ Créer un Nouvel Assistant Vocal</h2>
+        
+        <form id="createAssistantForm">
+            <div class="form-group">
+                <label class="form-label">Nom du Client / Entreprise *</label>
+                <input type="text" class="form-input" id="clientName" required placeholder="Ex: Restaurant Le Gourmet">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email du Client</label>
+                <input type="email" class="form-input" id="clientEmail" placeholder="contact@client.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Numéro Twilio *</label>
+                <input type="text" class="form-input" id="twilioPhone" required placeholder="+33 1 23 45 67 89">
+                <small style="color: #666;">Le numéro de téléphone que vos clients appelleront</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Modèle IA *</label>
+                <select class="form-select" id="aiModel">
+                    <option value="gpt-4">GPT-4 (OpenAI) - Recommandé</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI) - Rapide</option>
+                    <option value="claude-3">Claude 3 (Anthropic)</option>
+                    <option value="gemini-pro">Gemini Pro (Google)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contexte / Instructions pour l'IA *</label>
+                <textarea class="form-textarea" id="aiContext" required placeholder="Ex: Tu es l'assistant vocal du restaurant Le Gourmet. Tu peux prendre des réservations, donner les horaires d'ouverture (12h-14h et 19h-23h), et répondre aux questions sur le menu. Sois professionnel et chaleureux."></textarea>
+                <small style="color: #666;">Décrivez le rôle et les capacités de l'assistant</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Personnalité *</label>
+                <select class="form-select" id="aiPersonality">
+                    <option value="professional">Professionnel</option>
+                    <option value="friendly">Amical</option>
+                    <option value="casual">Décontracté</option>
+                    <option value="formal">Formel</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Fournisseur de Voix *</label>
+                <select class="form-select" id="voiceProvider">
+                    <option value="elevenlabs">ElevenLabs (Très naturel)</option>
+                    <option value="google">Google TTS (Fiable)</option>
+                    <option value="azure">Azure TTS (Microsoft)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Langue *</label>
+                <select class="form-select" id="voiceLanguage">
+                    <option value="fr-FR">Français</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="es-ES">Español</option>
+                    <option value="de-DE">Deutsch</option>
+                </select>
+            </div>
+
+            <button type="submit" class="sidebar-btn primary" style="width: 100%;">🚀 Créer l'Assistant</button>
+        </form>
+    </div>
+</div>
+
+<!-- TAB: Historique des Appels -->
+<div class="tab-content" id="tab-calls">
+    <div class="dashboard-card">
+        <h2 style="margin-bottom: 1.5rem;">📞 Historique des Appels</h2>
+        <div style="overflow-x: auto;">
+            <table class="calls-table" id="callsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Assistant</th>
+                        <th>De</th>
+                        <th>Durée</th>
+                        <th>Statut</th>
+                        <th>Satisfaction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les appels seront chargés ici -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== SYSTÈME D'ASSISTANTS VOCAUX ==========
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <span style="font-size: 1.5rem;">${type === 'success' ? '✅' : '❌'}</span>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Gestion des tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+        
+        // Charger les données selon l'onglet
+        if (btn.dataset.tab === 'assistants') {
+            loadAssistants();
+        } else if (btn.dataset.tab === 'calls') {
+            loadCalls();
+        }
+    });
+});
+
+// Charger les statistiques
+async function loadStats() {
+    try {
+        const response = await fetch('/api/voice/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            const stats = data.stats;
+            document.getElementById('totalCalls').textContent = stats.total_calls;
+            document.getElementById('avgDuration').textContent = Math.round(stats.average_duration / 60) + ' min';
+            document.getElementById('avgSatisfaction').textContent = stats.average_satisfaction.toFixed(1) + '/5';
+        }
+    } catch (error) {
+        console.error('Erreur stats:', error);
+    }
+}
+
+// Charger les assistants
+async function loadAssistants() {
+    try {
+        const response = await fetch('/api/voice/assistants');
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('totalAssistants').textContent = data.assistants.length;
+            displayAssistants(data.assistants);
+        }
+    } catch (error) {
+        console.error('Erreur assistants:', error);
+        showToast('Erreur lors du chargement des assistants', 'error');
+    }
+}
+
+// Afficher les assistants
+function displayAssistants(assistants) {
+    const grid = document.getElementById('assistantsGrid');
+    
+    if (assistants.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Aucun assistant créé. Créez-en un dans l\'onglet "Créer un Assistant".</p>';
+        return;
+    }
+    
+    grid.innerHTML = assistants.map(a => `
+        <div class="assistant-card">
+            <div class="assistant-header">
+                <div>
+                    <div class="assistant-name">${a.client_name}</div>
+                    <div class="assistant-phone">📞 ${a.twilio_phone_number}</div>
+                </div>
+                <div class="assistant-status ${a.is_active ? 'status-active' : 'status-inactive'}">
+                    ${a.is_active ? '✓ Actif' : '⏸ Inactif'}
+                </div>
+            </div>
+            <div style="color: #666; margin-bottom: 1rem;">
+                <div>🤖 ${a.ai_model}</div>
+                <div>🗣️ ${a.voice_provider} (${a.voice_language})</div>
+            </div>
+            <div class="assistant-stats">
+                <div class="stat-item">
+                    <div class="stat-value">${a.total_calls}</div>
+                    <div class="stat-label">Appels</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Math.round(a.total_duration / 60)}m</div>
+                    <div class="stat-label">Durée</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${a.average_satisfaction.toFixed(1)}</div>
+                    <div class="stat-label">Note</div>
+                </div>
+            </div>
+            <div class="assistant-actions">
+                <button class="sidebar-btn" style="flex: 1;" onclick="viewAssistant(${a.id})">👁️ Voir</button>
+                <button class="sidebar-btn" style="flex: 1; background: #dc3545; color: white;" onclick="deleteAssistant(${a.id})">🗑️ Supprimer</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Créer un assistant
+document.getElementById('createAssistantForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const data = {
+        client_name: document.getElementById('clientName').value,
+        client_email: document.getElementById('clientEmail').value,
+        twilio_phone_number: document.getElementById('twilioPhone').value,
+        ai_model: document.getElementById('aiModel').value,
+        ai_context: document.getElementById('aiContext').value,
+        ai_personality: document.getElementById('aiPersonality').value,
+        voice_provider: document.getElementById('voiceProvider').value,
+        voice_language: document.getElementById('voiceLanguage').value
+    };
+    
+    try {
+        const response = await fetch('/api/voice/assistants', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showToast('✅ Assistant créé avec succès !', 'success');
+            document.getElementById('createAssistantForm').reset();
+            
+            // Basculer vers l'onglet assistants
+            document.querySelector('[data-tab="assistants"]').click();
+        } else {
+            showToast(result.detail || 'Erreur lors de la création', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('Erreur lors de la création', 'error');
+    }
+});
+
+// Charger les appels
+async function loadCalls() {
+    try {
+        const response = await fetch('/api/voice/calls?limit=50');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayCalls(data.calls);
+        }
+    } catch (error) {
+        console.error('Erreur appels:', error);
+    }
+}
+
+// Afficher les appels
+function displayCalls(calls) {
+    const tbody = document.querySelector('#callsTable tbody');
+    
+    if (calls.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; padding: 2rem;">Aucun appel enregistré</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = calls.map(call => `
+        <tr>
+            <td>${new Date(call.started_at).toLocaleString('fr-FR')}</td>
+            <td>Assistant #${call.assistant_id}</td>
+            <td>${call.from_number}</td>
+            <td>${Math.round(call.duration / 60)} min</td>
+            <td><span class="call-status status-${call.status}">${call.status}</span></td>
+            <td>${call.satisfaction_score ? call.satisfaction_score.toFixed(1) + '/5' : '-'}</td>
+        </tr>
+    `).join('');
+}
+
+// Voir un assistant
+function viewAssistant(id) {
+    alert(`👁️ Détails de l'assistant #${id}\n\nFonctionnalité en développement.\nBientôt vous pourrez voir tous les détails et modifier la configuration.`);
+}
+
+// Supprimer un assistant
+async function deleteAssistant(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet assistant ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/voice/assistants/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Assistant supprimé avec succès', 'success');
+            loadAssistants();
+            loadStats();
+        } else {
+            showToast('Erreur lors de la suppression', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('Erreur lors de la suppression', 'error');
+    }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {    loadStats();
+    loadAssistants();
+});</script>
+{% endblock %}

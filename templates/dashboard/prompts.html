@@ -1,0 +1,539 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Bibliothèque de Prompts - WeBox Multi-IA{% endblock %}
+
+{% block extra_css %}
+<style>
+.prompt-template-card:hover {
+    background: rgba(255,255,255,0.2) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.category-card:hover {
+    background: #e9ecef !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>📚 Bibliothèque de Prompts</h1>
+    <p>Gérez et organisez vos prompts pour une utilisation optimale avec les IA</p>
+</div>
+
+<!-- Actions Bar -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem;">
+    <div style="display: flex; gap: 1rem; flex: 1;">
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="🔍 Rechercher un prompt..."
+            style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;"
+        >
+        <select 
+            id="categoryFilter"
+            style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; min-width: 150px;"
+        >
+            <option value="">Toutes les catégories</option>
+        </select>
+        <button 
+            id="favoritesFilter"
+            style="padding: 0.75rem 1.5rem; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 1rem;"
+        >
+            ⭐ Favoris
+        </button>
+    </div>
+    <button 
+        id="newPromptBtn"
+        style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;"
+    >
+        ➕ Nouveau Prompt
+    </button>
+</div>
+
+<!-- Prompts Grid -->
+<div id="promptsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #888;">
+        Chargement des prompts...
+    </div>
+</div>
+
+<!-- Prompts prédéfinis populaires -->
+<div class="dashboard-card" style="margin-top: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h2 style="margin-bottom: 1.5rem;">🔥 Prompts Populaires Prédéfinis</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+        <div class="prompt-template-card" data-prompt="Rédige un article de blog de 1000 mots sur [SUJET]. Structure : intro accrocheuse, 3 parties avec sous-titres, conclusion avec CTA. Ton professionnel mais accessible." style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+            <strong style="font-size: 1.1rem;">📝 Rédaction d'Article</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                "Rédige un article de blog de 1000 mots sur [SUJET]. Structure : intro accrocheuse, 3 parties avec sous-titres, conclusion avec CTA. Ton professionnel mais accessible."
+            </p>
+        </div>
+        <div class="prompt-template-card" data-prompt="Crée un email de vente pour [PRODUIT/SERVICE]. Cible : [AUDIENCE]. Objectif : conversion. Inclus : sujet accrocheur, problème, solution, bénéfices, CTA clair." style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+            <strong style="font-size: 1.1rem;">📧 Email Marketing</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                "Crée un email de vente pour [PRODUIT/SERVICE]. Cible : [AUDIENCE]. Objectif : conversion. Inclus : sujet accrocheur, problème, solution, bénéfices, CTA clair."
+            </p>
+        </div>
+        <div class="prompt-template-card" data-prompt="Génère 5 posts LinkedIn sur [THÈME]. Format : hook + contenu de valeur + question d'engagement. Ton : expert mais accessible. Max 150 mots par post." style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+            <strong style="font-size: 1.1rem;">📱 Post Réseaux Sociaux</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                "Génère 5 posts LinkedIn sur [THÈME]. Format : hook + contenu de valeur + question d'engagement. Ton : expert mais accessible. Max 150 mots par post."
+            </p>
+        </div>
+        <div class="prompt-template-card" data-prompt="Crée un pitch de vente de 2 minutes pour [PRODUIT]. Structure : problème client, solution unique, preuves sociales, proposition de valeur, CTA." style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+            <strong style="font-size: 1.1rem;">💼 Pitch Commercial</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                "Crée un pitch de vente de 2 minutes pour [PRODUIT]. Structure : problème client, solution unique, preuves sociales, proposition de valeur, CTA."
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Catégories de prompts -->
+<div class="dashboard-card" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">📂 Catégories Recommandées</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div class="category-card" data-category="Rédaction" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
+            <strong>Rédaction</strong>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Articles, blogs, copies</p>
+        </div>
+        <div class="category-card" data-category="Marketing" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📢</div>
+            <strong>Marketing</strong>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Campagnes, publicités, SEO</p>
+        </div>
+        <div class="category-card" data-category="Développement" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💻</div>
+            <strong>Développement</strong>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Code, debug, architecture</p>
+        </div>
+        <div class="category-card" data-category="Créatif" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎨</div>
+            <strong>Créatif</strong>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Design, images, vidéos</p>
+        </div>
+        <div class="category-card" data-category="Business" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💼</div>
+            <strong>Business</strong>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Stratégie, finance, RH</p>
+        </div>
+        <div class="category-card" data-category="Éducation" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📚</div>
+            <strong>Éducation</strong>
+            <p style="color: #666; font-size: 0.85rem; margin-top: 0.5rem;">Cours, tutoriels, formations</p>
+        </div>
+    </div>
+</div>
+
+<!-- Conseils pour créer de bons prompts -->
+<div class="dashboard-card" style="margin-top: 2rem; background: #fff3cd;">
+    <h2 style="margin-bottom: 1.5rem;">💡 Conseils pour Créer de Bons Prompts</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">1. Soyez Spécifique</h3>
+            <p style="color: #666;">Plus votre prompt est détaillé, meilleure sera la réponse. Incluez le contexte, le ton, la longueur souhaitée.</p>
+            <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.85rem;">
+                <strong>❌ Mauvais :</strong> "Écris un article"<br>
+                <strong>✅ Bon :</strong> "Écris un article de 800 mots sur le marketing digital pour débutants, ton pédagogique"
+            </div>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">2. Définissez le Rôle</h3>
+            <p style="color: #666;">Demandez à l'IA d'adopter un rôle spécifique pour des réponses plus pertinentes.</p>
+            <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.85rem;">
+                <strong>Exemple :</strong> "Tu es un expert en SEO avec 10 ans d'expérience. Analyse ce site web..."
+            </div>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">3. Structurez la Réponse</h3>
+            <p style="color: #666;">Indiquez la structure souhaitée pour obtenir des réponses organisées.</p>
+            <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.85rem;">
+                <strong>Exemple :</strong> "Réponds en 3 parties : 1) Problème 2) Solution 3) Bénéfices"
+            </div>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">4. Utilisez des Variables</h3>
+            <p style="color: #666;">Créez des prompts réutilisables avec des variables entre crochets.</p>
+            <div style="background: white; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.85rem;">
+                <strong>Exemple :</strong> "Crée une pub pour [PRODUIT] ciblant [AUDIENCE] avec [BÉNÉFICE]"
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="dashboard-card" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">📊 Pourquoi Utiliser une Bibliothèque de Prompts ?</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+        <div style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: bold; color: #4169e1;">70%</div>
+            <div style="color: #666;">Gain de temps sur la rédaction</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: bold; color: #28a745;">3x</div>
+            <div style="color: #666;">Meilleure qualité des résultats</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: bold; color: #ffc107;">100+</div>
+            <div style="color: #666;">Prompts réutilisables</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 3rem; font-weight: bold; color: #dc3545;">0€</div>
+            <div style="color: #666;">Gratuit et illimité</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nouveau/Éditer Prompt -->
+<div id="promptModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <h2 id="modalTitle" style="margin-bottom: 1.5rem;">Nouveau Prompt</h2>
+        
+        <form id="promptForm">
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Titre</label>
+                <input 
+                    type="text" 
+                    id="promptTitle" 
+                    required
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;"
+                >
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Contenu du Prompt</label>
+                <textarea 
+                    id="promptContent" 
+                    required
+                    rows="8"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; resize: vertical;"
+                ></textarea>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Catégorie</label>
+                <input 
+                    type="text" 
+                    id="promptCategory" 
+                    value="Général"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;"
+                >
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Tags (séparés par des virgules)</label>
+                <input 
+                    type="text" 
+                    id="promptTags" 
+                    placeholder="exemple, test, important"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;"
+                >
+            </div>
+            
+            <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="promptFavorite">
+                    <span>⭐ Favori</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="promptPublic">
+                    <span>🌐 Public</span>
+                </label>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button 
+                    type="button" 
+                    id="cancelBtn"
+                    style="padding: 0.75rem 1.5rem; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer;"
+                >
+                    Annuler
+                </button>
+                <button 
+                    type="submit"
+                    style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"
+                >
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let prompts = [];
+let currentPromptId = null;
+let currentFilters = { category: '', search: '', favorites: false };
+
+// Charger les prompts
+async function loadPrompts() {
+    try {
+        const params = new URLSearchParams();
+        if (currentFilters.category) params.append('category', currentFilters.category);
+        if (currentFilters.search) params.append('search', currentFilters.search);
+        if (currentFilters.favorites) params.append('is_favorite', 'true');
+        
+        const response = await fetch(`/api/prompts/?${params}`);
+        if (!response.ok) throw new Error('Erreur de chargement');
+        
+        prompts = await response.json();
+        displayPrompts();
+        loadCategories();
+    } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('promptsGrid').innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #dc3545;">
+                ❌ Erreur lors du chargement des prompts
+            </div>
+        `;
+    }
+}
+
+// Afficher les prompts
+function displayPrompts() {
+    const grid = document.getElementById('promptsGrid');
+    
+    if (prompts.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #888;">
+                📚 Aucun prompt trouvé. Créez votre premier prompt !
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = prompts.map(prompt => `
+        <div class="dashboard-card" style="position: relative;">
+            ${prompt.is_favorite ? '<div style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem;">⭐</div>' : ''}
+            <h3 style="margin-bottom: 0.5rem;">${escapeHtml(prompt.title)}</h3>
+            <div style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                📁 ${escapeHtml(prompt.category)} • 🔢 ${prompt.usage_count} utilisations
+            </div>
+            <p style="color: #444; margin-bottom: 1rem; max-height: 100px; overflow: hidden;">
+                ${escapeHtml(prompt.content.substring(0, 150))}${prompt.content.length > 150 ? '...' : ''}
+            </p>
+            ${prompt.tags.length > 0 ? `
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                    ${prompt.tags.map(tag => `
+                        <span style="padding: 0.25rem 0.75rem; background: #f0f0f0; border-radius: 12px; font-size: 0.85rem;">
+                            ${escapeHtml(tag)}
+                        </span>
+                    `).join('')}
+                </div>
+            ` : ''}
+            <div style="display: flex; gap: 0.5rem; margin-top: auto;">
+                <button onclick="usePrompt(${prompt.id})" style="flex: 1; padding: 0.5rem; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    ✨ Utiliser
+                </button>
+                <button onclick="editPrompt(${prompt.id})" style="padding: 0.5rem 1rem; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
+                    ✏️
+                </button>
+                <button onclick="deletePrompt(${prompt.id})" style="padding: 0.5rem 1rem; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; color: #dc3545;">
+                    🗑️
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Charger les catégories
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/prompts/categories');
+        const categories = await response.json();
+        
+        const select = document.getElementById('categoryFilter');
+        const currentValue = select.value;
+        
+        select.innerHTML = '<option value="">Toutes les catégories</option>' +
+            categories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join('');
+        
+        select.value = currentValue;
+    } catch (error) {
+        console.error('Erreur chargement catégories:', error);
+    }
+}
+
+// Utiliser un prompt
+async function usePrompt(id) {
+    const prompt = prompts.find(p => p.id === id);
+    if (!prompt) return;
+    
+    // Copier dans le presse-papiers
+    navigator.clipboard.writeText(prompt.content);
+    
+    // Incrémenter le compteur
+    await fetch(`/api/prompts/${id}/use`, { method: 'POST' });
+    
+    alert('✅ Prompt copié dans le presse-papiers !');
+    loadPrompts();
+}
+
+// Éditer un prompt
+function editPrompt(id) {
+    const prompt = prompts.find(p => p.id === id);
+    if (!prompt) return;
+    
+    currentPromptId = id;
+    document.getElementById('modalTitle').textContent = 'Éditer le Prompt';
+    document.getElementById('promptTitle').value = prompt.title;
+    document.getElementById('promptContent').value = prompt.content;
+    document.getElementById('promptCategory').value = prompt.category;
+    document.getElementById('promptTags').value = prompt.tags.join(', ');
+    document.getElementById('promptFavorite').checked = prompt.is_favorite;
+    document.getElementById('promptPublic').checked = prompt.is_public;
+    
+    document.getElementById('promptModal').style.display = 'flex';
+}
+
+// Supprimer un prompt
+async function deletePrompt(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce prompt ?')) return;
+    
+    try {
+        const response = await fetch(`/api/prompts/${id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Erreur de suppression');
+        
+        alert('✅ Prompt supprimé !');
+        loadPrompts();
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur lors de la suppression');
+    }
+}
+
+// Échapper HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Attendre que le DOM soit chargé
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners
+    document.getElementById('newPromptBtn').addEventListener('click', () => {
+        currentPromptId = null;
+        document.getElementById('modalTitle').textContent = 'Nouveau Prompt';
+        document.getElementById('promptForm').reset();
+        document.getElementById('promptModal').style.display = 'flex';
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        document.getElementById('promptModal').style.display = 'none';
+    });
+
+    document.getElementById('promptForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const data = {
+        title: document.getElementById('promptTitle').value,
+        content: document.getElementById('promptContent').value,
+        category: document.getElementById('promptCategory').value,
+        tags: document.getElementById('promptTags').value.split(',').map(t => t.trim()).filter(t => t),
+        is_favorite: document.getElementById('promptFavorite').checked,
+        is_public: document.getElementById('promptPublic').checked
+    };
+    
+    try {
+        const url = currentPromptId ? `/api/prompts/${currentPromptId}` : '/api/prompts/';
+        const method = currentPromptId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) throw new Error('Erreur de sauvegarde');
+        
+        document.getElementById('promptModal').style.display = 'none';
+        alert('✅ Prompt enregistré !');
+        loadPrompts();
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur lors de la sauvegarde');
+        }
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentFilters.search = e.target.value;
+        loadPrompts();
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', (e) => {
+        currentFilters.category = e.target.value;
+        loadPrompts();
+    });
+
+    document.getElementById('favoritesFilter').addEventListener('click', () => {
+        currentFilters.favorites = !currentFilters.favorites;
+        document.getElementById('favoritesFilter').style.background = currentFilters.favorites ? '#ffd700' : 'white';
+        loadPrompts();
+    });
+
+    // Gestion des clics sur les prompts prédéfinis
+    document.querySelectorAll('.prompt-template-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const promptText = this.dataset.prompt;
+            const title = this.querySelector('strong').textContent;
+            
+            // Pré-remplir le modal avec le prompt
+            currentPromptId = null;
+            document.getElementById('modalTitle').textContent = 'Nouveau Prompt';
+            document.getElementById('promptTitle').value = title;
+            document.getElementById('promptContent').value = promptText;
+            document.getElementById('promptCategory').value = '';
+            document.getElementById('promptTags').value = '';
+            document.getElementById('promptFavorite').checked = false;
+            document.getElementById('promptPublic').checked = true;
+            document.getElementById('promptModal').style.display = 'flex';
+        });
+        
+        // Effet hover
+        card.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255,255,255,0.2)';
+            this.style.transform = 'translateY(-3px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255,255,255,0.1)';
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Gestion des clics sur les catégories
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const category = this.dataset.category;
+            
+            // Filtrer par catégorie
+            document.getElementById('categoryFilter').value = category;
+            currentFilters.category = category;
+            loadPrompts();
+            
+            // Scroll vers la grille de prompts
+            document.getElementById('promptsGrid').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Effet hover
+        card.addEventListener('mouseenter', function() {
+            this.style.background = '#e9ecef';
+            this.style.transform = 'translateY(-3px)';
+            this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.background = '#f8f9fa';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    // Charger au démarrage
+    loadPrompts();});
+</script>
+{% endblock %}

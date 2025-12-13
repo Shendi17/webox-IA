@@ -1,0 +1,116 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║              🚀 COMMENT DÉMARRER WEBOX MULTI-IA                             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+✨ MÉTHODE ULTRA-SIMPLE (1 CLIC)
+═══════════════════════════════════════════════════════════════════════════════
+
+Double-cliquez sur ce fichier :
+
+   📁 DEMARRER-WEBOX.bat
+
+C'est tout ! Le script va :
+   ✅ Configurer webox.local automatiquement
+   ✅ Vérifier vos clés API
+   ✅ Lancer l'application
+   ✅ Ouvrir le navigateur sur http://webox.local:8501
+
+
+⚠️  IMPORTANT
+═══════════════════════════════════════════════════════════════════════════════
+
+Quand Windows demande "Voulez-vous autoriser cette application ?"
+→ Cliquez sur "OUI"
+
+C'est nécessaire pour configurer le fichier hosts (webox.local)
+
+
+🌐 ACCÈS À L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Une fois lancée, l'application est accessible sur :
+
+   → http://webox.local:8501      ✅ (recommandé)
+   → http://localhost:8501         ✅
+   → http://127.0.0.1:8501         ✅
+
+
+🔑 CONFIGURATION DES CLÉS API
+═══════════════════════════════════════════════════════════════════════════════
+
+Si vous n'avez pas encore configuré vos clés API :
+
+1. Le script vous demandera si vous voulez les configurer
+2. Cliquez "O" (Oui)
+3. Notepad s'ouvrira avec le fichier .env
+4. Ajoutez au moins UNE clé API :
+
+   OPENAI_API_KEY=sk-votre-clé-ici
+   ANTHROPIC_API_KEY=sk-ant-votre-clé-ici
+   GOOGLE_API_KEY=AIza-votre-clé-ici
+
+5. Sauvegardez et fermez Notepad
+6. Appuyez sur une touche pour continuer
+
+
+📖 OÙ OBTENIR LES CLÉS API
+═══════════════════════════════════════════════════════════════════════════════
+
+OpenAI (GPT-4) :
+   → https://platform.openai.com/api-keys
+
+Anthropic (Claude) :
+   → https://console.anthropic.com/
+
+Google AI (Gemini) :
+   → https://makersuite.google.com/app/apikey
+
+
+🛑 ARRÊTER L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Dans la fenêtre PowerShell qui s'est ouverte :
+   → Appuyez sur Ctrl+C
+
+
+🔄 REDÉMARRER L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Double-cliquez à nouveau sur :
+   📁 DEMARRER-WEBOX.bat
+
+
+🐛 EN CAS DE PROBLÈME
+═══════════════════════════════════════════════════════════════════════════════
+
+Si webox.local ne fonctionne pas :
+   → Utilisez http://localhost:8501
+
+Si l'application ne démarre pas :
+   → Vérifiez que Python est installé : python --version
+   → Réinstallez les dépendances : pip install -r requirements.txt
+
+Si "Aucune IA configurée" :
+   → Configurez vos clés API dans le fichier .env
+
+
+📁 AUTRES FICHIERS UTILES
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 QUICKSTART.md              → Guide de démarrage rapide
+📖 GUIDE_UTILISATION.md       → Guide complet
+📖 EXEMPLES.md                → Exemples d'utilisation
+📖 SOLUTION_DNS.md            → Résolution des problèmes DNS
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    🎉 PROFITEZ DE WEBOX MULTI-IA !
+
+                  Double-cliquez sur DEMARRER-WEBOX.bat
+                        pour commencer !
+
+═══════════════════════════════════════════════════════════════════════════════

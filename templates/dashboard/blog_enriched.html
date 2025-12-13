@@ -1,0 +1,992 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Blog - WeBox Studio Créatif{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Header */
+.blog-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Stats globales */
+.global-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.global-stat-card {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.global-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.global-stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Tabs */
+.blog-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Filtres */
+.blog-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-input {
+    flex: 1;
+    min-width: 300px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Grille articles */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.article-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.article-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.article-content {
+    padding: 1.5rem;
+}
+
+.article-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #999;
+    flex-wrap: wrap;
+}
+
+.article-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-scheduled {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.article-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.article-excerpt {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.article-stats {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.article-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-edit {
+    background: #4169e1;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #3558c9;
+}
+
+.btn-publish {
+    background: #28a745;
+    color: white;
+}
+
+.btn-publish:hover {
+    background: #218838;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+}
+
+/* Éditeur */
+.editor-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.editor-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.toolbar-btn {
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.toolbar-btn:hover {
+    background: #e9ecef;
+}
+
+.editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.form-input {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-textarea {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    min-height: 400px;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-save {
+    padding: 0.75rem 2rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-save:hover {
+    background: #218838;
+}
+
+.btn-preview {
+    padding: 0.75rem 2rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-preview:hover {
+    background: #5568d3;
+}
+
+/* Générateur IA */
+.generator-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.generator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.generator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.generator-preview {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 15px;
+    min-height: 400px;
+}
+
+.preview-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.preview-content {
+    color: #666;
+    line-height: 1.8;
+}
+
+.btn-generate {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* SEO */
+.seo-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.seo-score {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.score-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.score-details {
+    flex: 1;
+}
+
+.score-label {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.score-description {
+    color: #666;
+}
+
+.seo-checklist {
+    list-style: none;
+    padding: 0;
+}
+
+.seo-checklist li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.seo-checklist li:last-child {
+    border-bottom: none;
+}
+
+.check-icon {
+    font-size: 1.5rem;
+}
+
+.check-icon.success {
+    color: #28a745;
+}
+
+.check-icon.warning {
+    color: #ffc107;
+}
+
+.check-icon.error {
+    color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .generator-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header avec stats -->
+<div class="blog-header">
+    <div class="header-content">
+        <div>
+            <h1 class="header-title">📝 Blog</h1>
+            <p class="header-subtitle">Créez et gérez vos articles de blog professionnels</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary" onclick="switchTab('editeur')">
+                ➕ Nouvel Article
+            </button>
+            <button class="btn-primary" onclick="switchTab('generateur')">
+                ✨ Générer avec IA
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats globales -->
+    <div class="global-stats">
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalArticles">0</div>
+            <div class="global-stat-label">Articles publiés</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalViews">0</div>
+            <div class="global-stat-label">Vues totales</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="avgSEO">0</div>
+            <div class="global-stat-label">Score SEO moyen</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalDrafts">0</div>
+            <div class="global-stat-label">Brouillons</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="blog-tabs">
+    <button class="tab-btn active" onclick="switchTab('articles')">Mes Articles</button>
+    <button class="tab-btn" onclick="switchTab('editeur')">Éditeur</button>
+    <button class="tab-btn" onclick="switchTab('generateur')">Générateur IA</button>
+    <button class="tab-btn" onclick="switchTab('seo')">SEO</button>
+</div>
+
+<!-- Tab: Mes Articles -->
+<div class="tab-content active" id="articles-content">
+    <div class="blog-filters">
+        <input type="text" class="filter-input" placeholder="🔍 Rechercher un article..." id="searchInput">
+        
+        <select class="filter-select" id="statusFilter">
+            <option value="">Tous les statuts</option>
+            <option value="published">Publié</option>
+            <option value="draft">Brouillon</option>
+            <option value="scheduled">Planifié</option>
+        </select>
+        
+        <select class="filter-select" id="categoryFilter">
+            <option value="">Toutes catégories</option>
+            <option value="marketing">Marketing</option>
+            <option value="tech">Technologie</option>
+            <option value="business">Business</option>
+            <option value="tutorial">Tutoriel</option>
+        </select>
+    </div>
+    
+    <div class="articles-grid" id="articlesGrid">
+        <!-- Articles chargés dynamiquement -->
+    </div>
+</div>
+
+<!-- Tab: Éditeur -->
+<div class="tab-content" id="editeur-content">
+    <div class="editor-container">
+        <h2>✏️ Éditeur d'article</h2>
+        
+        <div class="editor-toolbar">
+            <button class="toolbar-btn" onclick="insertMarkdown('**', '**')">Gras</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('*', '*')">Italique</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('## ', '')">Titre</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('- ', '')">Liste</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('[', '](url)')">Lien</button>
+            <button class="toolbar-btn" onclick="insertMarkdown('`', '`')">Code</button>
+        </div>
+        
+        <div class="editor-form">
+            <div class="form-group">
+                <label class="form-label">Titre de l'article *</label>
+                <input type="text" class="form-input" id="articleTitle" placeholder="Ex: 10 Stratégies Marketing IA pour 2024">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Catégorie</label>
+                <select class="form-input" id="articleCategory">
+                    <option value="marketing">Marketing</option>
+                    <option value="tech">Technologie</option>
+                    <option value="business">Business</option>
+                    <option value="tutorial">Tutoriel</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Contenu (Markdown) *</label>
+                <textarea class="form-textarea" id="articleContent" placeholder="Écrivez votre article en Markdown..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Extrait (pour SEO)</label>
+                <textarea class="form-input" id="articleExcerpt" rows="3" placeholder="Résumé court de l'article (150-160 caractères)"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Tags (séparés par des virgules)</label>
+                <input type="text" class="form-input" id="articleTags" placeholder="IA, marketing, automation">
+            </div>
+            
+            <div class="editor-actions">
+                <button class="btn-preview" onclick="previewArticle()">👁️ Prévisualiser</button>
+                <button class="btn-save" onclick="saveDraft()">💾 Enregistrer brouillon</button>
+                <button class="btn-save" onclick="publishArticle()">🚀 Publier</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Générateur IA -->
+<div class="tab-content" id="generateur-content">
+    <div class="generator-container">
+        <h2>✨ Générateur d'articles IA</h2>
+        
+        <div class="generator-grid">
+            <div class="generator-form">
+                <div class="form-group">
+                    <label class="form-label">Sujet de l'article *</label>
+                    <input type="text" class="form-input" id="genTopic" placeholder="Ex: Les tendances IA en 2024">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Audience cible</label>
+                    <select class="form-input" id="genAudience">
+                        <option value="general">Grand public</option>
+                        <option value="professional">Professionnels</option>
+                        <option value="expert">Experts</option>
+                        <option value="beginner">Débutants</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ton</label>
+                    <select class="form-input" id="genTone">
+                        <option value="professional">Professionnel</option>
+                        <option value="friendly">Accessible</option>
+                        <option value="technical">Technique</option>
+                        <option value="casual">Décontracté</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Longueur</label>
+                    <select class="form-input" id="genLength">
+                        <option value="short">Court (500-800 mots)</option>
+                        <option value="medium">Moyen (800-1500 mots)</option>
+                        <option value="long">Long (1500-3000 mots)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Points clés à inclure</label>
+                    <textarea class="form-input" id="genKeyPoints" rows="4" placeholder="- Point 1&#10;- Point 2&#10;- Point 3"></textarea>
+                </div>
+                
+                <button class="btn-generate" onclick="generateArticle()">
+                    ✨ Générer l'article
+                </button>
+            </div>
+            
+            <div class="generator-preview">
+                <div class="preview-title">Aperçu</div>
+                <div class="preview-content" id="generatedPreview">
+                    <p>L'article généré apparaîtra ici...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: SEO -->
+<div class="tab-content" id="seo-content">
+    <div class="seo-section">
+        <h2>🔍 Analyse SEO</h2>
+        
+        <div class="seo-score">
+            <div class="score-circle">85</div>
+            <div class="score-details">
+                <div class="score-label">Score SEO Global</div>
+                <div class="score-description">Votre contenu est bien optimisé pour les moteurs de recherche</div>
+            </div>
+        </div>
+        
+        <h3>Checklist SEO</h3>
+        <ul class="seo-checklist">
+            <li>
+                <span class="check-icon success">✓</span>
+                <span>Titre optimisé (50-60 caractères)</span>
+            </li>
+            <li>
+                <span class="check-icon success">✓</span>
+                <span>Meta description présente (150-160 caractères)</span>
+            </li>
+            <li>
+                <span class="check-icon success">✓</span>
+                <span>Mots-clés principaux identifiés</span>
+            </li>
+            <li>
+                <span class="check-icon warning">⚠</span>
+                <span>Images avec attribut alt (3/5)</span>
+            </li>
+            <li>
+                <span class="check-icon success">✓</span>
+                <span>Structure de titres correcte (H1, H2, H3)</span>
+            </li>
+            <li>
+                <span class="check-icon success">✓</span>
+                <span>Liens internes présents</span>
+            </li>
+            <li>
+                <span class="check-icon error">✗</span>
+                <span>Liens externes vers sources fiables</span>
+            </li>
+            <li>
+                <span class="check-icon success">✓</span>
+                <span>Longueur du contenu optimale (1200+ mots)</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+let allArticles = [];
+let currentTab = 'articles';
+
+// ==================== TABS ====================
+function switchTab(tab) {
+    currentTab = tab;
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tab + '-content').classList.add('active');
+}
+
+// ==================== CHARGEMENT ====================
+function loadStats() {
+    document.getElementById('totalArticles').textContent = '12';
+    document.getElementById('totalViews').textContent = '15.2k';
+    document.getElementById('avgSEO').textContent = '85';
+    document.getElementById('totalDrafts').textContent = '3';
+}
+
+function loadArticles() {
+    allArticles = [
+        {
+            id: 1,
+            title: "10 Stratégies Marketing IA pour 2024",
+            excerpt: "Découvrez comment l'intelligence artificielle révolutionne le marketing digital.",
+            status: "published",
+            category: "marketing",
+            icon: "📊",
+            views: 1234,
+            likes: 89,
+            comments: 23,
+            date: "Il y a 2 jours"
+        },
+        {
+            id: 2,
+            title: "Guide Complet : Automatiser son Business",
+            excerpt: "Un guide pratique pour automatiser vos processus métier avec l'IA.",
+            status: "published",
+            category: "business",
+            icon: "🤖",
+            views: 2156,
+            likes: 145,
+            comments: 34,
+            date: "Il y a 5 jours"
+        },
+        {
+            id: 3,
+            title: "ChatGPT vs Claude : Comparaison",
+            excerpt: "Comparaison détaillée des deux modèles d'IA les plus populaires.",
+            status: "draft",
+            category: "tech",
+            icon: "💬",
+            views: 0,
+            likes: 0,
+            comments: 0,
+            date: "Brouillon"
+        }
+    ];
+    
+    displayArticles(allArticles);
+}
+
+function displayArticles(articles) {
+    const grid = document.getElementById('articlesGrid');
+    
+    grid.innerHTML = articles.map(article => `
+        <div class="article-card" onclick="editArticleById(${article.id})">
+            <div class="article-image">${article.icon}</div>
+            <div class="article-content">
+                <div class="article-meta">
+                    <span class="article-badge badge-${article.status}">${getStatusLabel(article.status)}</span>
+                    <span>${article.category}</span>
+                    <span>${article.date}</span>
+                </div>
+                <div class="article-title">${article.title}</div>
+                <div class="article-excerpt">${article.excerpt}</div>
+                
+                <div class="article-stats">
+                    <div class="stat">
+                        <div class="stat-value">${article.views}</div>
+                        <div class="stat-label">Vues</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${article.likes}</div>
+                        <div class="stat-label">Likes</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${article.comments}</div>
+                        <div class="stat-label">Commentaires</div>
+                    </div>
+                </div>
+                
+                <div class="article-actions" onclick="event.stopPropagation()">
+                    <button class="btn-action btn-edit" onclick="editArticleById(${article.id})">✏️ Éditer</button>
+                    ${article.status === 'draft' ? '<button class="btn-action btn-publish" onclick="publishArticleById(' + article.id + ')">🚀 Publier</button>' : ''}
+                    <button class="btn-action btn-delete" onclick="deleteArticleById(${article.id})">🗑️</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getStatusLabel(status) {
+    const labels = {
+        'published': '✅ Publié',
+        'draft': '📝 Brouillon',
+        'scheduled': '📅 Planifié'
+    };
+    return labels[status] || status;
+}
+
+// ==================== FILTRES ====================
+function filterArticles() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const category = document.getElementById('categoryFilter').value;
+    
+    const filtered = allArticles.filter(article => {
+        const matchSearch = article.title.toLowerCase().includes(search) || 
+                          article.excerpt.toLowerCase().includes(search);
+        const matchStatus = !status || article.status === status;
+        const matchCategory = !category || article.category === category;
+        
+        return matchSearch && matchStatus && matchCategory;
+    });
+    
+    displayArticles(filtered);
+}
+
+// ==================== ÉDITEUR ====================
+function insertMarkdown(before, after) {
+    const textarea = document.getElementById('articleContent');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    
+    const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
+    textarea.value = newText;
+    textarea.focus();
+    textarea.setSelectionRange(start + before.length, end + before.length);
+}
+
+function previewArticle() {
+    alert('Prévisualisation - À implémenter');
+}
+
+function saveDraft() {
+    alert('Brouillon enregistré - À implémenter');
+}
+
+function publishArticle() {
+    alert('Article publié - À implémenter');
+}
+
+// ==================== GÉNÉRATEUR IA ====================
+function generateArticle() {
+    const topic = document.getElementById('genTopic').value;
+    if (!topic) {
+        alert('Veuillez entrer un sujet');
+        return;
+    }
+    
+    const preview = document.getElementById('generatedPreview');
+    preview.innerHTML = '<p>Génération en cours...</p>';
+    
+    setTimeout(() => {
+        preview.innerHTML = `
+            <h2>${topic}</h2>
+            <p>L'intelligence artificielle transforme radicalement notre façon de travailler et de créer du contenu...</p>
+            <p>Dans cet article, nous allons explorer les principales tendances et innovations qui façonnent l'avenir de l'IA...</p>
+            <p><em>Article généré avec Gemini 2.0 Flash - À implémenter avec vraie API</em></p>
+        `;
+    }, 2000);
+}
+
+// ==================== ACTIONS ====================
+function editArticleById(id) {
+    switchTab('editeur');
+    alert(`Édition article ${id} - À implémenter`);
+}
+
+function publishArticleById(id) {
+    alert(`Publication article ${id} - À implémenter`);
+}
+
+function deleteArticleById(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+        alert(`Suppression article ${id} - À implémenter`);
+    }
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', filterArticles);
+document.getElementById('statusFilter').addEventListener('change', filterArticles);
+document.getElementById('categoryFilter').addEventListener('change', filterArticles);
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadArticles();
+});
+</script>
+{% endblock %}

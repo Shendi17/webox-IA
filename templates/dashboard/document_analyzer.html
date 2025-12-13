@@ -1,0 +1,352 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}📄 Analyseur de Documents - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analyzer-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .upload-zone {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .drop-area {
+        border: 3px dashed #667eea;
+        border-radius: 15px;
+        padding: 4rem 2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .drop-area:hover {
+        background: rgba(102, 126, 234, 0.05);
+        border-color: #764ba2;
+    }
+
+    .drop-area.dragover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: #764ba2;
+    }
+
+    .upload-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .supported-formats {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .format-badge {
+        padding: 0.5rem 1rem;
+        background: #f0f0f0;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    .analyzing-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .analyzing-overlay.active {
+        display: flex;
+    }
+
+    .analyzing-content {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 500px;
+    }
+
+    .analyzing-spinner {
+        width: 80px;
+        height: 80px;
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 2rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .recent-analyses {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .analysis-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .analysis-item:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .analysis-item:last-child {
+        border-bottom: none;
+    }
+
+    .analysis-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .analysis-filename {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .analysis-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .status-completed {
+        background: #6bcf7f;
+        color: white;
+    }
+
+    .status-processing {
+        background: #ffd93d;
+        color: #333;
+    }
+
+    .status-error {
+        background: #ff4757;
+        color: white;
+    }
+
+    .analysis-meta {
+        display: flex;
+        gap: 1rem;
+        color: #666;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analyzer-page">
+    <h1>📄 Analyseur de Documents IA</h1>
+    <p style="color: #666; margin-bottom: 2rem;">Upload un document et laisse l'IA l'analyser</p>
+
+    <!-- Zone d'upload -->
+    <div class="upload-zone">
+        <div class="drop-area" id="dropArea">
+            <div class="upload-icon">📄</div>
+            <h2>Glisse ton document ici</h2>
+            <p>ou clique pour sélectionner</p>
+            <input type="file" id="fileInput" style="display: none;" 
+                   accept=".pdf,.docx,.doc,.xlsx,.xls,.jpg,.jpeg,.png,.gif,.bmp">
+            
+            <div class="supported-formats">
+                <span class="format-badge">📄 PDF</span>
+                <span class="format-badge">📝 Word</span>
+                <span class="format-badge">📊 Excel</span>
+                <span class="format-badge">🖼️ Images</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analyses récentes -->
+    <div class="recent-analyses">
+        <h2>📋 Analyses récentes</h2>
+        <div id="analysesList">
+            <!-- Les analyses seront chargées ici -->
+        </div>
+    </div>
+</div>
+
+<!-- Overlay d'analyse -->
+<div class="analyzing-overlay" id="analyzingOverlay">
+    <div class="analyzing-content">
+        <div class="analyzing-spinner"></div>
+        <h2>Analyse en cours...</h2>
+        <p id="analyzingMessage">Extraction du texte...</p>
+    </div>
+</div>
+
+<script>
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const analyzingOverlay = document.getElementById('analyzingOverlay');
+
+    // Click pour sélectionner
+    dropArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Drag & Drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.remove('dragover');
+        }, false);
+    });
+
+    dropArea.addEventListener('drop', handleDrop, false);
+    fileInput.addEventListener('change', handleFileSelect, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        handleFiles(files);
+    }
+
+    async function handleFiles(files) {
+        if (files.length === 0) return;
+
+        const file = files[0];
+        
+        // Vérifier la taille (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('❌ Fichier trop volumineux (max 10MB)');
+            return;
+        }
+
+        analyzingOverlay.classList.add('active');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api/documents/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Attendre un peu puis rediriger
+                setTimeout(() => {
+                    window.location.href = '/documents/' + data.document.id;
+                }, 2000);
+            } else {
+                alert('❌ Erreur: ' + (data.detail || 'Erreur inconnue'));
+                analyzingOverlay.classList.remove('active');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors de l\'upload');
+            analyzingOverlay.classList.remove('active');
+        }
+    }
+
+    // Charger les analyses récentes
+    async function loadRecentAnalyses() {
+        try {
+            const response = await fetch('/api/documents/list?limit=10');
+            const data = await response.json();
+
+            if (data.success) {
+                displayAnalyses(data.documents);
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    function displayAnalyses(documents) {
+        const list = document.getElementById('analysesList');
+
+        if (documents.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: #666;">Aucune analyse pour le moment</p>';
+            return;
+        }
+
+        list.innerHTML = documents.map(doc => {
+            const statusClass = `status-${doc.status}`;
+            const statusText = {
+                'processing': 'En cours...',
+                'completed': 'Terminé',
+                'error': 'Erreur'
+            }[doc.status] || doc.status;
+
+            const fileIcon = {
+                'pdf': '📄',
+                'docx': '📝',
+                'xlsx': '📊',
+                'image': '🖼️'
+            }[doc.file_type] || '📄';
+
+            return `
+                <div class="analysis-item" onclick="window.location.href='/documents/${doc.id}'">
+                    <div class="analysis-header">
+                        <div class="analysis-filename">
+                            ${fileIcon} ${doc.original_filename}
+                        </div>
+                        <span class="analysis-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="analysis-meta">
+                        <span>📅 ${new Date(doc.created_at).toLocaleDateString('fr-FR')}</span>
+                        <span>👁️ ${doc.views_count} vues</span>
+                        ${doc.page_count ? `<span>📄 ${doc.page_count} pages</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Charger au démarrage
+    document.addEventListener('DOMContentLoaded', () => {
+        loadRecentAnalyses();
+    });
+</script>
+{% endblock %}

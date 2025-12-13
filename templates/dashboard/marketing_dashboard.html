@@ -1,0 +1,462 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Dashboard Marketing - WeBox IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stat-icon.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .stat-icon.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .stat-icon.purple { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .stat-change {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+    }
+
+    .stat-change.positive {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .stat-change.negative {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .chart-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .quick-action-btn {
+        background: white;
+        border: 2px solid #e0e0e0;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: #1a1a2e;
+    }
+
+    .quick-action-btn:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .quick-action-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .quick-action-label {
+        font-weight: 600;
+    }
+
+    .recent-activity {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.875rem;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-text">
+                <h1>📊 Dashboard Marketing</h1>
+                <p>Vue d'ensemble de vos performances marketing</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div>
+                    <div class="stat-value" id="totalLeads">0</div>
+                    <div class="stat-label">Leads Total</div>
+                </div>
+                <div class="stat-icon blue">👥</div>
+            </div>
+            <div class="stat-change positive">
+                <span>↑ 12%</span> ce mois
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div>
+                    <div class="stat-value" id="activeFunnels">0</div>
+                    <div class="stat-label">Tunnels Actifs</div>
+                </div>
+                <div class="stat-icon green">🎯</div>
+            </div>
+            <div class="stat-change positive">
+                <span>↑ 8%</span> ce mois
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div>
+                    <div class="stat-value" id="emailsSent">0</div>
+                    <div class="stat-label">Emails Envoyés</div>
+                </div>
+                <div class="stat-icon orange">📧</div>
+            </div>
+            <div class="stat-change positive">
+                <span>↑ 24%</span> ce mois
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div>
+                    <div class="stat-value" id="conversionRate">0%</div>
+                    <div class="stat-label">Taux de Conversion</div>
+                </div>
+                <div class="stat-icon purple">📈</div>
+            </div>
+            <div class="stat-change positive">
+                <span>↑ 5%</span> ce mois
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">⚡ Actions Rapides</h2>
+        </div>
+        <div class="quick-actions">
+            <a href="/funnels" class="quick-action-btn">
+                <div class="quick-action-icon">🎯</div>
+                <div class="quick-action-label">Créer un Tunnel</div>
+            </a>
+            <a href="/email-marketing" class="quick-action-btn">
+                <div class="quick-action-icon">📧</div>
+                <div class="quick-action-label">Nouvelle Campagne</div>
+            </a>
+            <a href="/crm" class="quick-action-btn">
+                <div class="quick-action-icon">👤</div>
+                <div class="quick-action-label">Ajouter un Lead</div>
+            </a>
+            <a href="#" class="quick-action-btn" onclick="generateReport()">
+                <div class="quick-action-icon">📊</div>
+                <div class="quick-action-label">Rapport IA</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Graphique de performance -->
+    <div class="chart-container">
+        <h3 style="margin-bottom: 1.5rem;">📈 Performance des 30 derniers jours</h3>
+        <canvas id="performanceChart" height="80"></canvas>
+    </div>
+
+    <!-- Pipeline CRM -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">🔄 Pipeline CRM</h2>
+            <a href="/crm" class="btn btn-secondary">Voir tout</a>
+        </div>
+        <div id="pipelineStats" class="stats-grid">
+            <!-- Chargé dynamiquement -->
+        </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="recent-activity">
+        <h3 style="margin-bottom: 1.5rem;">🕐 Activité Récente</h3>
+        <div id="recentActivity">
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <p>Chargement de l'activité...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Charger les statistiques
+async function loadStats() {
+    try {
+        // Stats CRM
+        const pipelineRes = await fetch('/api/marketing/pipeline/stats');
+        const pipelineData = await pipelineRes.json();
+        
+        if (pipelineData.success) {
+            document.getElementById('totalLeads').textContent = pipelineData.stats.total_leads || 0;
+            document.getElementById('conversionRate').textContent = 
+                (pipelineData.stats.conversion_rate || 0).toFixed(1) + '%';
+            
+            // Afficher les stats du pipeline
+            displayPipelineStats(pipelineData.stats.by_status);
+        }
+
+        // Stats Funnels
+        const funnelsRes = await fetch('/api/marketing/funnels');
+        const funnelsData = await funnelsRes.json();
+        
+        if (funnelsData.success) {
+            const activeFunnels = funnelsData.funnels.filter(f => f.is_active).length;
+            document.getElementById('activeFunnels').textContent = activeFunnels;
+        }
+
+        // Stats Campaigns
+        const campaignsRes = await fetch('/api/marketing/campaigns/stats/global');
+        const campaignsData = await campaignsRes.json();
+        
+        if (campaignsData.success) {
+            document.getElementById('emailsSent').textContent = 
+                campaignsData.stats.total_sent || 0;
+        }
+
+    } catch (error) {
+        console.error('Erreur chargement stats:', error);
+    }
+}
+
+// Afficher les stats du pipeline
+function displayPipelineStats(byStatus) {
+    const container = document.getElementById('pipelineStats');
+    
+    const statusLabels = {
+        'new': { label: 'Nouveaux', icon: '🆕', color: '#667eea' },
+        'contacted': { label: 'Contactés', icon: '📞', color: '#11998e' },
+        'qualified': { label: 'Qualifiés', icon: '✅', color: '#38ef7d' },
+        'proposal': { label: 'Proposition', icon: '📄', color: '#f093fb' },
+        'negotiation': { label: 'Négociation', icon: '🤝', color: '#4facfe' },
+        'won': { label: 'Gagnés', icon: '🎉', color: '#00f2fe' },
+        'lost': { label: 'Perdus', icon: '❌', color: '#f5576c' }
+    };
+
+    container.innerHTML = '';
+    
+    for (const [status, data] of Object.entries(byStatus || {})) {
+        const info = statusLabels[status] || { label: status, icon: '📊', color: '#666' };
+        
+        container.innerHTML += `
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div>
+                        <div class="stat-value">${data.count || 0}</div>
+                        <div class="stat-label">${info.label}</div>
+                    </div>
+                    <div class="stat-icon" style="background: ${info.color};">${info.icon}</div>
+                </div>
+                <div style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+                    ${(data.value || 0).toLocaleString('fr-FR')} €
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Créer le graphique de performance
+function createPerformanceChart() {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    
+    // Données simulées pour les 30 derniers jours
+    const labels = [];
+    const leadsData = [];
+    const conversionsData = [];
+    
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
+        leadsData.push(Math.floor(Math.random() * 50) + 10);
+        conversionsData.push(Math.floor(Math.random() * 10) + 2);
+    }
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Nouveaux Leads',
+                    data: leadsData,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Conversions',
+                    data: conversionsData,
+                    borderColor: '#38ef7d',
+                    backgroundColor: 'rgba(56, 239, 125, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Charger l'activité récente
+async function loadRecentActivity() {
+    const container = document.getElementById('recentActivity');
+    
+    // Simuler l'activité récente
+    const activities = [
+        { icon: '👤', color: '#667eea', title: 'Nouveau lead ajouté', time: 'Il y a 5 minutes' },
+        { icon: '📧', color: '#38ef7d', title: 'Campagne email envoyée', time: 'Il y a 1 heure' },
+        { icon: '🎯', color: '#f093fb', title: 'Tunnel activé', time: 'Il y a 2 heures' },
+        { icon: '✅', color: '#4facfe', title: 'Lead qualifié', time: 'Il y a 3 heures' },
+        { icon: '🎉', color: '#00f2fe', title: 'Conversion réussie', time: 'Il y a 5 heures' }
+    ];
+
+    container.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon" style="background: ${activity.color}20; color: ${activity.color};">
+                ${activity.icon}
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-time">${activity.time}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Générer un rapport IA
+async function generateReport() {
+    alert('🤖 Génération de rapport IA en cours...\n\nCette fonctionnalité sera bientôt disponible !');
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    loadStats();
+    createPerformanceChart();
+    loadRecentActivity();
+    
+    // Rafraîchir les stats toutes les 30 secondes
+    setInterval(loadStats, 30000);
+});
+</script>
+{% endblock %}

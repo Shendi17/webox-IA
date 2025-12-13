@@ -1,0 +1,2858 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur - {{ project.name }} - WeBox</title>
+    
+    <!-- Xterm.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
+    
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+/* Layout principal */
+.editor-container {
+    display: flex;
+    height: 100vh;
+    background: #1e1e1e;
+}
+
+/* Sidebar fichiers */
+.file-explorer {
+    width: 300px;
+    background: #252526;
+    border-right: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Onglets Explorer */
+.explorer-tabs {
+    display: flex;
+    background: #2d2d30;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.explorer-tab {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    background: none;
+    border: none;
+    color: #858585;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.explorer-tab:hover {
+    color: #cccccc;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.explorer-tab.active {
+    color: #007acc;
+    border-bottom-color: #007acc;
+}
+
+.explorer-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.explorer-header {
+    padding: 1rem;
+    background: #2d2d30;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.explorer-title {
+    color: #cccccc;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.explorer-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.explorer-action {
+    background: none;
+    border: none;
+    color: #cccccc;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.explorer-action:hover {
+    color: #ffffff;
+}
+
+.file-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+.file-tree::-webkit-scrollbar {
+    width: 10px;
+}
+
+.file-tree::-webkit-scrollbar-track {
+    background: #252526;
+}
+
+.file-tree::-webkit-scrollbar-thumb {
+    background: #3e3e42;
+    border-radius: 5px;
+}
+
+.file-tree::-webkit-scrollbar-thumb:hover {
+    background: #4e4e52;
+}
+
+.tree-item {
+    padding: 0.4rem 1rem;
+    color: #cccccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.tree-item:hover {
+    background: #2a2d2e;
+}
+
+.tree-item.active {
+    background: #37373d;
+    color: #ffffff;
+}
+
+.tree-item.folder {
+    font-weight: 600;
+}
+
+.tree-icon {
+    font-size: 1rem;
+}
+
+.tree-children {
+    padding-left: 1.5rem;
+}
+
+/* Zone éditeur */
+.editor-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-tabs {
+    background: #2d2d30;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    align-items: center;
+    min-height: 35px;
+}
+
+.editor-tab {
+    padding: 0.5rem 1rem;
+    background: #2d2d30;
+    border: none;
+    border-right: 1px solid #3e3e42;
+    color: #969696;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.editor-tab:hover {
+    background: #37373d;
+}
+
+.editor-tab.active {
+    background: #1e1e1e;
+    color: #ffffff;
+}
+
+.editor-tab-close {
+    margin-left: 0.5rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.editor-tab-close:hover {
+    opacity: 1;
+}
+
+#monaco-editor {
+    flex: 1;
+    width: 100%;
+}
+
+/* Terminal */
+.terminal-container {
+    height: 200px;
+    background: #1e1e1e;
+    border-top: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-header {
+    background: #2d2d30;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.terminal-title {
+    color: #cccccc;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.terminal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.terminal-action {
+    background: none;
+    border: none;
+    color: #cccccc;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.terminal-action:hover {
+    color: #ffffff;
+}
+
+#terminal {
+    flex: 1;
+    padding: 0.5rem;
+}
+
+/* Barre d'état */
+.status-bar {
+    background: #007acc;
+    color: white;
+    padding: 0.25rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.status-left,
+.status-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .file-explorer {
+        width: 250px;
+    }
+    
+    .terminal-container {
+        height: 150px;
+    }
+}
+
+/* Loading */
+.editor-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #cccccc;
+    font-size: 1.2rem;
+}
+
+/* ==================== CHAT IA ==================== */
+.chat-panel {
+    width: 400px;
+    background: #1e1e1e;
+    border-left: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+}
+
+.chat-panel.collapsed {
+    width: 0;
+    overflow: hidden;
+}
+
+.chat-header {
+    padding: 1rem;
+    background: #2d2d30;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #cccccc;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-action {
+    background: transparent;
+    border: none;
+    color: #cccccc;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.chat-action:hover {
+    background: #3e3e42;
+}
+
+.ai-model-selector {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 0.5rem;
+}
+
+.ai-model-selector:hover {
+    border-color: #007acc;
+}
+
+.ai-model-selector:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+#streamToggle {
+    transition: all 0.3s;
+}
+
+#streamToggle.active {
+    background: #007acc;
+    color: white;
+}
+
+/* ==================== HISTORIQUE ==================== */
+.chat-history-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #1e1e1e;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.history-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #cccccc;
+}
+
+.history-close {
+    background: none;
+    border: none;
+    color: #cccccc;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    transition: background 0.2s;
+    border-radius: 4px;
+}
+
+.history-close:hover {
+    background: #3e3e42;
+}
+
+.history-search {
+    padding: 1rem;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.history-search input {
+    width: 100%;
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.history-search input:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+.history-filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.filter-btn {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: #007acc;
+}
+
+.filter-btn.active {
+    background: #007acc;
+    border-color: #007acc;
+    color: white;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.history-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #858585;
+}
+
+.history-item {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.history-item:hover {
+    border-color: #007acc;
+    background: #252526;
+}
+
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.history-item-title {
+    font-weight: 500;
+    color: #cccccc;
+    font-size: 0.9rem;
+}
+
+.history-item-date {
+    font-size: 0.75rem;
+    color: #858585;
+}
+
+.history-item-preview {
+    font-size: 0.85rem;
+    color: #858585;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.history-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.history-item-action {
+    background: none;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.history-item-action:hover {
+    border-color: #007acc;
+    color: #007acc;
+}
+
+.history-item-action.delete:hover {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+/* ==================== PANNEAU GIT ==================== */
+.git-section {
+    padding: 1rem;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.git-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #cccccc;
+    font-size: 0.9rem;
+}
+
+.git-badge {
+    background: #007acc;
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+}
+
+.git-branch-selector {
+    width: 100%;
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.git-branch-selector:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+.git-changes-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.git-change-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    background: #2d2d30;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.git-change-item:hover {
+    background: #3e3e42;
+}
+
+.git-change-status {
+    margin-right: 0.5rem;
+    font-weight: bold;
+}
+
+.git-change-status.modified {
+    color: #f0ad4e;
+}
+
+.git-change-status.added {
+    color: #5cb85c;
+}
+
+.git-change-status.deleted {
+    color: #d9534f;
+}
+
+.git-commit-message {
+    width: 100%;
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+    margin-bottom: 0.5rem;
+}
+
+.git-commit-message:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+.git-commit-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.git-btn-primary {
+    flex: 1;
+    background: #007acc;
+    border: none;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.git-btn-primary:hover {
+    background: #005a9e;
+}
+
+.git-btn-secondary {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.git-btn-secondary:hover {
+    border-color: #007acc;
+    color: #007acc;
+}
+
+.git-history-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.git-commit-item {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #2d2d30;
+    border-radius: 4px;
+    border-left: 3px solid #007acc;
+}
+
+.git-commit-hash {
+    font-family: 'Consolas', monospace;
+    font-size: 0.75rem;
+    color: #858585;
+}
+
+.git-commit-message-text {
+    font-size: 0.85rem;
+    color: #cccccc;
+    margin: 0.25rem 0;
+}
+
+.git-commit-meta {
+    font-size: 0.75rem;
+    color: #858585;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chat-message {
+    display: flex;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message.user {
+    justify-content: flex-end;
+}
+
+.chat-message.assistant {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.chat-message.user .message-content {
+    background: #007acc;
+    color: white;
+}
+
+.chat-message.assistant .message-content {
+    background: #2d2d30;
+    color: #cccccc;
+    border: 1px solid #3e3e42;
+}
+
+.message-content pre {
+    background: #1e1e1e;
+    padding: 0.5rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+}
+
+.message-content code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+}
+
+.message-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #1e1e1e;
+    border-radius: 4px;
+    border: 1px solid #3e3e42;
+}
+
+.actions-summary {
+    font-size: 0.85rem;
+    color: #cccccc;
+    margin-bottom: 0.5rem;
+}
+
+.action-result {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-success {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: #4CAF50;
+}
+
+.action-error {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    color: #f44336;
+}
+
+.message-action-btn {
+    background: #007acc;
+    border: none;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.message-action-btn:hover {
+    background: #005a9e;
+}
+
+.typing-indicator {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #2d2d30;
+    border-radius: 8px;
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #007acc;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+.chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid #3e3e42;
+    background: #252526;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.quick-action {
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-action:hover {
+    background: #3e3e42;
+    border-color: #007acc;
+}
+
+.chat-input-wrapper {
+    position: relative;
+}
+
+.chat-input {
+    width: 100%;
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.75rem;
+    padding-right: 3rem;
+    border-radius: 4px;
+    resize: none;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    min-height: 60px;
+    max-height: 150px;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #007acc;
+}
+
+.chat-send-btn {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    background: #007acc;
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: background 0.2s;
+}
+
+.chat-send-btn:hover {
+    background: #005a9e;
+}
+
+.chat-send-btn:disabled {
+    background: #3e3e42;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.chat-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #858585;
+    text-align: center;
+    padding: 2rem;
+}
+
+.chat-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.chat-empty-text {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+</style>
+</head>
+<body>
+
+<div class="editor-container">
+    <!-- Explorateur de fichiers -->
+    <div class="file-explorer">
+        <!-- Onglets -->
+        <div class="explorer-tabs">
+            <button class="explorer-tab active" onclick="switchExplorerTab('files')">
+                📁 Fichiers
+            </button>
+            <button class="explorer-tab" onclick="switchExplorerTab('git')">
+                🔀 Git
+            </button>
+            <button class="explorer-tab" onclick="switchExplorerTab('deploy')">
+                🚀 Deploy
+            </button>
+        </div>
+        
+        <!-- Contenu Fichiers -->
+        <div class="explorer-content" id="explorerFiles">
+            <div class="explorer-header">
+                <div class="explorer-actions">
+                    <button class="explorer-action" onclick="createNewFile()" title="Nouveau fichier">
+                        📄
+                    </button>
+                    <button class="explorer-action" onclick="createNewFolder()" title="Nouveau dossier">
+                        📁
+                    </button>
+                    <button class="explorer-action" onclick="refreshFileTree()" title="Actualiser">
+                        🔄
+                    </button>
+                </div>
+            </div>
+            
+            <div class="file-tree" id="fileTree">
+                <div class="editor-loading">
+                    <div class="spinner-large"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenu Git -->
+        <div class="explorer-content" id="explorerGit" style="display: none;">
+            <!-- Remote Git -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>🔗 Remote Git</span>
+                </div>
+                <div id="gitRemoteStatus" style="margin-bottom: 0.5rem; font-size: 0.85rem; color: #858585;">
+                    Aucun remote configuré
+                </div>
+                <input 
+                    type="text" 
+                    class="git-commit-message" 
+                    id="gitRemoteUrl" 
+                    placeholder="https://github.com/user/repo.git"
+                    style="height: auto; padding: 0.5rem; margin-bottom: 0.5rem;"
+                />
+                <button class="git-btn-secondary" onclick="addGitRemote()">
+                    🔗 Configurer remote
+                </button>
+            </div>
+            
+            <!-- Sélecteur de branche -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>Branche actuelle</span>
+                </div>
+                <select class="git-branch-selector" id="gitBranchSelector" onchange="gitCheckout()">
+                    <option value="main">main</option>
+                </select>
+                <button class="git-btn-secondary" onclick="showCreateBranchDialog()">
+                    + Nouvelle branche
+                </button>
+            </div>
+
+            <!-- Changements -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>✅ Changements</span>
+                    <span class="git-badge" id="gitChangesCount">0</span>
+                </div>
+                <div class="git-changes-list" id="gitChangesList">
+                    <div style="text-align: center; color: #858585; padding: 1rem;">
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commit -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>💬 Commit</span>
+                </div>
+                <textarea 
+                    class="git-commit-message" 
+                    id="gitCommitMessage" 
+                    placeholder="Message de commit..."
+                    rows="3"
+                ></textarea>
+                <div class="git-commit-actions">
+                    <button class="git-btn-secondary" onclick="generateCommitMessage()">
+                        🤖 Générer
+                    </button>
+                    <button class="git-btn-primary" onclick="gitCommitAndPush()">
+                        ✅ Commit & Push
+                    </button>
+                </div>
+            </div>
+
+            <!-- Historique -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>📜 Historique</span>
+                </div>
+                <div class="git-history-list" id="gitHistoryList">
+                    <div style="text-align: center; color: #858585; padding: 1rem;">
+                        Chargement...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenu Deploy -->
+        <div class="explorer-content" id="explorerDeploy" style="display: none;">
+            <!-- Sélecteur de provider -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>🚀 Provider</span>
+                </div>
+                <select class="git-branch-selector" id="deployProvider" onchange="loadDeploymentInfo()">
+                    <option value="netlify">Netlify</option>
+                    <option value="vercel">Vercel</option>
+                </select>
+            </div>
+
+            <!-- Configuration -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>⚙️ Configuration</span>
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <label style="display: block; font-size: 0.85rem; color: #858585; margin-bottom: 0.25rem;">
+                        Nom du site
+                    </label>
+                    <input 
+                        type="text" 
+                        class="git-commit-message" 
+                        id="deploySiteName" 
+                        placeholder="mon-site-web"
+                        style="height: auto; padding: 0.5rem;"
+                    />
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <label style="display: block; font-size: 0.85rem; color: #858585; margin-bottom: 0.25rem;">
+                        Framework
+                    </label>
+                    <select class="git-branch-selector" id="deployFramework">
+                        <option value="">Détection automatique</option>
+                        <option value="static">HTML/CSS/JS</option>
+                        <option value="react">React</option>
+                        <option value="vue">Vue.js</option>
+                        <option value="angular">Angular</option>
+                        <option value="nextjs">Next.js</option>
+                        <option value="nuxtjs">Nuxt.js</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Statut -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>📊 Statut</span>
+                </div>
+                <div id="deployStatus" style="padding: 1rem; background: #2d2d30; border-radius: 4px; font-size: 0.85rem;">
+                    <div style="color: #858585; text-align: center;">
+                        Aucun déploiement
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="git-section">
+                <button class="git-btn-primary" onclick="deployProject()" style="width: 100%;">
+                    🚀 Déployer maintenant
+                </button>
+            </div>
+
+            <!-- Historique des déploiements -->
+            <div class="git-section">
+                <div class="git-section-header">
+                    <span>📜 Déploiements</span>
+                </div>
+                <div id="deploymentHistory" style="max-height: 200px; overflow-y: auto;">
+                    <div style="text-align: center; color: #858585; padding: 1rem;">
+                        Aucun déploiement
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Zone principale -->
+    <div class="editor-main">
+        <!-- Onglets -->
+        <div class="editor-tabs" id="editorTabs">
+            <!-- Les onglets seront ajoutés dynamiquement -->
+        </div>
+        
+        <!-- Éditeur Monaco -->
+        <div id="monaco-editor"></div>
+        
+        <!-- Terminal -->
+        <div class="terminal-container" id="terminalContainer">
+            <div class="terminal-header">
+                <span class="terminal-title">⚡ Terminal</span>
+                <div class="terminal-actions">
+                    <button class="terminal-action" onclick="clearTerminal()" title="Effacer">
+                        🗑️
+                    </button>
+                    <button class="terminal-action" onclick="toggleTerminal()" title="Masquer">
+                        ➖
+                    </button>
+                </div>
+            </div>
+            <div id="terminal"></div>
+        </div>
+        
+        <!-- Barre d'état -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span class="status-item">
+                    <span id="statusBranch">🌿 main</span>
+                </span>
+                <span class="status-item">
+                    <span id="statusFile">Aucun fichier ouvert</span>
+                </span>
+            </div>
+            <div class="status-right">
+                <span class="status-item">
+                    <span id="statusLanguage">Texte brut</span>
+                </span>
+                <span class="status-item">
+                    <span id="statusPosition">Ln 1, Col 1</span>
+                </span>
+                <span class="status-item">
+                    <span id="statusEncoding">UTF-8</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panneau Chat IA -->
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <div class="chat-title">
+                <span>🤖</span>
+                <span>Assistant IA</span>
+            </div>
+            <div class="chat-actions">
+                <select class="ai-model-selector" id="aiModelSelector" title="Choisir le modèle IA">
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="claude-3-opus">Claude 3 Opus</option>
+                    <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                    <option value="claude-3-haiku">Claude 3 Haiku</option>
+                    <option value="gemini-pro">Gemini Pro</option>
+                    <option value="mistral-large">Mistral Large</option>
+                    <option value="mistral-medium">Mistral Medium</option>
+                </select>
+                <button class="chat-action" id="streamToggle" onclick="toggleStreaming()" title="Streaming temps réel">
+                    ⚡
+                </button>
+                <button class="chat-action" onclick="toggleHistoryPanel()" title="Historique">
+                    📜
+                </button>
+                <button class="chat-action" onclick="newChatConversation()" title="Nouvelle conversation">
+                    ➕
+                </button>
+                <button class="chat-action" onclick="toggleChatPanel()" title="Masquer">
+                    ✕
+                </button>
+            </div>
+        </div>
+        
+        <!-- Panneau Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty">
+                <div class="chat-empty-icon">🤖</div>
+                <div class="chat-empty-text">
+                    Bonjour ! Je suis votre assistant IA.<br>
+                    Comment puis-je vous aider avec votre projet ?
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action" onclick="quickAction('create-file')">
+                        📄 Créer un fichier
+                    </button>
+                    <button class="quick-action" onclick="quickAction('explain-code')">
+                        💡 Expliquer ce code
+                    </button>
+                    <button class="quick-action" onclick="quickAction('fix-errors')">
+                        🔧 Corriger les erreurs
+                    </button>
+                    <button class="quick-action" onclick="quickAction('improve-code')">
+                        ✨ Améliorer le code
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panneau Historique -->
+        <div class="chat-history-panel" id="chatHistoryPanel" style="display: none;">
+            <div class="history-header">
+                <h3>📜 Historique</h3>
+                <button class="history-close" onclick="toggleHistoryPanel()">✕</button>
+            </div>
+            
+            <div class="history-search">
+                <input type="text" id="historySearch" placeholder="🔍 Rechercher..." onkeyup="searchHistory()">
+            </div>
+            
+            <div class="history-filters">
+                <button class="filter-btn active" onclick="filterHistory('all')">Toutes</button>
+                <button class="filter-btn" onclick="filterHistory('today')">Aujourd'hui</button>
+                <button class="filter-btn" onclick="filterHistory('week')">Cette semaine</button>
+            </div>
+            
+            <div class="history-list" id="historyList">
+                <div class="history-empty">
+                    <p>Aucune conversation</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="quick-actions" id="quickActions">
+                <button class="quick-action" onclick="quickAction('create-file')">
+                    📄 Créer fichier
+                </button>
+                <button class="quick-action" onclick="quickAction('modify-file')">
+                    ✏️ Modifier fichier
+                </button>
+                <button class="quick-action" onclick="quickAction('explain')">
+                    💡 Expliquer
+                </button>
+            </div>
+            
+            <div class="chat-input-wrapper">
+                <textarea 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Posez une question ou demandez une modification..."
+                    rows="2"
+                ></textarea>
+                <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monaco Editor CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<!-- Xterm.js JS -->
+<script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+
+<script>
+const projectId = {{ project_id }};
+let editor = null;
+let terminal = null;
+let openTabs = [];
+let currentFile = null;
+
+// ==================== MONACO EDITOR ====================
+// Vérifier si Monaco n'est pas déjà chargé
+if (typeof monaco === 'undefined') {
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+}
+
+require(['vs/editor/editor.main'], function() {
+    // Créer l'éditeur
+    editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+        value: '// Sélectionnez un fichier pour commencer à éditer\n',
+        language: 'javascript',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        fontSize: 14,
+        minimap: { enabled: true },
+        scrollBeyondLastLine: false,
+        wordWrap: 'on'
+    });
+    
+    // Écouter les changements
+    editor.onDidChangeModelContent(() => {
+        if (currentFile) {
+            markFileAsModified(currentFile);
+        }
+    });
+    
+    // Écouter les changements de position du curseur
+    editor.onDidChangeCursorPosition((e) => {
+        updateStatusPosition(e.position.lineNumber, e.position.column);
+    });
+    
+    // Raccourci Ctrl+S pour sauvegarder
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+        saveCurrentFile();
+    });});
+
+// ==================== TERMINAL ====================
+function initTerminal() {
+    // Vérifier que Terminal est défini
+    if (typeof Terminal === 'undefined') {
+        console.error('❌ Terminal (Xterm.js) non chargé');
+        return;
+    }
+    
+    terminal = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Consolas, "Courier New", monospace',
+        theme: {
+            background: '#1e1e1e',
+            foreground: '#cccccc'
+        }
+    });
+    
+    const fitAddon = new FitAddon.FitAddon();
+    terminal.loadAddon(fitAddon);
+    
+    terminal.open(document.getElementById('terminal'));
+    fitAddon.fit();
+    
+    terminal.writeln('WeBox Studio Terminal');
+    terminal.writeln('Tapez "help" pour voir les commandes disponibles\n');
+    terminal.write('$ ');}
+
+// ==================== ARBORESCENCE ====================
+async function loadFileTree() {
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files`);
+        const data = await response.json();
+        
+        displayFileTree(data.files);
+    } catch (error) {
+        console.error('Erreur chargement fichiers:', error);
+        document.getElementById('fileTree').innerHTML = '<div class="editor-loading">❌ Erreur de chargement</div>';
+    }
+}
+
+function displayFileTree(files) {
+    const tree = document.getElementById('fileTree');
+    tree.innerHTML = buildTreeHTML(files);
+}
+
+function buildTreeHTML(items, level = 0) {
+    if (!items || items.length === 0) {
+        return '<div class="tree-item">📂 Projet vide</div>';
+    }
+    
+    return items.map(item => {
+        const icon = item.is_directory ? '📁' : getFileIcon(item.name);
+        const className = item.is_directory ? 'tree-item folder' : 'tree-item';
+        
+        let html = `<div class="${className}" onclick="handleFileClick('${item.path}', ${item.is_directory})">
+            <span class="tree-icon">${icon}</span>
+            <span>${item.name}</span>
+        </div>`;
+        
+        if (item.children && item.children.length > 0) {
+            html += `<div class="tree-children">${buildTreeHTML(item.children, level + 1)}</div>`;
+        }
+        
+        return html;
+    }).join('');
+}
+
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+        'js': '📜',
+        'ts': '📘',
+        'jsx': '⚛️',
+        'tsx': '⚛️',
+        'html': '🌐',
+        'css': '🎨',
+        'scss': '🎨',
+        'json': '📋',
+        'md': '📝',
+        'py': '🐍',
+        'php': '🐘',
+        'vue': '💚',
+        'svg': '🖼️',
+        'png': '🖼️',
+        'jpg': '🖼️'
+    };
+    return icons[ext] || '📄';
+}
+
+// ==================== GESTION FICHIERS ====================
+async function handleFileClick(path, isDirectory) {
+    if (isDirectory) {
+        // TODO: Expand/collapse folder
+        return;
+    }
+    
+    await openFile(path);
+}
+
+async function openFile(path) {
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files/${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        // Ajouter l'onglet
+        addTab(path, data.name);
+        
+        // Charger le contenu dans l'éditeur
+        editor.setValue(data.content || '');
+        
+        // Détecter le langage
+        const language = detectLanguage(data.name);
+        monaco.editor.setModelLanguage(editor.getModel(), language);
+        
+        // Mettre à jour l'état
+        currentFile = path;
+        updateStatusBar(data.name, language);
+        
+    } catch (error) {
+        console.error('Erreur ouverture fichier:', error);
+        alert('❌ Erreur lors de l\'ouverture du fichier');
+    }
+}
+
+function detectLanguage(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const languages = {
+        'js': 'javascript',
+        'ts': 'typescript',
+        'jsx': 'javascript',
+        'tsx': 'typescript',
+        'html': 'html',
+        'css': 'css',
+        'scss': 'scss',
+        'json': 'json',
+        'md': 'markdown',
+        'py': 'python',
+        'php': 'php',
+        'vue': 'html'
+    };
+    return languages[ext] || 'plaintext';
+}
+
+// ==================== ONGLETS ====================
+function addTab(path, name) {
+    // Vérifier si l'onglet existe déjà
+    if (openTabs.find(t => t.path === path)) {
+        setActiveTab(path);
+        return;
+    }
+    
+    openTabs.push({ path, name });
+    renderTabs();
+    setActiveTab(path);
+}
+
+function renderTabs() {
+    const container = document.getElementById('editorTabs');
+    container.innerHTML = openTabs.map(tab => `
+        <button class="editor-tab ${tab.path === currentFile ? 'active' : ''}" 
+                onclick="switchTab('${tab.path}')">
+            <span>${getFileIcon(tab.name)}</span>
+            <span>${tab.name}${tab.modified ? ' ●' : ''}</span>
+            <span class="editor-tab-close" onclick="event.stopPropagation(); closeTab('${tab.path}')">
+                ✕
+            </span>
+        </button>
+    `).join('');
+}
+
+function switchTab(path) {
+    openFile(path);
+}
+
+function closeTab(path) {
+    openTabs = openTabs.filter(t => t.path !== path);
+    renderTabs();
+    
+    if (currentFile === path) {
+        if (openTabs.length > 0) {
+            openFile(openTabs[0].path);
+        } else {
+            editor.setValue('// Aucun fichier ouvert\n');
+            currentFile = null;
+        }
+    }
+}
+
+function setActiveTab(path) {
+    currentFile = path;
+    renderTabs();
+}
+
+// ==================== BARRE D'ÉTAT ====================
+function updateStatusBar(filename, language) {
+    document.getElementById('statusFile').textContent = filename;
+    document.getElementById('statusLanguage').textContent = language;
+}
+
+function updateStatusPosition(line, column) {
+    document.getElementById('statusPosition').textContent = `Ln ${line}, Col ${column}`;
+}
+
+// ==================== ACTIONS ====================
+function createNewFile() {
+    const name = prompt('Nom du fichier :');
+    if (name) {
+        // TODO: Créer le fichier via API    }
+}
+
+function createNewFolder() {
+    const name = prompt('Nom du dossier :');
+    if (name) {
+        // TODO: Créer le dossier via API    }
+}
+
+function refreshFileTree() {
+    loadFileTree();
+}
+
+function clearTerminal() {
+    if (terminal) {
+        terminal.clear();
+    }
+}
+
+function toggleTerminal() {
+    const container = document.getElementById('terminalContainer');
+    container.style.display = container.style.display === 'none' ? 'flex' : 'none';
+}
+
+function markFileAsModified(path) {
+    const tab = openTabs.find(t => t.path === path);
+    if (tab && !tab.modified) {
+        tab.modified = true;
+        renderTabs();
+    }
+}
+
+async function saveCurrentFile() {
+    if (!currentFile) {
+        alert('Aucun fichier ouvert');
+        return;
+    }
+    
+    const content = editor.getValue();
+    
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files/${encodeURIComponent(currentFile)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: content })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Marquer comme sauvegardé
+            const tab = openTabs.find(t => t.path === currentFile);
+            if (tab) {
+                tab.modified = false;
+                renderTabs();
+            }
+            
+            // Notification
+            showNotification('✅ Fichier sauvegardé', 'success');
+        } else {
+            alert('❌ Erreur lors de la sauvegarde');
+        }
+    } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert('❌ Erreur lors de la sauvegarde du fichier');
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Simple notification dans la console pour l'instant    // TODO: Implémenter une vraie notification visuelle
+    const statusFile = document.getElementById('statusFile');
+    const originalText = statusFile.textContent;
+    statusFile.textContent = message;
+    statusFile.style.color = type === 'success' ? '#4CAF50' : '#f44336';
+    
+    setTimeout(() => {
+        statusFile.textContent = originalText;
+        statusFile.style.color = '';
+    }, 2000);
+}
+
+async function createNewFile() {
+    const name = prompt('Nom du fichier (avec chemin relatif si nécessaire) :');
+    if (!name) return;
+    
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                path: name,
+                is_directory: false
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('✅ Fichier créé', 'success');
+            refreshFileTree();
+            // Ouvrir le nouveau fichier
+            setTimeout(() => openFile(name), 500);
+        } else {
+            alert('❌ Erreur lors de la création');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur lors de la création du fichier');
+    }
+}
+
+async function createNewFolder() {
+    const name = prompt('Nom du dossier (avec chemin relatif si nécessaire) :');
+    if (!name) return;
+    
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                path: name,
+                is_directory: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('✅ Dossier créé', 'success');
+            refreshFileTree();
+        } else {
+            alert('❌ Erreur lors de la création');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur lors de la création du dossier');
+    }
+}
+
+// ==================== CHAT IA ====================
+let chatMessages = [];
+let isTyping = false;
+let currentConversationId = null;
+let streamingEnabled = true;
+let currentStreamMessage = null;
+let conversationsHistory = [];
+let currentFilter = 'all';
+
+function toggleChatPanel() {
+    const chatPanel = document.getElementById('chatPanel');
+    chatPanel.classList.toggle('collapsed');
+}
+
+function newChatConversation() {
+    if (confirm('Voulez-vous démarrer une nouvelle conversation ?')) {
+        chatMessages = [];
+        currentConversationId = null;
+        renderChatMessages();
+        showNotification('💬 Nouvelle conversation démarrée', 'info');
+    }
+}
+
+function toggleStreaming() {
+    streamingEnabled = !streamingEnabled;
+    const btn = document.getElementById('streamToggle');
+    
+    if (streamingEnabled) {
+        btn.classList.add('active');
+        btn.title = 'Streaming activé';
+    } else {
+        btn.classList.remove('active');
+        btn.title = 'Streaming désactivé';
+    }
+}
+
+// ==================== HISTORIQUE ====================
+async function toggleHistoryPanel() {
+    const historyPanel = document.getElementById('chatHistoryPanel');
+    const messagesPanel = document.getElementById('chatMessages');
+    
+    if (historyPanel.style.display === 'none') {
+        historyPanel.style.display = 'flex';
+        messagesPanel.style.display = 'none';
+        await loadConversationsHistory();
+    } else {
+        historyPanel.style.display = 'none';
+        messagesPanel.style.display = 'flex';
+    }
+}
+
+async function loadConversationsHistory() {
+    try {
+        const response = await fetch(`/api/chat/conversations/${projectId}`);
+        const data = await response.json();
+        
+        conversationsHistory = data.conversations || [];
+        renderHistoryList();
+    } catch (error) {
+        console.error('Erreur chargement historique:', error);
+    }
+}
+
+function renderHistoryList() {
+    const historyList = document.getElementById('historyList');
+    
+    if (conversationsHistory.length === 0) {
+        historyList.innerHTML = '<div class="history-empty"><p>Aucune conversation</p></div>';
+        return;
+    }
+    
+    // Filtrer les conversations
+    let filtered = filterConversations(conversationsHistory, currentFilter);
+    
+    // Recherche
+    const searchTerm = document.getElementById('historySearch')?.value.toLowerCase();
+    if (searchTerm) {
+        filtered = filtered.filter(conv => 
+            conv.title.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    if (filtered.length === 0) {
+        historyList.innerHTML = '<div class="history-empty"><p>Aucun résultat</p></div>';
+        return;
+    }
+    
+    let html = '';
+    filtered.forEach(conv => {
+        const date = formatDate(conv.updated_at || conv.created_at);
+        html += `
+            <div class="history-item" onclick="loadConversation(${conv.id})">
+                <div class="history-item-header">
+                    <div class="history-item-title">${escapeHtml(conv.title)}</div>
+                    <div class="history-item-date">${date}</div>
+                </div>
+                <div class="history-item-preview">
+                    ${conv.message_count} message${conv.message_count > 1 ? 's' : ''}
+                </div>
+                <div class="history-item-actions" onclick="event.stopPropagation()">
+                    <button class="history-item-action" onclick="exportConversation(${conv.id})">
+                        📥 Exporter
+                    </button>
+                    <button class="history-item-action delete" onclick="deleteConversation(${conv.id})">
+                        🗑️ Supprimer
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    historyList.innerHTML = html;
+}
+
+function filterConversations(conversations, filter) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    switch (filter) {
+        case 'today':
+            return conversations.filter(conv => {
+                const date = new Date(conv.updated_at || conv.created_at);
+                return date >= today;
+            });
+        case 'week':
+            return conversations.filter(conv => {
+                const date = new Date(conv.updated_at || conv.created_at);
+                return date >= weekAgo;
+            });
+        default:
+            return conversations;
+    }
+}
+
+function filterHistory(filter) {
+    currentFilter = filter;
+    
+    // Mettre à jour les boutons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    renderHistoryList();
+}
+
+function searchHistory() {
+    renderHistoryList();
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    
+    // Moins d'une heure
+    if (diff < 60 * 60 * 1000) {
+        const minutes = Math.floor(diff / (60 * 1000));
+        return `Il y a ${minutes} min`;
+    }
+    
+    // Moins d'un jour
+    if (diff < 24 * 60 * 60 * 1000) {
+        const hours = Math.floor(diff / (60 * 60 * 1000));
+        return `Il y a ${hours}h`;
+    }
+    
+    // Moins d'une semaine
+    if (diff < 7 * 24 * 60 * 60 * 1000) {
+        const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+        return `Il y a ${days}j`;
+    }
+    
+    // Date complète
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+async function loadConversation(conversationId) {
+    try {
+        const response = await fetch(`/api/chat/conversations/${conversationId}/messages`);
+        const data = await response.json();
+        
+        if (data.messages) {
+            chatMessages = data.messages.map(msg => ({
+                role: msg.role,
+                content: msg.content,
+                actions: msg.actions,
+                timestamp: new Date(msg.created_at)
+            }));
+            
+            currentConversationId = conversationId;
+            
+            // Fermer l'historique et afficher les messages
+            toggleHistoryPanel();
+            renderChatMessages();
+            
+            showNotification('💬 Conversation chargée', 'success');
+        }
+    } catch (error) {
+        console.error('Erreur chargement conversation:', error);
+        alert('❌ Erreur lors du chargement de la conversation');
+    }
+}
+
+async function deleteConversation(conversationId) {
+    if (!confirm('Voulez-vous vraiment supprimer cette conversation ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/chat/conversations/${conversationId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('🗑️ Conversation supprimée', 'success');
+            await loadConversationsHistory();
+        } else {
+            alert('❌ Erreur lors de la suppression');
+        }
+    } catch (error) {
+        console.error('Erreur suppression:', error);
+        alert('❌ Erreur lors de la suppression');
+    }
+}
+
+async function exportConversation(conversationId) {
+    try {
+        const response = await fetch(`/api/chat/conversations/${conversationId}/messages`);
+        const data = await response.json();
+        
+        if (data.messages) {
+            const conversation = conversationsHistory.find(c => c.id === conversationId);
+            const exportData = {
+                title: conversation?.title || 'Conversation',
+                date: new Date().toISOString(),
+                messages: data.messages
+            };
+            
+            // Créer un fichier JSON
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `conversation-${conversationId}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('📥 Conversation exportée', 'success');
+        }
+    } catch (error) {
+        console.error('Erreur export:', error);
+        alert('❌ Erreur lors de l\'export');
+    }
+}
+
+function quickAction(action) {
+    const prompts = {
+        'create-file': 'Crée un nouveau fichier ',
+        'modify-file': 'Modifie le fichier actuel pour ',
+        'explain': 'Explique-moi ce code : ',
+        'explain-code': 'Explique-moi le code du fichier actuel',
+        'fix-errors': 'Analyse et corrige les erreurs dans le fichier actuel',
+        'improve-code': 'Suggère des améliorations pour le code actuel'
+    };
+    
+    const chatInput = document.getElementById('chatInput');
+    chatInput.value = prompts[action] || '';
+    chatInput.focus();
+}
+
+async function sendChatMessage() {
+    const chatInput = document.getElementById('chatInput');
+    const message = chatInput.value.trim();
+    
+    if (!message) return;
+    
+    // Récupérer le modèle sélectionné
+    const aiModel = document.getElementById('aiModelSelector').value;
+    
+    // Ajouter le message de l'utilisateur
+    addChatMessage('user', message);
+    chatInput.value = '';
+    
+    // Afficher l'indicateur de typing
+    showTypingIndicator();
+    
+    try {
+        // Appeler l'API backend réelle
+        const response = await fetch('/api/chat/message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                project_id: projectId,
+                conversation_id: currentConversationId,
+                content: message,
+                model: aiModel
+            })
+        });
+        
+        const data = await response.json();
+        
+        hideTypingIndicator();
+        
+        if (data.success) {
+            // Sauvegarder l'ID de conversation
+            if (!currentConversationId) {
+                currentConversationId = data.conversation_id;
+            }
+            
+            // Ajouter la réponse de l'IA
+            addChatMessage('assistant', data.message.content, data.message.actions);
+        } else {
+            addChatMessage('assistant', '❌ Erreur lors de la communication avec l\'IA.');
+        }
+    } catch (error) {
+        console.error('Erreur chat:', error);
+        hideTypingIndicator();
+        addChatMessage('assistant', '❌ Erreur lors de la communication avec l\'IA. Veuillez réessayer.');
+    }
+}
+
+function addChatMessage(role, content, actions = null) {
+    chatMessages.push({ role, content, actions, timestamp: new Date() });
+    renderChatMessages();
+    
+    // Scroll vers le bas
+    const chatMessagesEl = document.getElementById('chatMessages');
+    setTimeout(() => {
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    }, 100);
+}
+
+function renderChatMessages() {
+    const chatMessagesEl = document.getElementById('chatMessages');
+    
+    if (chatMessages.length === 0) {
+        chatMessagesEl.innerHTML = `
+            <div class="chat-empty">
+                <div class="chat-empty-icon">🤖</div>
+                <div class="chat-empty-text">
+                    Bonjour ! Je suis votre assistant IA.<br>
+                    Comment puis-je vous aider avec votre projet ?
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action" onclick="quickAction('create-file')">
+                        📄 Créer un fichier
+                    </button>
+                    <button class="quick-action" onclick="quickAction('explain-code')">
+                        💡 Expliquer ce code
+                    </button>
+                    <button class="quick-action" onclick="quickAction('fix-errors')">
+                        🔧 Corriger les erreurs
+                    </button>
+                    <button class="quick-action" onclick="quickAction('improve-code')">
+                        ✨ Améliorer le code
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    chatMessages.forEach(msg => {
+        const formattedContent = formatChatMessage(msg.content);
+        html += `
+            <div class="chat-message ${msg.role}">
+                <div class="message-content">
+                    ${formattedContent}
+                    ${msg.actions ? renderMessageActions(msg.actions) : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    chatMessagesEl.innerHTML = html;
+}
+
+function formatChatMessage(content) {
+    // Remplacer les blocs de code
+    content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        return `<pre><code class="language-${lang || 'text'}">${escapeHtml(code.trim())}</code></pre>`;
+    });
+    
+    // Remplacer les inline code
+    content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Remplacer les retours à la ligne
+    content = content.replace(/\n/g, '<br>');
+    
+    return content;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function renderMessageActions(actions) {
+    if (!actions || !actions.actions || actions.actions.length === 0) {
+        return '';
+    }
+    
+    let html = '<div class="message-actions">';
+    html += '<div class="actions-summary">';
+    html += `<strong>📁 Actions effectuées :</strong> ${actions.success_count}/${actions.count} réussies`;
+    html += '</div>';
+    
+    actions.actions.forEach(action => {
+        const icon = action.success ? '✅' : '❌';
+        const className = action.success ? 'action-success' : 'action-error';
+        html += `<div class="action-result ${className}">`;
+        html += `${icon} ${action.message || action.error}`;
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+function showTypingIndicator() {
+    isTyping = true;
+    const chatMessagesEl = document.getElementById('chatMessages');
+    const typingHtml = `
+        <div class="chat-message assistant" id="typingIndicator">
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    `;
+    chatMessagesEl.insertAdjacentHTML('beforeend', typingHtml);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    isTyping = false;
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+async function simulateAIResponse(userMessage) {
+    // Simulation d'une réponse IA (à remplacer par l'API réelle)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    hideTypingIndicator();
+    
+    const responses = {
+        'créer': 'Je vais créer ce fichier pour vous. Voici le code :\n\n```javascript\n// Nouveau fichier\nconsole.log("Hello World");\n```',
+        'expliquer': 'Ce code initialise une application. Il configure les paramètres de base et démarre le serveur.',
+        'corriger': 'J\'ai analysé votre code et voici les corrections suggérées :\n\n1. Ajouter la validation des entrées\n2. Gérer les erreurs potentielles\n3. Optimiser les performances',
+        'améliorer': 'Voici quelques suggestions d\'amélioration :\n\n- Utiliser des fonctions asynchrones\n- Ajouter des commentaires\n- Refactoriser le code dupliqué'
+    };
+    
+    let response = 'Je suis là pour vous aider ! Que voulez-vous faire ?';
+    
+    for (const [key, value] of Object.entries(responses)) {
+        if (userMessage.toLowerCase().includes(key)) {
+            response = value;
+            break;
+        }
+    }
+    
+    addChatMessage('assistant', response);
+}
+
+function executeAction(type, data) {    showNotification(`⚡ Action: ${type}`, 'info');
+    // TODO: Implémenter les actions réelles
+}
+
+// Gestion de l'input chat
+document.addEventListener('DOMContentLoaded', () => {
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    
+    if (chatInput) {
+        // Ctrl+Enter pour envoyer
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+        
+        // Auto-resize du textarea
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 150) + 'px';
+        });
+        
+        // Activer/désactiver le bouton
+        chatInput.addEventListener('input', () => {
+            chatSendBtn.disabled = !chatInput.value.trim();
+        });
+    }
+});
+
+// ==================== GIT INTERFACE ====================
+let currentGitStatus = null;
+let currentBranch = 'main';
+
+// Changer d'onglet
+function switchExplorerTab(tab) {
+    // Mettre à jour les onglets
+    document.querySelectorAll('.explorer-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Afficher le bon contenu
+    document.getElementById('explorerFiles').style.display = tab === 'files' ? 'flex' : 'none';
+    document.getElementById('explorerGit').style.display = tab === 'git' ? 'block' : 'none';
+    document.getElementById('explorerDeploy').style.display = tab === 'deploy' ? 'block' : 'none';
+    
+    // Charger les données
+    if (tab === 'git') {
+        loadGitStatus();
+        loadGitBranches();
+        loadGitHistory();
+        loadGitRemotes();
+    } else if (tab === 'deploy') {
+        loadDeploymentInfo();
+    }
+}
+
+// Charger le statut Git
+async function loadGitStatus() {
+    try {
+        const response = await fetch('/api/git/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentGitStatus = data;
+            currentBranch = data.branch;
+            renderGitChanges(data.files);
+            updateChangesCount(data.files);
+        } else {
+            document.getElementById('gitChangesList').innerHTML = 
+                '<div style="text-align: center; color: #858585; padding: 1rem;">Pas un dépôt Git</div>';
+        }
+    } catch (error) {
+        console.error('Erreur Git status:', error);
+    }
+}
+
+// Afficher les changements
+function renderGitChanges(files) {
+    const list = document.getElementById('gitChangesList');
+    let html = '';
+    
+    // Fichiers modifiés
+    if (files.modified && files.modified.length > 0) {
+        files.modified.forEach(file => {
+            html += `
+                <div class="git-change-item">
+                    <span class="git-change-status modified">M</span>
+                    <span>${file}</span>
+                </div>
+            `;
+        });
+    }
+    
+    // Fichiers ajoutés
+    if (files.added && files.added.length > 0) {
+        files.added.forEach(file => {
+            html += `
+                <div class="git-change-item">
+                    <span class="git-change-status added">A</span>
+                    <span>${file}</span>
+                </div>
+            `;
+        });
+    }
+    
+    // Fichiers non suivis
+    if (files.untracked && files.untracked.length > 0) {
+        files.untracked.forEach(file => {
+            html += `
+                <div class="git-change-item">
+                    <span class="git-change-status added">?</span>
+                    <span>${file}</span>
+                </div>
+            `;
+        });
+    }
+    
+    if (!html) {
+        html = '<div style="text-align: center; color: #858585; padding: 1rem;">Aucun changement</div>';
+    }
+    
+    list.innerHTML = html;
+}
+
+// Mettre à jour le compteur
+function updateChangesCount(files) {
+    const count = (files.modified?.length || 0) + 
+                  (files.added?.length || 0) + 
+                  (files.untracked?.length || 0);
+    document.getElementById('gitChangesCount').textContent = count;
+}
+
+// Charger les branches
+async function loadGitBranches() {
+    try {
+        const response = await fetch('/api/git/branches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const selector = document.getElementById('gitBranchSelector');
+            selector.innerHTML = '';
+            
+            data.branches.forEach(branch => {
+                if (!branch.remote) {
+                    const option = document.createElement('option');
+                    option.value = branch.name;
+                    option.textContent = branch.name;
+                    option.selected = branch.current;
+                    selector.appendChild(option);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Erreur branches:', error);
+    }
+}
+
+// Changer de branche
+async function gitCheckout() {
+    const branchName = document.getElementById('gitBranchSelector').value;
+    
+    try {
+        const response = await fetch('/api/git/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                branch_name: branchName
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(`✅ Basculé sur ${branchName}`, 'success');
+            loadGitStatus();
+        } else {
+            alert('❌ ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur checkout:', error);
+    }
+}
+
+// Créer une branche
+function showCreateBranchDialog() {
+    const branchName = prompt('Nom de la nouvelle branche :');
+    if (!branchName) return;
+    
+    createGitBranch(branchName);
+}
+
+async function createGitBranch(branchName) {
+    try {
+        const response = await fetch('/api/git/branch/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                branch_name: branchName,
+                checkout: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification(`✅ Branche ${branchName} créée`, 'success');
+            loadGitBranches();
+            loadGitStatus();
+        } else {
+            alert('❌ ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur création branche:', error);
+    }
+}
+
+// Générer message de commit
+async function generateCommitMessage() {
+    try {
+        const response = await fetch('/api/git/commit/generate-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('gitCommitMessage').value = data.message;
+        }
+    } catch (error) {
+        console.error('Erreur génération message:', error);
+    }
+}
+
+// Commit et push
+async function gitCommitAndPush() {
+    const message = document.getElementById('gitCommitMessage').value.trim();
+    
+    if (!message) {
+        alert('⚠️ Veuillez entrer un message de commit');
+        return;
+    }
+    
+    try {
+        // 1. Add
+        await fetch('/api/git/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId })
+        });
+        
+        // 2. Commit
+        const commitResponse = await fetch('/api/git/commit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                message: message
+            })
+        });
+        
+        const commitData = await commitResponse.json();
+        
+        if (!commitData.success) {
+            alert('❌ ' + commitData.error);
+            return;
+        }
+        
+        // 3. Push
+        const pushResponse = await fetch('/api/git/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                remote: 'origin',
+                branch: currentBranch
+            })
+        });
+        
+        const pushData = await pushResponse.json();
+        
+        if (pushData.success) {
+            showNotification('✅ Commit et push réussis', 'success');
+            document.getElementById('gitCommitMessage').value = '';
+            loadGitStatus();
+            loadGitHistory();
+        } else {
+            showNotification('⚠️ Commit réussi mais push échoué: ' + pushData.error, 'warning');
+            loadGitStatus();
+            loadGitHistory();
+        }
+    } catch (error) {
+        console.error('Erreur commit/push:', error);
+        alert('❌ Erreur lors du commit/push');
+    }
+}
+
+// Charger l'historique
+async function loadGitHistory() {
+    try {
+        const response = await fetch('/api/git/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                limit: 5
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            renderGitHistory(data.commits);
+        }
+    } catch (error) {
+        console.error('Erreur historique:', error);
+    }
+}
+
+// Afficher l'historique
+function renderGitHistory(commits) {
+    const list = document.getElementById('gitHistoryList');
+    
+    if (!commits || commits.length === 0) {
+        list.innerHTML = '<div style="text-align: center; color: #858585; padding: 1rem;">Aucun commit</div>';
+        return;
+    }
+    
+    let html = '';
+    commits.forEach(commit => {
+        const date = new Date(commit.timestamp * 1000);
+        const timeAgo = formatTimeAgo(date);
+        
+        html += `
+            <div class="git-commit-item">
+                <div class="git-commit-hash">${commit.hash.substring(0, 7)}</div>
+                <div class="git-commit-message-text">${commit.message}</div>
+                <div class="git-commit-meta">
+                    Par ${commit.author_name} • ${timeAgo}
+                </div>
+            </div>
+        `;
+    });
+    
+    list.innerHTML = html;
+}
+
+// Formater le temps
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diff = now - date;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (hours < 1) return 'À l\'instant';
+    if (hours < 24) return `Il y a ${hours}h`;
+    if (days < 7) return `Il y a ${days}j`;
+    return date.toLocaleDateString('fr-FR');
+}
+
+// Charger les remotes Git
+async function loadGitRemotes() {
+    try {
+        const response = await fetch('/api/git/remotes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.remotes && data.remotes.length > 0) {
+            const remote = data.remotes[0];
+            document.getElementById('gitRemoteStatus').innerHTML = `
+                <div style="color: #5cb85c;">
+                    ✅ Remote configuré: <strong>${remote.name}</strong>
+                </div>
+                <div style="font-size: 0.75rem; margin-top: 0.25rem;">
+                    ${remote.url}
+                </div>
+            `;
+            document.getElementById('gitRemoteUrl').value = remote.url;
+        } else {
+            document.getElementById('gitRemoteStatus').innerHTML = 
+                '<div style="color: #858585;">Aucun remote configuré</div>';
+        }
+    } catch (error) {
+        console.error('Erreur remotes:', error);
+    }
+}
+
+// Ajouter un remote Git
+async function addGitRemote() {
+    const url = document.getElementById('gitRemoteUrl').value.trim();
+    
+    if (!url) {
+        alert('⚠️ Veuillez entrer une URL Git');
+        return;
+    }
+    
+    // Validation basique de l'URL
+    if (!url.includes('github.com') && !url.includes('gitlab.com') && !url.includes('bitbucket.org') && !url.includes('.git')) {
+        alert('⚠️ URL Git invalide. Exemple: https://github.com/user/repo.git');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/git/remote/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                name: 'origin',
+                url: url
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('✅ Remote Git configuré avec succès', 'success');
+            loadGitRemotes();
+        } else {
+            alert('❌ ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur ajout remote:', error);
+        alert('❌ Erreur lors de la configuration du remote');
+    }
+}
+
+// ==================== DEPLOYMENT INTERFACE ====================
+let currentDeploymentSiteId = null;
+
+// Charger les informations de déploiement
+async function loadDeploymentInfo() {
+    const provider = document.getElementById('deployProvider').value;
+    
+    try {
+        // Charger les sites existants
+        const response = await fetch('/api/deployment/sites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ provider: provider })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updateDeployStatus(data);
+        } else {
+            document.getElementById('deployStatus').innerHTML = `
+                <div style="color: #f0ad4e;">
+                    ⚠️ ${data.error}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur chargement déploiement:', error);
+    }
+}
+
+// Mettre à jour le statut de déploiement
+function updateDeployStatus(data) {
+    const statusDiv = document.getElementById('deployStatus');
+    const provider = document.getElementById('deployProvider').value;
+    
+    if (provider === 'netlify' && data.sites && data.sites.length > 0) {
+        const site = data.sites[0];
+        currentDeploymentSiteId = site.id;
+        statusDiv.innerHTML = `
+            <div style="color: #5cb85c;">
+                ✅ Site actif
+            </div>
+            <div style="margin-top: 0.5rem; color: #cccccc;">
+                <strong>${site.name}</strong>
+            </div>
+            <div style="margin-top: 0.25rem; color: #858585; font-size: 0.8rem;">
+                ${site.url}
+            </div>
+        `;
+        loadDeploymentHistory(provider, site.id);
+    } else if (provider === 'vercel' && data.projects && data.projects.length > 0) {
+        const project = data.projects[0];
+        currentDeploymentSiteId = project.id;
+        statusDiv.innerHTML = `
+            <div style="color: #5cb85c;">
+                ✅ Projet actif
+            </div>
+            <div style="margin-top: 0.5rem; color: #cccccc;">
+                <strong>${project.name}</strong>
+            </div>
+            <div style="margin-top: 0.25rem; color: #858585; font-size: 0.8rem;">
+                Framework: ${project.framework || 'Auto'}
+            </div>
+        `;
+        loadDeploymentHistory(provider, project.id);
+    } else {
+        statusDiv.innerHTML = `
+            <div style="color: #858585; text-align: center;">
+                Aucun site/projet trouvé
+            </div>
+        `;
+    }
+}
+
+// Charger l'historique des déploiements
+async function loadDeploymentHistory(provider, siteId) {
+    try {
+        const response = await fetch('/api/deployment/deployments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                provider: provider,
+                site_id: siteId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            renderDeploymentHistory(data, provider);
+        }
+    } catch (error) {
+        console.error('Erreur historique déploiement:', error);
+    }
+}
+
+// Afficher l'historique des déploiements
+function renderDeploymentHistory(data, provider) {
+    const historyDiv = document.getElementById('deploymentHistory');
+    
+    const deploys = provider === 'netlify' ? data.deploys : data.deployments;
+    
+    if (!deploys || deploys.length === 0) {
+        historyDiv.innerHTML = `
+            <div style="text-align: center; color: #858585; padding: 1rem;">
+                Aucun déploiement
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    deploys.forEach(deploy => {
+        const state = deploy.state || deploy.ready_state || 'unknown';
+        const stateColor = state === 'ready' || state === 'READY' ? '#5cb85c' : '#f0ad4e';
+        const date = new Date(deploy.created_at || deploy.created);
+        
+        html += `
+            <div class="git-commit-item">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: ${stateColor}; font-weight: bold;">
+                        ${state.toUpperCase()}
+                    </span>
+                    <span style="font-size: 0.75rem; color: #858585;">
+                        ${date.toLocaleDateString('fr-FR')}
+                    </span>
+                </div>
+                ${deploy.deploy_url || deploy.url ? `
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem;">
+                        <a href="${deploy.deploy_url || deploy.url}" target="_blank" style="color: #007acc;">
+                            🔗 Voir le déploiement
+                        </a>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    });
+    
+    historyDiv.innerHTML = html;
+}
+
+// Déployer le projet
+async function deployProject() {
+    const provider = document.getElementById('deployProvider').value;
+    const siteName = document.getElementById('deploySiteName').value.trim();
+    const framework = document.getElementById('deployFramework').value;
+    
+    if (!siteName) {
+        alert('⚠️ Veuillez entrer un nom de site');
+        return;
+    }
+    
+    // Confirmation
+    if (!confirm(`Déployer sur ${provider.toUpperCase()} ?\n\nNom: ${siteName}\nFramework: ${framework || 'Auto'}`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/deployment/deploy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: projectId,
+                provider: provider,
+                site_id: currentDeploymentSiteId,
+                project_name: siteName,
+                framework: framework
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('✅ Déploiement initié avec succès', 'success');
+            loadDeploymentInfo();
+        } else {
+            alert('❌ ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur déploiement:', error);
+        alert('❌ Erreur lors du déploiement');
+    }
+}
+
+// ==================== INITIALISATION ====================
+document.addEventListener('DOMContentLoaded', () => {
+    loadFileTree();
+    initTerminal();
+});
+</script>
+
+</body>
+</html>

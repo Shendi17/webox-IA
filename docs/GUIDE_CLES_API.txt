@@ -1,0 +1,146 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                  🔑 GUIDE RAPIDE - CONFIGURATION DES CLES API               ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+📋 VOUS DEVEZ CONFIGURER AU MOINS UNE CLE API
+═══════════════════════════════════════════════════════════════════════════════
+
+Le fichier .env va s'ouvrir dans Notepad.
+Vous devez ajouter au moins UNE cle API pour utiliser WeBox Multi-IA.
+
+
+🔑 OPTION 1 : OPENAI (GPT-4) - RECOMMANDE
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Allez sur : https://platform.openai.com/api-keys
+
+2. Creez un compte si necessaire (gratuit)
+
+3. Cliquez sur "Create new secret key"
+
+4. Copiez la cle (commence par sk-)
+
+5. Dans le fichier .env, remplacez :
+   OPENAI_API_KEY=your_openai_api_key_here
+   
+   Par :
+   OPENAI_API_KEY=sk-votre-cle-copiee-ici
+
+6. Sauvegardez (Ctrl+S)
+
+
+🔑 OPTION 2 : ANTHROPIC (CLAUDE)
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Allez sur : https://console.anthropic.com/
+
+2. Creez un compte
+
+3. Allez dans "API Keys"
+
+4. Cliquez sur "Create Key"
+
+5. Copiez la cle (commence par sk-ant-)
+
+6. Dans le fichier .env, remplacez :
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   
+   Par :
+   ANTHROPIC_API_KEY=sk-ant-votre-cle-copiee-ici
+
+7. Sauvegardez (Ctrl+S)
+
+
+🔑 OPTION 3 : GOOGLE AI (GEMINI)
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Allez sur : https://makersuite.google.com/app/apikey
+
+2. Connectez-vous avec votre compte Google
+
+3. Cliquez sur "Create API Key"
+
+4. Copiez la cle (commence par AIza)
+
+5. Dans le fichier .env, remplacez :
+   GOOGLE_API_KEY=your_google_api_key_here
+   
+   Par :
+   GOOGLE_API_KEY=AIza-votre-cle-copiee-ici
+
+6. Sauvegardez (Ctrl+S)
+
+
+✅ EXEMPLE DE FICHIER .ENV CONFIGURE
+═══════════════════════════════════════════════════════════════════════════════
+
+# Configuration des cles API pour les differentes IA
+OPENAI_API_KEY=sk-proj-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+ANTHROPIC_API_KEY=sk-ant-api03-xyz789abc123def456ghi789jkl012mno345pqr678stu
+GOOGLE_API_KEY=AIzaSyAbc123Def456Ghi789Jkl012Mno345Pqr678Stu
+
+# Configuration de l'application
+APP_NAME=WeBox Multi-IA
+APP_VERSION=1.0.0
+DEBUG=True
+
+
+⚠️  IMPORTANT
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Configurez AU MOINS UNE cle API
+✅ Sauvegardez le fichier (Ctrl+S)
+✅ Fermez Notepad
+✅ Appuyez sur une touche dans le terminal pour continuer
+
+
+💰 COUT DES API
+═══════════════════════════════════════════════════════════════════════════════
+
+OpenAI (GPT-4) :
+   → Payant a l'usage
+   → ~0.03$ pour 1000 tokens (environ 750 mots)
+   → Credit gratuit de 5$ pour les nouveaux comptes
+
+Anthropic (Claude) :
+   → Payant a l'usage
+   → ~0.015$ pour 1000 tokens
+   → Credit gratuit pour les nouveaux comptes
+
+Google AI (Gemini) :
+   → GRATUIT jusqu'a 60 requetes/minute
+   → Parfait pour commencer !
+
+
+💡 RECOMMANDATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour commencer :
+   1. Utilisez Google AI (Gemini) - GRATUIT
+   2. Ou OpenAI avec le credit gratuit de 5$
+
+
+🔒 SECURITE
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️  NE PARTAGEZ JAMAIS vos cles API
+⚠️  Le fichier .env est dans .gitignore (non versionne)
+⚠️  Si une cle est compromise, regenerez-la immediatement
+
+
+📞 BESOIN D'AIDE ?
+═══════════════════════════════════════════════════════════════════════════════
+
+Si vous avez des problemes pour obtenir vos cles API :
+   → Consultez GUIDE_UTILISATION.md
+   → Consultez QUICKSTART.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    Configurez vos cles et profitez de WeBox !
+
+═══════════════════════════════════════════════════════════════════════════════

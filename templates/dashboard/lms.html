@@ -1,0 +1,386 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}LMS - Formations{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Styles spécifiques LMS uniquement */
+.course-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-text">
+                <h1>📚 Formations LMS</h1>
+                <p>Créez et gérez vos formations en ligne avec l'IA</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    + Créer une formation
+                </button>
+                <button class="btn btn-ai" onclick="openGenerateModal()">
+                    🤖 Générer avec IA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('my-courses')" data-tab="my-courses">
+            Mes Formations
+        </button>
+        <button class="tab" onclick="switchTab('enrolled')" data-tab="enrolled">
+            Mes Inscriptions
+        </button>
+        <button class="tab" onclick="switchTab('all')" data-tab="all">
+            Toutes les Formations
+        </button>
+    </div>
+
+    <!-- Contenu -->
+    <div id="coursesContainer">
+        <div class="loading">Chargement...</div>
+    </div>
+</div>
+
+<!-- Modal Créer Formation -->
+<div id="createModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3>Créer une Formation</h3>
+            <button class="modal-close" onclick="closeCreateModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="createForm">
+                <div class="form-group">
+                    <label>Titre</label>
+                    <input type="text" id="createTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description courte</label>
+                    <input type="text" id="createShortDesc" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Description complète</label>
+                    <textarea id="createDescription" class="form-control" rows="4"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="createCategory" class="form-control">
+                            <option value="marketing">Marketing</option>
+                            <option value="development">Développement</option>
+                            <option value="design">Design</option>
+                            <option value="business">Business</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Niveau</label>
+                        <select id="createLevel" class="form-control">
+                            <option value="beginner">Débutant</option>
+                            <option value="intermediate">Intermédiaire</option>
+                            <option value="advanced">Avancé</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeCreateModal()">Annuler</button>
+            <button class="btn-primary" onclick="createCourse()">Créer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Générer avec IA -->
+<div id="generateModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3>🤖 Générer une Formation avec IA</h3>
+            <button class="modal-close" onclick="closeGenerateModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="generateForm">
+                <div class="form-group">
+                    <label>Sujet de la formation</label>
+                    <input type="text" id="generateTitle" class="form-control" placeholder="Ex: Marketing Digital" required>
+                </div>
+                <div class="form-group">
+                    <label>Description / Objectifs</label>
+                    <textarea id="generateDescription" class="form-control" rows="3" placeholder="Décrivez ce que les étudiants vont apprendre..." required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre de modules</label>
+                        <select id="generateModules" class="form-control">
+                            <option value="3">3 modules</option>
+                            <option value="5" selected>5 modules</option>
+                            <option value="8">8 modules</option>
+                            <option value="10">10 modules</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="generateContent" checked>
+                        Générer le contenu des leçons
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="generateQuizzes" checked>
+                        Générer les quiz
+                    </label>
+                </div>
+                <div class="alert alert-info">
+                    ℹ️ La génération peut prendre quelques minutes selon le nombre de modules.
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeGenerateModal()">Annuler</button>
+            <button class="btn-primary" onclick="generateCourse()">
+                🤖 Générer la Formation
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTab = 'my-courses';
+
+// Charger les formations au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadCourses();
+});
+
+// Changer d'onglet
+function switchTab(tab) {
+    currentTab = tab;
+    
+    // Mettre à jour l'UI des tabs
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Recharger les cours
+    loadCourses();
+}
+
+// Charger les formations
+async function loadCourses() {
+    try {
+        const container = document.getElementById('coursesContainer');
+        container.innerHTML = '<div class="loading"><p>⏳ Chargement...</p></div>';
+        
+        let url = '/api/lms/courses';
+        
+        if (currentTab === 'my-courses') {
+            url += '?my_courses=true';
+        } else if (currentTab === 'enrolled') {
+            url = '/api/lms/my-courses';
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success && data.courses.length > 0) {
+            renderCourses(data.courses);
+        } else {
+            renderEmptyState();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('coursesContainer').innerHTML = 
+            '<div class="empty-state"><p>❌ Erreur de chargement</p></div>';
+    }
+}
+
+// Afficher les formations
+function renderCourses(courses) {
+    const html = `
+        <div class="courses-grid">
+            ${courses.map(course => `
+                <div class="course-card" onclick="viewCourse(${course.id})">
+                    <div class="course-thumbnail">
+                        📚
+                    </div>
+                    <div class="course-content">
+                        ${course.category ? `<span class="course-category">${course.category}</span>` : ''}
+                        <h3 class="course-title">${course.title}</h3>
+                        <p class="course-description">${course.short_description || course.description || ''}</p>
+                        <div class="course-meta">
+                            <span>📖 ${course.total_modules} modules</span>
+                            <span>📝 ${course.total_lessons} leçons</span>
+                            <span>👥 ${course.total_students} étudiants</span>
+                        </div>
+                        <div class="course-footer">
+                            <div class="course-price">
+                                ${course.is_free ? 'Gratuit' : `${course.price}€`}
+                            </div>
+                            <div class="course-actions" onclick="event.stopPropagation()">
+                                <button class="btn-small btn-edit" onclick="editCourse(${course.id})">
+                                    ✏️ Éditer
+                                </button>
+                                ${!course.is_published ? `
+                                    <button class="btn-small btn-primary" onclick="publishCourse(${course.id})">
+                                        📤 Publier
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    document.getElementById('coursesContainer').innerHTML = html;
+}
+
+// Afficher l'état vide
+function renderEmptyState() {
+    const html = `
+        <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <h3>Aucune formation</h3>
+            <p>Commencez par créer votre première formation !</p>
+            <button class="btn-primary" onclick="openCreateModal()">
+                + Créer une formation
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('coursesContainer').innerHTML = html;
+}
+
+// Ouvrir modal création
+function openCreateModal() {
+    document.getElementById('createModal').style.display = 'flex';
+}
+
+// Fermer modal création
+function closeCreateModal() {
+    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('createForm').reset();
+}
+
+// Créer une formation
+async function createCourse() {
+    try {
+        const data = {
+            title: document.getElementById('createTitle').value,
+            short_description: document.getElementById('createShortDesc').value,
+            description: document.getElementById('createDescription').value,
+            category: document.getElementById('createCategory').value,
+            level: document.getElementById('createLevel').value
+        };
+        
+        const response = await fetch('/api/lms/courses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Formation créée !', 'success');
+            closeCreateModal();
+            loadCourses();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de création', 'error');
+    }
+}
+
+// Ouvrir modal génération
+function openGenerateModal() {
+    document.getElementById('generateModal').style.display = 'flex';
+}
+
+// Fermer modal génération
+function closeGenerateModal() {
+    document.getElementById('generateModal').style.display = 'none';
+    document.getElementById('generateForm').reset();
+}
+
+// Générer une formation avec IA
+async function generateCourse() {
+    try {
+        const data = {
+            title: document.getElementById('generateTitle').value,
+            description: document.getElementById('generateDescription').value,
+            num_modules: parseInt(document.getElementById('generateModules').value),
+            generate_content: document.getElementById('generateContent').checked,
+            generate_quizzes: document.getElementById('generateQuizzes').checked
+        };
+        
+        showNotification('⏳ Génération en cours... Cela peut prendre quelques minutes.', 'info');
+        closeGenerateModal();
+        
+        const response = await fetch('/api/lms/courses/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(`✅ ${result.message}`, 'success');
+            loadCourses();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de génération', 'error');
+    }
+}
+
+// Voir une formation
+function viewCourse(courseId) {
+    window.location.href = `/lms/courses/${courseId}`;
+}
+
+// Éditer une formation
+function editCourse(courseId) {
+    window.location.href = `/lms/courses/${courseId}/edit`;
+}
+
+// Publier une formation
+async function publishCourse(courseId) {
+    if (!confirm('Voulez-vous publier cette formation ?')) return;
+    
+    try {
+        const response = await fetch(`/api/lms/courses/${courseId}/publish`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Formation publiée !', 'success');
+            loadCourses();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de publication', 'error');
+    }
+}
+</script>
+{% endblock %}

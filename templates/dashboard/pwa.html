@@ -1,0 +1,377 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}📱 Mes PWA - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pwa-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-create {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .pwa-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .pwa-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+
+    .pwa-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .pwa-header {
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+    }
+
+    .pwa-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .pwa-content {
+        padding: 1.5rem;
+    }
+
+    .pwa-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .pwa-meta {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .pwa-tag {
+        padding: 0.25rem 0.75rem;
+        background: #f0f0f0;
+        border-radius: 15px;
+        font-size: 0.75rem;
+    }
+
+    .pwa-stats {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    .pwa-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .btn-view {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-download {
+        background: #11998e;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #ff4757;
+        color: white;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-ready {
+        background: #6bcf7f;
+        color: white;
+    }
+
+    .status-generating {
+        background: #ffd93d;
+        color: #333;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+    }
+
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pwa-page">
+    <div class="page-header">
+        <h1>📱 Mes PWA</h1>
+        <a href="/pwa/create" class="btn-create">+ Créer une PWA</a>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-icon">📱</div>
+            <div class="stat-value" id="totalPwas">0</div>
+            <div class="stat-label">PWA créées</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👁️</div>
+            <div class="stat-value" id="totalViews">0</div>
+            <div class="stat-label">Vues totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⬇️</div>
+            <div class="stat-value" id="totalInstalls">0</div>
+            <div class="stat-label">Installations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-value" id="deployedPwas">0</div>
+            <div class="stat-label">Déployées</div>
+        </div>
+    </div>
+
+    <div class="pwa-grid" id="pwaGrid">
+        <!-- PWAs will be loaded here -->
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-state-icon">📱</div>
+        <h2>Aucune PWA pour le moment</h2>
+        <p>Créez votre première application web progressive !</p>
+        <a href="/pwa/create" class="btn-create">Créer ma première PWA</a>
+    </div>
+</div>
+
+<script>
+    let pwas = [];
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadStats();
+        await loadPwas();
+    });
+
+    async function loadStats() {
+        try {
+            const response = await fetch('/api/pwa/stats/summary');
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('totalPwas').textContent = data.stats.total_pwas;
+                document.getElementById('totalViews').textContent = data.stats.total_views;
+                document.getElementById('totalInstalls').textContent = data.stats.total_installs;
+                document.getElementById('deployedPwas').textContent = data.stats.deployed_pwas;
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async function loadPwas() {
+        try {
+            const response = await fetch('/api/pwa/list');
+            const data = await response.json();
+
+            if (data.success) {
+                pwas = data.pwas;
+                displayPwas();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    function displayPwas() {
+        const grid = document.getElementById('pwaGrid');
+        const emptyState = document.getElementById('emptyState');
+
+        if (pwas.length === 0) {
+            grid.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        grid.style.display = 'grid';
+        emptyState.style.display = 'none';
+
+        grid.innerHTML = pwas.map(pwa => {
+            const statusClass = `status-${pwa.status}`;
+            const statusText = {
+                'draft': 'Brouillon',
+                'generating': 'Génération...',
+                'ready': 'Prête',
+                'deployed': 'Déployée'
+            }[pwa.status] || pwa.status;
+
+            return `
+                <div class="pwa-card">
+                    <div class="pwa-header" style="background: linear-gradient(135deg, ${pwa.theme_color} 0%, ${pwa.theme_color}dd 100%);">
+                        <div class="pwa-icon">📱</div>
+                        <h3>${pwa.app_name}</h3>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="pwa-content">
+                        <div class="pwa-name">${pwa.name}</div>
+                        <div class="pwa-meta">
+                            <span class="pwa-tag">${pwa.template}</span>
+                            ${pwa.offline_mode ? '<span class="pwa-tag">📴 Offline</span>' : ''}
+                            ${pwa.push_notifications ? '<span class="pwa-tag">🔔 Push</span>' : ''}
+                        </div>
+                        <p style="color: #666; font-size: 0.9rem;">${pwa.description || 'Aucune description'}</p>
+                        <div class="pwa-stats">
+                            <span>👁️ ${pwa.views_count || 0}</span>
+                            <span>⬇️ ${pwa.installs_count || 0}</span>
+                        </div>
+                        <div class="pwa-actions">
+                            ${pwa.status === 'ready' ? `
+                                <button class="btn-action btn-download" onclick="downloadPwa(${pwa.id})">
+                                    ⬇️ Télécharger
+                                </button>
+                            ` : ''}
+                            <button class="btn-action btn-delete" onclick="deletePwa(${pwa.id})">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function downloadPwa(id) {
+        try {
+            const response = await fetch(`/api/pwa/${id}/download`);
+            const data = await response.json();
+
+            if (data.success) {
+                // Créer un ZIP virtuel ou télécharger les fichiers
+                alert('✅ Fichiers prêts à télécharger !\n\nmanifest.json\nsw.js\nindex.html');
+                
+                // Télécharger chaque fichier
+                for (const [filename, content] of Object.entries(data.files)) {
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors du téléchargement');
+        }
+    }
+
+    async function deletePwa(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette PWA ?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/pwa/${id}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ PWA supprimée');
+                await loadStats();
+                await loadPwas();
+            } else {
+                alert('❌ Erreur lors de la suppression');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors de la suppression');
+        }
+    }
+</script>
+{% endblock %}

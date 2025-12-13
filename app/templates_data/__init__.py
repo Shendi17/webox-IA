@@ -1,0 +1,3 @@
+"""
+Templates de projets WeBox
+"""

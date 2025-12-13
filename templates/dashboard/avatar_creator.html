@@ -1,0 +1,652 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}👤 Avatar Creator - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-creator {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .creator-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .creator-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .creator-layout {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
+    }
+
+    /* Preview */
+    .preview-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .avatar-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .avatar-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-info {
+        text-align: center;
+    }
+
+    .preview-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-style {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    /* Customization Panel */
+    .customization-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    /* Style Grid */
+    .style-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .style-card {
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .style-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+    }
+
+    .style-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+
+    .style-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .style-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    /* Gender Buttons */
+    .gender-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .gender-btn {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .gender-btn:hover {
+        border-color: #667eea;
+    }
+
+    .gender-btn.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+
+    /* Color Picker */
+    .color-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .color-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .color-option:hover {
+        transform: scale(1.1);
+    }
+
+    .color-option.selected {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px white, 0 0 0 4px #667eea;
+    }
+
+    /* Accessories */
+    .accessories-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .accessory-tag {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.875rem;
+    }
+
+    .accessory-tag:hover {
+        border-color: #667eea;
+    }
+
+    .accessory-tag.selected {
+        border-color: #667eea;
+        background: #667eea;
+        color: white;
+    }
+
+    /* Generate Button */
+    .generate-btn {
+        width: 100%;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+
+    .generate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .generate-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Loading */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loading-content {
+        text-align: center;
+        color: white;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1024px) {
+        .creator-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .preview-panel {
+            position: relative;
+            top: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="avatar-creator">
+    <div class="creator-header">
+        <h1>👤 Créateur d'Avatar IA</h1>
+        <p>Créez votre avatar personnalisé avec l'intelligence artificielle</p>
+    </div>
+
+    <div class="creator-layout">
+        <!-- Customization Panel -->
+        <div class="customization-panel">
+            <!-- Basic Info -->
+            <div class="section">
+                <div class="section-title">📝 Informations de base</div>
+                <div class="form-group">
+                    <label for="avatarName">Nom de l'avatar</label>
+                    <input type="text" id="avatarName" placeholder="Mon Avatar">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description (optionnel)</label>
+                    <textarea id="description" rows="3" placeholder="Décrivez votre avatar..."></textarea>
+                </div>
+            </div>
+
+            <!-- Style -->
+            <div class="section">
+                <div class="section-title">🎨 Style</div>
+                <div class="style-grid" id="styleGrid">
+                    <!-- Styles will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Gender & Age -->
+            <div class="section">
+                <div class="section-title">👤 Genre & Âge</div>
+                <div class="form-group">
+                    <label>Genre</label>
+                    <div class="gender-buttons" id="genderButtons">
+                        <!-- Gender buttons will be loaded here -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ageRange">Tranche d'âge</label>
+                    <select id="ageRange">
+                        <!-- Age ranges will be loaded here -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Physical Features -->
+            <div class="section">
+                <div class="section-title">💇 Caractéristiques physiques</div>
+                <div class="form-group">
+                    <label for="hairColor">Couleur de cheveux</label>
+                    <select id="hairColor">
+                        <!-- Hair colors will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="hairStyle">Style de cheveux</label>
+                    <select id="hairStyle">
+                        <!-- Hair styles will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="eyeColor">Couleur des yeux</label>
+                    <select id="eyeColor">
+                        <!-- Eye colors will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skinTone">Teint de peau</label>
+                    <select id="skinTone">
+                        <!-- Skin tones will be loaded here -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Clothing & Accessories -->
+            <div class="section">
+                <div class="section-title">👔 Vêtements & Accessoires</div>
+                <div class="form-group">
+                    <label for="clothing">Vêtements</label>
+                    <select id="clothing">
+                        <!-- Clothing options will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Accessoires</label>
+                    <div class="accessories-grid" id="accessoriesGrid">
+                        <!-- Accessories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Background -->
+            <div class="section">
+                <div class="section-title">🎭 Arrière-plan</div>
+                <div class="form-group">
+                    <label for="background">Type d'arrière-plan</label>
+                    <select id="background">
+                        <!-- Background options will be loaded here -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="generate-btn" onclick="generateAvatar()">
+                ✨ Générer l'Avatar
+            </button>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <div class="avatar-preview" id="avatarPreview">
+                👤
+            </div>
+            <div class="preview-info">
+                <div class="preview-name" id="previewName">Mon Avatar</div>
+                <div class="preview-style" id="previewStyle">Style: Réaliste</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Génération de votre avatar...</h2>
+            <p>Cela peut prendre quelques secondes</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let avatarData = {
+        name: 'Mon Avatar',
+        description: '',
+        style: 'realistic',
+        gender: 'neutral',
+        age_range: 'adult',
+        hair_color: null,
+        hair_style: null,
+        eye_color: null,
+        skin_tone: null,
+        accessories: [],
+        clothing: null,
+        background: 'solid color',
+        category: 'profile',
+        tags: []
+    };
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadCustomizationOptions();
+        
+        // Update preview on name change
+        document.getElementById('avatarName').addEventListener('input', function() {
+            avatarData.name = this.value || 'Mon Avatar';
+            document.getElementById('previewName').textContent = avatarData.name;
+        });
+        
+        document.getElementById('description').addEventListener('input', function() {
+            avatarData.description = this.value;
+        });
+    });
+
+    async function loadCustomizationOptions() {
+        try {
+            // Load styles
+            const stylesResponse = await fetch('/api/avatars/styles');
+            const stylesData = await stylesResponse.json();
+            
+            if (stylesData.success) {
+                const grid = document.getElementById('styleGrid');
+                grid.innerHTML = stylesData.styles.map(style => `
+                    <div class="style-card ${style.id === 'realistic' ? 'selected' : ''}" onclick="selectStyle('${style.id}', '${style.name}')">
+                        <div class="style-icon">${style.icon}</div>
+                        <div class="style-name">${style.name}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Load customization options
+            const optionsResponse = await fetch('/api/avatars/customization-options');
+            const optionsData = await optionsResponse.json();
+            
+            if (optionsData.success) {
+                const options = optionsData.options;
+                
+                // Gender buttons
+                const genderButtons = document.getElementById('genderButtons');
+                genderButtons.innerHTML = options.genders.map(g => `
+                    <button class="gender-btn ${g.id === 'neutral' ? 'selected' : ''}" onclick="selectGender('${g.id}')">
+                        ${g.icon} ${g.name}
+                    </button>
+                `).join('');
+                
+                // Age ranges
+                const ageSelect = document.getElementById('ageRange');
+                ageSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.age_ranges.map(a => `<option value="${a.id}" ${a.id === 'adult' ? 'selected' : ''}>${a.name}</option>`).join('');
+                ageSelect.addEventListener('change', function() {
+                    avatarData.age_range = this.value;
+                });
+                
+                // Hair colors
+                const hairColorSelect = document.getElementById('hairColor');
+                hairColorSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.hair_colors.map(c => `<option value="${c}">${c}</option>`).join('');
+                hairColorSelect.addEventListener('change', function() {
+                    avatarData.hair_color = this.value;
+                });
+                
+                // Hair styles
+                const hairStyleSelect = document.getElementById('hairStyle');
+                hairStyleSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.hair_styles.map(s => `<option value="${s}">${s}</option>`).join('');
+                hairStyleSelect.addEventListener('change', function() {
+                    avatarData.hair_style = this.value;
+                });
+                
+                // Eye colors
+                const eyeColorSelect = document.getElementById('eyeColor');
+                eyeColorSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.eye_colors.map(c => `<option value="${c}">${c}</option>`).join('');
+                eyeColorSelect.addEventListener('change', function() {
+                    avatarData.eye_color = this.value;
+                });
+                
+                // Skin tones
+                const skinToneSelect = document.getElementById('skinTone');
+                skinToneSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.skin_tones.map(t => `<option value="${t}">${t}</option>`).join('');
+                skinToneSelect.addEventListener('change', function() {
+                    avatarData.skin_tone = this.value;
+                });
+                
+                // Clothing
+                const clothingSelect = document.getElementById('clothing');
+                clothingSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.clothing.map(c => `<option value="${c}">${c}</option>`).join('');
+                clothingSelect.addEventListener('change', function() {
+                    avatarData.clothing = this.value;
+                });
+                
+                // Accessories
+                const accessoriesGrid = document.getElementById('accessoriesGrid');
+                accessoriesGrid.innerHTML = options.accessories.map(a => `
+                    <div class="accessory-tag" onclick="toggleAccessory('${a}')">
+                        ${a}
+                    </div>
+                `).join('');
+                
+                // Background
+                const backgroundSelect = document.getElementById('background');
+                backgroundSelect.innerHTML = '<option value="">Sélectionner...</option>' +
+                    options.backgrounds.map(b => `<option value="${b}" ${b === 'solid color' ? 'selected' : ''}>${b}</option>`).join('');
+                backgroundSelect.addEventListener('change', function() {
+                    avatarData.background = this.value;
+                });
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    function selectStyle(styleId, styleName) {
+        document.querySelectorAll('.style-card').forEach(card => card.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        avatarData.style = styleId;
+        document.getElementById('previewStyle').textContent = `Style: ${styleName}`;
+    }
+
+    function selectGender(genderId) {
+        document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        avatarData.gender = genderId;
+    }
+
+    function toggleAccessory(accessory) {
+        const tag = event.currentTarget;
+        tag.classList.toggle('selected');
+        
+        if (avatarData.accessories.includes(accessory)) {
+            avatarData.accessories = avatarData.accessories.filter(a => a !== accessory);
+        } else {
+            avatarData.accessories.push(accessory);
+        }
+    }
+
+    async function generateAvatar() {
+        if (!avatarData.name) {
+            alert('Veuillez entrer un nom pour votre avatar');
+            return;
+        }
+
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.classList.add('active');
+
+        try {
+            const response = await fetch('/api/avatars/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(avatarData)
+            });
+
+            const data = await response.json();
+
+            overlay.classList.remove('active');
+
+            if (data.success) {
+                // Update preview
+                const preview = document.getElementById('avatarPreview');
+                preview.innerHTML = `<img src="${data.avatar.image_url}" alt="${data.avatar.name}">`;
+                
+                alert('✅ Avatar généré avec succès !');
+                
+                // Redirect to avatars list after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/avatars';
+                }, 2000);
+            } else {
+                alert('❌ Erreur : ' + (data.error || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            overlay.classList.remove('active');
+            alert('❌ Erreur lors de la génération : ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - WeBox Multi-IA{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css?v={{ cache_version }}">
+    <link rel="stylesheet" href="/static/css/modals.css?v={{ cache_version }}">
+    <link rel="stylesheet" href="/static/css/pages.css?v={{ cache_version }}">
+    <link rel="stylesheet" href="/static/css/voice-automation.css">
+    <link rel="stylesheet" href="/static/css/ai-agent-widget.css?v={{ cache_version }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <!-- Logo et titre -->
+            <div class="sidebar-header">
+                <h2>🤖 <span class="webox">WeBox</span> <span class="multi-ia">Multi-IA</span></h2>
+                <p class="user-name">👤 {{ user.name }}</p>
+                <hr>
+            </div>
+            
+            <!-- Navigation -->
+            <div class="sidebar-section">
+                <h3>📍 NAVIGATION</h3>
+                <nav class="sidebar-nav">
+                    <a href="/dashboard" class="nav-item {% if request.url.path == '/dashboard' %}active{% endif %}">
+                        🏠 Accueil
+                    </a>
+                    <a href="/chat" class="nav-item {% if request.url.path == '/chat' %}active{% endif %}">
+                        💬 Chat Multi-IA
+                    </a>
+                    <a href="/agents" class="nav-item {% if request.url.path == '/agents' %}active{% endif %}">
+                        🤖 Agents IA Spécialisés
+                    </a>
+                    <a href="/prompts" class="nav-item {% if request.url.path == '/prompts' %}active{% endif %}">
+                        📚 Bibliothèque de Prompts
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Studio Créatif -->
+            <div class="sidebar-section">
+                <h3>✨ STUDIO CRÉATIF</h3>
+                <nav class="sidebar-nav">
+                    <a href="/podcasts" class="nav-item {% if request.url.path == '/podcasts' or request.url.path == '/podcast/create' %}active{% endif %}">
+                        🎙️ Podcasts IA
+                    </a>
+                    <a href="/avatars" class="nav-item {% if request.url.path == '/avatars' or request.url.path == '/avatar/create' %}active{% endif %}">
+                        👤 Avatars IA
+                    </a>
+                    <a href="/series" class="nav-item {% if request.url.path == '/series' or request.url.path == '/series/create' %}active{% endif %}">
+                        📺 Séries IA
+                    </a>
+                    <a href="/pwa" class="nav-item {% if request.url.path == '/pwa' or request.url.path == '/pwa/create' %}active{% endif %}">
+                        📱 PWA Generator
+                    </a>
+                    <a href="/documents" class="nav-item {% if request.url.path == '/documents' %}active{% endif %}">
+                        📄 Documents IA
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Génération -->
+            <div class="sidebar-section">
+                <h3>🎨 GÉNÉRATION</h3>
+                <nav class="sidebar-nav">
+                    <a href="/generation" class="nav-item {% if request.url.path == '/generation' %}active{% endif %}">
+                        🎨 Génération Multi-Média
+                    </a>
+                    <a href="/combinations" class="nav-item {% if request.url.path == '/combinations' %}active{% endif %}">
+                        🔄 Combinaisons IA
+                    </a>
+                    <a href="/voice" class="nav-item {% if request.url.path == '/voice' %}active{% endif %}">
+                        📞 Assistant Vocal
+                    </a>
+                    <a href="/social" class="nav-item {% if request.url.path == '/social' %}active{% endif %}">
+                        📱 Réseaux Sociaux
+                    </a>
+                    <a href="/influencers" class="nav-item {% if request.url.path == '/influencers' %}active{% endif %}">
+                        👤 Influenceurs IA
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Marketing & Business -->
+            <div class="sidebar-section">
+                <h3>📊 MARKETING</h3>
+                <nav class="sidebar-nav">
+                    <a href="/marketing-dashboard" class="nav-item {% if request.url.path == '/marketing-dashboard' %}active{% endif %}">
+                        📊 Dashboard Marketing
+                    </a>
+                    <a href="/crm" class="nav-item {% if request.url.path == '/crm' %}active{% endif %}">
+                        👥 CRM
+                    </a>
+                    <a href="/funnels" class="nav-item {% if request.url.path == '/funnels' %}active{% endif %}">
+                        🎯 Tunnels de Vente
+                    </a>
+                    <a href="/email-marketing" class="nav-item {% if request.url.path == '/email-marketing' %}active{% endif %}">
+                        📧 Email Marketing
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Création Web -->
+            <div class="sidebar-section">
+                <h3>🌐 CRÉATION WEB</h3>
+                <nav class="sidebar-nav">
+                    <a href="/projects" class="nav-item {% if request.url.path == '/projects' %}active{% endif %}">
+                        🏗️ Studio Web IA
+                    </a>
+                    <a href="/website-builder" class="nav-item {% if request.url.path == '/website-builder' %}active{% endif %}">
+                        🌐 Website Builder
+                    </a>
+                    <a href="/landing-pages" class="nav-item {% if request.url.path == '/landing-pages' %}active{% endif %}">
+                        📄 Landing Pages
+                    </a>
+                    <a href="/presentations" class="nav-item {% if request.url.path == '/presentations' %}active{% endif %}">
+                        📊 Présentations IA
+                    </a>
+                    <a href="/lms" class="nav-item {% if request.url.path == '/lms' %}active{% endif %}">
+                        📚 Formations LMS
+                    </a>
+                    <a href="/content" class="nav-item {% if request.url.path == '/content' %}active{% endif %}">
+                        📝 Content Engine
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Outils -->
+            <div class="sidebar-section">
+                <h3>🔧 OUTILS</h3>
+                <nav class="sidebar-nav">
+                    <a href="/catalog" class="nav-item {% if request.url.path == '/catalog' %}active{% endif %}">
+                        🔧 Catalogue d'Outils IA
+                    </a>
+                    <a href="/automation" class="nav-item {% if request.url.path == '/automation' %}active{% endif %}">
+                        ⚡ Automatisation (Pipedream)
+                    </a>
+                    <a href="/collaboration" class="nav-item {% if request.url.path == '/collaboration' %}active{% endif %}">
+                        👥 Collaboration
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Ressources -->
+            <div class="sidebar-section">
+                <h3>📚 RESSOURCES</h3>
+                <nav class="sidebar-nav">
+                    <a href="/analytics" class="nav-item {% if request.url.path == '/analytics' %}active{% endif %}">
+                        📊 Analytics
+                    </a>
+                    <a href="/blog" class="nav-item {% if request.url.path == '/blog' %}active{% endif %}">
+                        📝 Blog IA
+                    </a>
+                    <a href="/documentation" class="nav-item {% if request.url.path == '/documentation' %}active{% endif %}">
+                        📖 Documentation
+                    </a>
+                    <a href="/media" class="nav-item {% if request.url.path == '/media' %}active{% endif %}">
+                        📁 Gestionnaire Média
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Paramètres -->
+            <div class="sidebar-section">
+                <h3>⚙️ PARAMÈTRES</h3>
+                <nav class="sidebar-nav">
+                    <a href="/profile" class="nav-item {% if request.url.path == '/profile' %}active{% endif %}">
+                        👤 Mon Profil
+                    </a>
+                </nav>
+            </div>
+            
+            <hr>
+            
+            <!-- Sélection des IA (pour le chat) -->
+            {% if request.url.path == '/chat' %}
+            <div class="sidebar-section">
+                <h3>🤖 Sélection des IA</h3>
+                <div class="ai-selection">
+                    <details class="expander">
+                        <summary>💬 Texte & Conversation</summary>
+                        <div class="expander-content">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="gpt4" checked>
+                                <span>GPT-4 (OpenAI)</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="claude">
+                                <span>Claude 3 (Anthropic)</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="gemini">
+                                <span>Gemini Pro (Google)</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="mistral">
+                                <span>Mistral AI</span>
+                            </label>
+                        </div>
+                    </details>
+                    
+                    <details class="expander">
+                        <summary>🎨 Génération d'Images</summary>
+                        <div class="expander-content">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="dalle">
+                                <span>DALL-E 3</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="midjourney">
+                                <span>Midjourney</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ai" value="stable-diffusion">
+                                <span>Stable Diffusion</span>
+                            </label>
+                        </div>
+                    </details>
+                    
+                    <details class="expander">
+                        <summary>⚙️ Paramètres</summary>
+                        <div class="expander-content">
+                            <label>Température</label>
+                            <input type="range" min="0" max="100" value="70" class="slider">
+                            <label>Max Tokens</label>
+                            <input type="number" value="2000" class="input-field">
+                        </div>
+                    </details>
+                </div>
+            </div>
+            
+            <hr>
+            {% endif %}
+            
+            <!-- Actions rapides -->
+            <div class="sidebar-section">
+                <button class="sidebar-btn primary" onclick="window.location.href='/chat'">
+                    ➕ Nouvelle conversation
+                </button>
+                <button class="sidebar-btn secondary" onclick="window.location.href='/logout'">
+                    🚪 Déconnexion
+                </button>
+            </div>
+            
+            <!-- Footer -->
+            <div class="sidebar-footer">
+                <p>v2.0.0</p>
+                <p><a href="/">← Retour à l'accueil</a></p>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <script src="/static/js/ui-system.js?v=1.0"></script>
+    <script src="/static/js/dashboard.js?v=4.0"></script>
+    <script src="/static/js/fonctionnalites.js?v=3.0"></script>
+    <script src="/static/js/test-ui.js?v=2.0"></script>
+    <script src="/static/js/voice-automation.js"></script>
+    <script src="/static/js/ai-agent-widget.js?v={{ cache_version }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

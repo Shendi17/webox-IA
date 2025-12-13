@@ -1,0 +1,146 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║              ⚠️  RESTAURATION DU FICHIER HOSTS - URGENT                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+❌ PROBLEME
+═══════════════════════════════════════════════════════════════════════════════
+
+Le script a modifie le fichier hosts et vos autres projets ne sont plus
+accessibles.
+
+JE SUIS DESOLE ! Le script aurait du AJOUTER webox.local sans toucher
+aux autres entrees.
+
+
+✅ SOLUTION IMMEDIATE (2 METHODES)
+═══════════════════════════════════════════════════════════════════════════════
+
+
+METHODE 1 : RESTAURATION AUTOMATIQUE (SI SAUVEGARDE EXISTE)
+────────────────────────────────────────────────────────────
+
+1. Double-cliquez sur :
+   📁 RESTAURER-HOSTS.ps1
+   
+2. Choisissez la sauvegarde la plus recente
+   
+3. Vos projets seront restaures !
+
+
+METHODE 2 : RESTAURATION MANUELLE
+──────────────────────────────────
+
+1. Ouvrez Notepad EN TANT QU'ADMINISTRATEUR
+   (Clic droit sur Notepad -> "Executer en tant qu'administrateur")
+
+2. Ouvrez le fichier :
+   C:\Windows\System32\drivers\etc\hosts
+
+3. Le fichier Notepad est deja ouvert pour vous !
+
+4. AJOUTEZ vos autres projets, par exemple :
+   
+   127.0.0.1    projet1.local
+   127.0.0.1    projet2.local
+   127.0.0.1    projet3.local
+   127.0.0.1    webox.local
+
+5. Sauvegardez (Ctrl+S)
+
+6. Videz le cache DNS :
+   Ouvrez PowerShell et executez :
+   ipconfig /flushdns
+
+
+📋 EXEMPLE DE FICHIER HOSTS COMPLET
+═══════════════════════════════════════════════════════════════════════════════
+
+# Copyright (c) 1993-2009 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+
+# localhost name resolution is handled within DNS itself.
+#	127.0.0.1       localhost
+#	::1             localhost
+
+# Vos projets locaux
+127.0.0.1    projet1.local
+127.0.0.1    projet2.local
+127.0.0.1    projet3.local
+127.0.0.1    webox.local
+
+
+🔧 POUR AJOUTER WEBOX.LOCAL CORRECTEMENT
+═══════════════════════════════════════════════════════════════════════════════
+
+Utilisez le nouveau script qui PRESERVE vos autres projets :
+
+   📁 AJOUTER-WEBOX-SEULEMENT.ps1
+
+Ce script :
+   ✅ Fait une sauvegarde AVANT toute modification
+   ✅ Affiche les entrees actuelles
+   ✅ Ajoute UNIQUEMENT webox.local
+   ✅ NE TOUCHE PAS aux autres projets
+
+
+📞 VERIFICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Apres restauration, verifiez que vos projets fonctionnent :
+
+   ping projet1.local
+   ping projet2.local
+   ping webox.local
+
+Tous doivent repondre avec 127.0.0.1
+
+
+⚠️  IMPORTANT POUR L'AVENIR
+═══════════════════════════════════════════════════════════════════════════════
+
+N'UTILISEZ PLUS ces scripts :
+   ❌ SETUP-COMPLET.ps1
+   ❌ SETUP-COMPLET-V2.ps1
+   ❌ SETUP-FINAL.ps1
+
+UTILISEZ UNIQUEMENT :
+   ✅ AJOUTER-WEBOX-SEULEMENT.ps1  (pour ajouter webox.local)
+   ✅ RESTAURER-HOSTS.ps1          (pour restaurer si probleme)
+
+
+💡 ALTERNATIVE SIMPLE
+═══════════════════════════════════════════════════════════════════════════════
+
+Si vous voulez eviter tout probleme avec le fichier hosts :
+
+   Utilisez simplement : http://localhost:8501
+
+Pas de configuration necessaire, fonctionne immediatement !
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+              JE SUIS VRAIMENT DESOLE POUR CE DESAGREMENT !
+
+         Le nouveau script AJOUTER-WEBOX-SEULEMENT.ps1 est securise
+                  et preserve tous vos autres projets.
+
+═══════════════════════════════════════════════════════════════════════════════

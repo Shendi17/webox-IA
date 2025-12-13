@@ -1,0 +1,578 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Content Engine{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Styles spécifiques Content Engine */
+.content-type-btn {
+    padding: 1rem 1.5rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    color: #666;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.content-type-btn:hover {
+    border-color: #ffd700;
+    color: #1a1a2e;
+}
+
+.content-type-btn.active {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    border-color: #ffd700;
+    color: white;
+}
+
+.btn-generate {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1a2e;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-text">
+                <h1>📝 Content Engine</h1>
+                <p>Générez tous types de contenus avec l'intelligence artificielle</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Types de contenu -->
+    <div class="tabs" style="flex-wrap: wrap; border-bottom: none; gap: 1rem; margin-bottom: 2rem;">
+        <button class="content-type-btn active" onclick="switchContentType('blog')" data-type="blog">
+            📝 Article de Blog
+        </button>
+        <button class="content-type-btn" onclick="switchContentType('social')" data-type="social">
+            📱 Réseaux Sociaux
+        </button>
+        <button class="content-type-btn" onclick="switchContentType('email')" data-type="email">
+            📧 Email
+        </button>
+        <button class="content-type-btn" onclick="switchContentType('video')" data-type="video">
+            🎥 Script Vidéo
+        </button>
+    </div>
+
+    <!-- Générateur Blog -->
+    <div id="generator-blog" class="generator-section">
+        <h2>🤖 Générer un Article de Blog</h2>
+        <form id="blogForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Sujet de l'article *</label>
+                    <input type="text" class="form-control" id="blogTopic" placeholder="Ex: Marketing Digital 2025" required>
+                </div>
+                <div class="form-group">
+                    <label>Mots-clés SEO (séparés par des virgules)</label>
+                    <input type="text" class="form-control" id="blogKeywords" placeholder="SEO, Marketing, IA">
+                </div>
+                <div class="form-group">
+                    <label>Longueur (mots)</label>
+                    <select class="form-control" id="blogLength">
+                        <option value="1000">1000 mots</option>
+                        <option value="2000" selected>2000 mots</option>
+                        <option value="3000">3000 mots</option>
+                        <option value="5000">5000 mots</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ton</label>
+                    <select class="form-control" id="blogTone">
+                        <option value="professionnel">Professionnel</option>
+                        <option value="décontracté">Décontracté</option>
+                        <option value="éducatif">Éducatif</option>
+                        <option value="inspirant">Inspirant</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-checkbox">
+                <input type="checkbox" id="blogImages" checked>
+                <label for="blogImages">Inclure des suggestions d'images</label>
+            </div>
+            <button type="submit" class="btn-generate">
+                🤖 Générer l'Article
+            </button>
+        </form>
+    </div>
+
+    <!-- Générateur Réseaux Sociaux -->
+    <div id="generator-social" class="generator-section" style="display: none;">
+        <!-- Bannière d'information -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="font-size: 2rem;">💡</div>
+            <div style="flex: 1;">
+                <strong style="font-size: 1.1rem;">Prêt à publier ?</strong>
+                <p style="margin: 0.3rem 0 0 0; opacity: 0.95;">Une fois votre contenu généré, publiez-le directement sur vos réseaux sociaux !</p>
+            </div>
+            <a href="/social" style="background: white; color: #667eea; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; white-space: nowrap;">
+                📱 Aller aux Réseaux Sociaux
+            </a>
+        </div>
+        
+        <h2>🤖 Générer des Posts Réseaux Sociaux</h2>
+        <form id="socialForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Plateforme *</label>
+                    <select class="form-control" id="socialPlatform">
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="twitter">Twitter/X</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sujet *</label>
+                    <input type="text" class="form-control" id="socialTopic" placeholder="Ex: IA et productivité" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de posts</label>
+                    <select class="form-control" id="socialCount">
+                        <option value="3">3 posts</option>
+                        <option value="5" selected>5 posts</option>
+                        <option value="10">10 posts</option>
+                        <option value="20">20 posts</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Format</label>
+                    <select class="form-control" id="socialFormat">
+                        <option value="post">Post simple</option>
+                        <option value="carousel">Carousel</option>
+                        <option value="story">Story</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-generate">
+                🤖 Générer les Posts
+            </button>
+        </form>
+    </div>
+
+    <!-- Générateur Email -->
+    <div id="generator-email" class="generator-section" style="display: none;">
+        <!-- Bannière d'information -->
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="font-size: 2rem;">📧</div>
+            <div style="flex: 1;">
+                <strong style="font-size: 1.1rem;">Créer une campagne ?</strong>
+                <p style="margin: 0.3rem 0 0 0; opacity: 0.95;">Utilisez ce contenu dans votre campagne email marketing !</p>
+            </div>
+            <a href="/email-marketing" style="background: white; color: #f5576c; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; white-space: nowrap;">
+                📧 Email Marketing
+            </a>
+        </div>
+        
+        <h2>🤖 Générer un Email</h2>
+        <form id="emailForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Type d'email *</label>
+                    <select class="form-control" id="emailType">
+                        <option value="newsletter">Newsletter</option>
+                        <option value="promo">Promotion</option>
+                        <option value="bienvenue">Bienvenue</option>
+                        <option value="abandon">Panier abandonné</option>
+                        <option value="remerciement">Remerciement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sujet *</label>
+                    <input type="text" class="form-control" id="emailTopic" placeholder="Ex: Nouveautés du mois" required>
+                </div>
+                <div class="form-group">
+                    <label>Audience cible</label>
+                    <input type="text" class="form-control" id="emailAudience" placeholder="Ex: Entrepreneurs" value="général">
+                </div>
+                <div class="form-group">
+                    <label>Ton</label>
+                    <select class="form-control" id="emailTone">
+                        <option value="professionnel">Professionnel</option>
+                        <option value="amical">Amical</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-generate">
+                🤖 Générer l'Email
+            </button>
+        </form>
+    </div>
+
+    <!-- Générateur Vidéo -->
+    <div id="generator-video" class="generator-section" style="display: none;">
+        <h2>🤖 Générer un Script Vidéo</h2>
+        <form id="videoForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Sujet *</label>
+                    <input type="text" class="form-control" id="videoTopic" placeholder="Ex: Comment utiliser l'IA" required>
+                </div>
+                <div class="form-group">
+                    <label>Durée (secondes)</label>
+                    <select class="form-control" id="videoDuration">
+                        <option value="30">30 secondes</option>
+                        <option value="60" selected>60 secondes</option>
+                        <option value="120">2 minutes</option>
+                        <option value="300">5 minutes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Style</label>
+                    <select class="form-control" id="videoStyle">
+                        <option value="éducatif">Éducatif</option>
+                        <option value="divertissant">Divertissant</option>
+                        <option value="inspirant">Inspirant</option>
+                        <option value="tutoriel">Tutoriel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Plateforme</label>
+                    <select class="form-control" id="videoPlatform">
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="instagram">Instagram</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-generate">
+                🤖 Générer le Script
+            </button>
+        </form>
+    </div>
+
+    <!-- Liste des contenus récents -->
+    <div class="contents-section">
+        <h2>📚 Contenus Récents</h2>
+        <div id="contentsContainer">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Chargement...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentType = 'blog';
+
+// Charger les contenus au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadContents();
+    
+    // Gestionnaires de formulaires
+    document.getElementById('blogForm').addEventListener('submit', handleBlogSubmit);
+    document.getElementById('socialForm').addEventListener('submit', handleSocialSubmit);
+    document.getElementById('emailForm').addEventListener('submit', handleEmailSubmit);
+    document.getElementById('videoForm').addEventListener('submit', handleVideoSubmit);
+});
+
+// Changer de type de contenu
+function switchContentType(type) {
+    currentType = type;
+    
+    // Mettre à jour les boutons
+    document.querySelectorAll('.content-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-type="${type}"]`).classList.add('active');
+    
+    // Afficher le bon générateur
+    document.querySelectorAll('.generator-section').forEach(gen => {
+        gen.style.display = 'none';
+    });
+    document.getElementById(`generator-${type}`).style.display = 'block';
+    
+    // Recharger les contenus
+    loadContents();
+}
+
+// Générer un article de blog
+async function handleBlogSubmit(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('.btn-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ Génération en cours...';
+    
+    try {
+        const keywords = document.getElementById('blogKeywords').value
+            .split(',')
+            .map(k => k.trim())
+            .filter(k => k);
+        
+        const response = await fetch('/api/content/generate/blog', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: document.getElementById('blogTopic').value,
+                keywords: keywords,
+                length: parseInt(document.getElementById('blogLength').value),
+                tone: document.getElementById('blogTone').value,
+                include_images: document.getElementById('blogImages').checked
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Article généré avec succès !', 'success');
+            e.target.reset();
+            loadContents();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de génération', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Générer l\'Article';
+    }
+}
+
+// Générer des posts sociaux
+async function handleSocialSubmit(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('.btn-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ Génération en cours...';
+    
+    try {
+        const response = await fetch('/api/content/generate/social', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                platform: document.getElementById('socialPlatform').value,
+                topic: document.getElementById('socialTopic').value,
+                count: parseInt(document.getElementById('socialCount').value),
+                format: document.getElementById('socialFormat').value,
+                tone: 'engageant'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(`✅ ${result.count} posts générés !`, 'success');
+            e.target.reset();
+            loadContents();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de génération', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Générer les Posts';
+    }
+}
+
+// Générer un email
+async function handleEmailSubmit(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('.btn-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ Génération en cours...';
+    
+    try {
+        const response = await fetch('/api/content/generate/email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email_type: document.getElementById('emailType').value,
+                topic: document.getElementById('emailTopic').value,
+                target_audience: document.getElementById('emailAudience').value,
+                tone: document.getElementById('emailTone').value
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Email généré avec succès !', 'success');
+            e.target.reset();
+            loadContents();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de génération', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Générer l\'Email';
+    }
+}
+
+// Générer un script vidéo
+async function handleVideoSubmit(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('.btn-generate');
+    btn.disabled = true;
+    btn.textContent = '⏳ Génération en cours...';
+    
+    try {
+        const response = await fetch('/api/content/generate/video-script', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: document.getElementById('videoTopic').value,
+                duration: parseInt(document.getElementById('videoDuration').value),
+                style: document.getElementById('videoStyle').value,
+                platform: document.getElementById('videoPlatform').value
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Script vidéo généré !', 'success');
+            e.target.reset();
+            loadContents();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de génération', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Générer le Script';
+    }
+}
+
+// Charger les contenus
+async function loadContents() {
+    try {
+        const container = document.getElementById('contentsContainer');
+        container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Chargement...</p></div>';
+        
+        const response = await fetch(`/api/content/contents?content_type=${currentType}&limit=10`);
+        const data = await response.json();
+        
+        if (data.success && data.contents.length > 0) {
+            renderContents(data.contents);
+        } else {
+            container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu pour le moment</p>';
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('contentsContainer').innerHTML = 
+            '<p style="text-align: center; color: #f44336;">❌ Erreur de chargement</p>';
+    }
+}
+
+// Afficher les contenus
+function renderContents(contents) {
+    const typeIcons = {
+        blog: '📝',
+        social: '📱',
+        email: '📧',
+        video: '🎥',
+        audio: '🎙️'
+    };
+    
+    const html = `
+        <div class="contents-grid">
+            ${contents.map(content => `
+                <div class="content-item">
+                    <div class="content-info">
+                        <div class="content-title">
+                            ${typeIcons[content.content_type] || '📄'} ${content.title}
+                        </div>
+                        <div class="content-meta">
+                            <span>${content.content_type}</span>
+                            ${content.word_count ? `<span>${content.word_count} mots</span>` : ''}
+                            ${content.platform ? `<span>${content.platform}</span>` : ''}
+                            <span>${new Date(content.created_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                    </div>
+                    <div class="content-actions">
+                        <button class="btn-small btn-view" onclick="viewContent(${content.id})">
+                            👁️ Voir
+                        </button>
+                        <button class="btn-small btn-edit" onclick="editContent(${content.id})">
+                            ✏️ Éditer
+                        </button>
+                        <button class="btn-small btn-delete" onclick="deleteContent(${content.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    document.getElementById('contentsContainer').innerHTML = html;
+}
+
+// Voir un contenu
+function viewContent(id) {
+    window.location.href = `/content/${id}`;
+}
+
+// Éditer un contenu
+function editContent(id) {
+    window.location.href = `/content/${id}/edit`;
+}
+
+// Supprimer un contenu
+async function deleteContent(id) {
+    if (!confirm('Voulez-vous vraiment supprimer ce contenu ?')) return;
+    
+    try {
+        const response = await fetch(`/api/content/contents/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Contenu supprimé', 'success');
+            loadContents();
+        } else {
+            showNotification(`❌ ${result.error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de suppression', 'error');
+    }
+}
+</script>
+{% endblock %}

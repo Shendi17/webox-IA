@@ -1,0 +1,476 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}📺 Série - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .series-detail {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Hero Section */
+    .series-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 3rem;
+        color: white;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .series-hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.3;
+    }
+
+    .series-hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .series-title {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .series-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-tag {
+        padding: 0.5rem 1rem;
+        background: rgba(255,255,255,0.2);
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .series-synopsis {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .series-stats {
+        display: flex;
+        gap: 2rem;
+        font-size: 1.1rem;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab {
+        padding: 1rem 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        color: #666;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Episodes */
+    .episodes-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .episode-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        gap: 2rem;
+        transition: transform 0.3s;
+    }
+
+    .episode-card:hover {
+        transform: translateX(10px);
+    }
+
+    .episode-number {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .episode-content {
+        flex: 1;
+    }
+
+    .episode-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .episode-description {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .episode-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #999;
+    }
+
+    .episode-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .btn-episode {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-view {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-generate {
+        background: #11998e;
+        color: white;
+    }
+
+    /* Characters */
+    .characters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .character-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .character-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 1rem;
+    }
+
+    .character-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .character-role {
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .character-traits {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .trait-tag {
+        padding: 0.25rem 0.75rem;
+        background: #f0f0f0;
+        border-radius: 15px;
+        font-size: 0.75rem;
+    }
+
+    /* Progress */
+    .progress-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="series-detail">
+    <!-- Hero Section -->
+    <div class="series-hero" id="seriesHero">
+        <div class="series-hero-content">
+            <h1 class="series-title" id="seriesTitle">Chargement...</h1>
+            <div class="series-meta" id="seriesMeta"></div>
+            <div class="series-synopsis" id="seriesSynopsis"></div>
+            <div class="series-stats" id="seriesStats"></div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('episodes')">📺 Épisodes</button>
+        <button class="tab" onclick="switchTab('characters')">👥 Personnages</button>
+        <button class="tab" onclick="switchTab('info')">ℹ️ Informations</button>
+    </div>
+
+    <!-- Episodes Tab -->
+    <div class="tab-content active" id="episodesTab">
+        <div class="episodes-grid" id="episodesGrid">
+            <!-- Episodes will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Characters Tab -->
+    <div class="tab-content" id="charactersTab">
+        <div class="characters-grid" id="charactersGrid">
+            <!-- Characters will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Info Tab -->
+    <div class="tab-content" id="infoTab">
+        <div class="progress-section">
+            <h2>📊 Progression de génération</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">0%</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const seriesId = {{ series_id }};
+    let series = null;
+    let episodes = [];
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadSeries();
+        await loadEpisodes();
+    });
+
+    async function loadSeries() {
+        try {
+            const response = await fetch(`/api/series/${seriesId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                series = data.series;
+                displaySeries();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async function loadEpisodes() {
+        try {
+            const response = await fetch(`/api/series/${seriesId}/episodes`);
+            const data = await response.json();
+
+            if (data.success) {
+                episodes = data.episodes;
+                displayEpisodes();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    function displaySeries() {
+        document.getElementById('seriesTitle').textContent = series.title;
+        
+        document.getElementById('seriesMeta').innerHTML = `
+            <span class="meta-tag">${series.genre}</span>
+            <span class="meta-tag">${series.style}</span>
+            <span class="meta-tag">${series.target_audience}</span>
+            <span class="meta-tag">${series.num_episodes} épisodes</span>
+        `;
+
+        document.getElementById('seriesSynopsis').textContent = series.synopsis || series.description;
+
+        document.getElementById('seriesStats').innerHTML = `
+            <span>👁️ ${series.views_count || 0} vues</span>
+            <span>❤️ ${series.likes_count || 0} likes</span>
+            <span>📤 ${series.shares_count || 0} partages</span>
+        `;
+
+        // Progress
+        document.getElementById('progressFill').style.width = series.generation_progress + '%';
+        document.getElementById('progressText').textContent = series.generation_progress + '%';
+
+        // Characters
+        if (series.characters && series.characters.length > 0) {
+            displayCharacters();
+        }
+
+        // Background image
+        if (series.cover_image_url) {
+            document.getElementById('seriesHero').style.backgroundImage = `url(${series.cover_image_url})`;
+            document.getElementById('seriesHero').style.backgroundSize = 'cover';
+            document.getElementById('seriesHero').style.backgroundPosition = 'center';
+        }
+    }
+
+    function displayEpisodes() {
+        const grid = document.getElementById('episodesGrid');
+
+        if (episodes.length === 0) {
+            grid.innerHTML = '<p>Aucun épisode généré pour le moment.</p>';
+            return;
+        }
+
+        grid.innerHTML = episodes.map(ep => `
+            <div class="episode-card">
+                <div class="episode-number">${ep.episode_number}</div>
+                <div class="episode-content">
+                    <div class="episode-title">${ep.title}</div>
+                    <div class="episode-description">${ep.description || 'Aucune description'}</div>
+                    <div class="episode-meta">
+                        <span>⏱️ ${ep.duration || series.episode_duration} min</span>
+                        <span>👁️ ${ep.views_count || 0} vues</span>
+                        <span>📊 ${ep.status}</span>
+                    </div>
+                </div>
+                <div class="episode-actions">
+                    ${ep.status === 'completed' ? `
+                        <button class="btn-episode btn-view" onclick="viewEpisode(${ep.id})">
+                            👁️ Voir
+                        </button>
+                    ` : `
+                        <button class="btn-episode btn-generate" onclick="generateScript(${ep.id})">
+                            🎬 Générer Script
+                        </button>
+                    `}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function displayCharacters() {
+        const grid = document.getElementById('charactersGrid');
+
+        if (!series.characters || series.characters.length === 0) {
+            grid.innerHTML = '<p>Aucun personnage défini.</p>';
+            return;
+        }
+
+        grid.innerHTML = series.characters.map(char => `
+            <div class="character-card">
+                <div class="character-avatar">👤</div>
+                <div class="character-name">${char.name}</div>
+                <div class="character-role">${char.role}</div>
+                <div class="character-traits">
+                    ${char.personality ? char.personality.map(trait => 
+                        `<span class="trait-tag">${trait}</span>`
+                    ).join('') : ''}
+                </div>
+                ${char.goal ? `<p style="margin-top: 1rem; color: #666;"><strong>Objectif:</strong> ${char.goal}</p>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function switchTab(tabName) {
+        // Update tabs
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(tabName + 'Tab').classList.add('active');
+    }
+
+    function viewEpisode(episodeId) {
+        window.location.href = `/episodes/${episodeId}`;
+    }
+
+    async function generateScript(episodeId) {
+        if (!confirm('Générer le script de cet épisode ? Cela peut prendre quelques minutes.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/series/episodes/${episodeId}/generate-script`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ Génération du script lancée !');
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                alert('❌ Erreur: ' + (data.error || 'Erreur inconnue'));
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors de la génération');
+        }
+    }
+</script>
+{% endblock %}

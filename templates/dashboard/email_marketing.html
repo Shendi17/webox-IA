@@ -1,0 +1,382 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Email Marketing - WeBox IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/modals.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-text">
+                <h1>📧 Email Marketing</h1>
+                <p>Créez et envoyez des campagnes email professionnelles avec l'IA</p>
+            </div>
+            <div class="page-actions">
+                <a href="/content?type=email" class="btn btn-ai" style="text-decoration: none;">
+                    🤖 Générer le contenu avec l'IA
+                </a>
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    + Créer une campagne
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des campagnes -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">📊 Mes Campagnes</h2>
+        </div>
+        <div id="campaignsContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">📧</div>
+                <p>Chargement des campagnes...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Créer Campagne -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📧 Créer une Campagne</h2>
+            <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createForm" onsubmit="createCampaign(event)">
+                <div class="form-group">
+                    <label>Nom de la campagne *</label>
+                    <input type="text" name="name" required placeholder="Newsletter Janvier 2025">
+                </div>
+                <div class="form-group">
+                    <label>Sujet de l'email *</label>
+                    <input type="text" name="subject" required placeholder="Découvrez nos nouveautés !">
+                </div>
+                <div class="form-group">
+                    <label>Texte de prévisualisation</label>
+                    <input type="text" name="preview_text" placeholder="Aperçu dans la boîte de réception...">
+                </div>
+                <div class="form-group">
+                    <label>Contenu HTML *</label>
+                    <textarea name="html_content" rows="10" required placeholder="<h1>Bonjour !</h1><p>Votre contenu...</p>"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Destinataires (emails séparés par des virgules)</label>
+                    <textarea name="recipients" rows="3" placeholder="email1@example.com, email2@example.com"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Générer avec IA -->
+<div id="generateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🤖 Générer une Campagne avec IA</h2>
+            <button class="modal-close" onclick="closeGenerateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="generateForm" onsubmit="generateCampaign(event)">
+                <div class="form-group">
+                    <label>Type de campagne *</label>
+                    <select name="campaign_type" required>
+                        <option value="newsletter">📰 Newsletter</option>
+                        <option value="promotional">🎁 Promotionnelle</option>
+                        <option value="announcement">📢 Annonce</option>
+                        <option value="educational">📚 Éducative</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sujet / Thème *</label>
+                    <input type="text" name="topic" required placeholder="Nouveautés du mois de janvier">
+                </div>
+                <div class="form-group">
+                    <label>Audience cible *</label>
+                    <input type="text" name="target_audience" required placeholder="Clients actifs, Prospects qualifiés...">
+                </div>
+                <div class="form-group">
+                    <label>Ton souhaité</label>
+                    <select name="tone">
+                        <option value="professional">💼 Professionnel</option>
+                        <option value="friendly">😊 Amical</option>
+                        <option value="enthusiastic">🎉 Enthousiaste</option>
+                        <option value="formal">🎩 Formel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Objectif principal</label>
+                    <input type="text" name="goal" placeholder="Augmenter les ventes, Informer, Engager...">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeGenerateModal()">Annuler</button>
+                    <button type="submit" class="btn btn-ai">🤖 Générer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let campaigns = [];
+
+// Charger les campagnes
+async function loadCampaigns() {
+    const container = document.getElementById('campaignsContainer');
+    
+    try {
+        const response = await fetch('/api/marketing/campaigns');
+        const data = await response.json();
+        
+        if (data.success && data.campaigns.length > 0) {
+            displayCampaigns(data.campaigns);
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📧</div>
+                    <p>Aucune campagne email</p>
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        + Créer votre première campagne
+                    </button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <p>Erreur lors du chargement des campagnes</p>
+            </div>
+        `;
+    }
+}
+
+// Afficher les campagnes
+function displayCampaigns(campaigns) {
+    const container = document.getElementById('campaignsContainer');
+    
+    const statusColors = {
+        'draft': '#ffc107',
+        'scheduled': '#17a2b8',
+        'sending': '#fd7e14',
+        'sent': '#28a745',
+        'failed': '#dc3545'
+    };
+
+    const statusLabels = {
+        'draft': '📝 Brouillon',
+        'scheduled': '⏰ Programmé',
+        'sending': '📤 Envoi en cours',
+        'sent': '✅ Envoyé',
+        'failed': '❌ Échec'
+    };
+
+    container.innerHTML = `
+        <div class="cards-grid">
+            ${campaigns.map(campaign => `
+                <div class="card">
+                    <div class="card-header">
+                        <h3>${campaign.name}</h3>
+                        <span class="badge" style="background: ${statusColors[campaign.status]}20; color: ${statusColors[campaign.status]};">
+                            ${statusLabels[campaign.status] || campaign.status}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>📧 Sujet:</strong> ${campaign.subject}</p>
+                        ${campaign.preview_text ? `<p><strong>👁️ Aperçu:</strong> ${campaign.preview_text}</p>` : ''}
+                        ${campaign.status === 'sent' ? `
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;">${campaign.sent_count || 0}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Envoyés</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #38ef7d;">${((campaign.open_rate || 0) * 100).toFixed(1)}%</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Ouverture</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #f093fb;">${((campaign.click_rate || 0) * 100).toFixed(1)}%</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Clics</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="card-footer" style="display: flex; gap: 0.5rem;">
+                        ${campaign.status === 'draft' ? `
+                            <button class="btn btn-primary" onclick="sendCampaign(${campaign.id})" style="flex: 1;">
+                                🚀 Envoyer
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-secondary" onclick="viewCampaign(${campaign.id})">
+                            👁️ Voir
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteCampaign(${campaign.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Créer une campagne
+async function createCampaign(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const recipientsText = formData.get('recipients');
+    const recipients = recipientsText ? recipientsText.split(',').map(e => e.trim()).filter(e => e) : [];
+    
+    const campaignData = {
+        name: formData.get('name'),
+        subject: formData.get('subject'),
+        preview_text: formData.get('preview_text'),
+        html_content: formData.get('html_content'),
+        recipients: recipients
+    };
+    
+    try {
+        const response = await fetch('/api/marketing/campaigns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(campaignData)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Campagne créée avec succès !', 'success');
+            closeCreateModal();
+            form.reset();
+            loadCampaigns();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la création', 'error');
+    }
+}
+
+// Générer une campagne avec IA
+async function generateCampaign(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const generateData = {
+        campaign_type: formData.get('campaign_type'),
+        topic: formData.get('topic'),
+        target_audience: formData.get('target_audience'),
+        tone: formData.get('tone'),
+        goal: formData.get('goal')
+    };
+    
+    showNotification('🤖 Génération en cours...', 'info');
+    
+    try {
+        const response = await fetch('/api/marketing/campaigns/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(generateData)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Campagne générée avec succès !', 'success');
+            closeGenerateModal();
+            form.reset();
+            loadCampaigns();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la génération', 'error');
+    }
+}
+
+// Envoyer une campagne
+async function sendCampaign(id) {
+    if (!confirm('Envoyer cette campagne maintenant ?')) return;
+    
+    try {
+        const response = await fetch(`/api/marketing/campaigns/${id}/send`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Campagne envoyée !', 'success');
+            setTimeout(() => loadCampaigns(), 2000);
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de l\'envoi', 'error');
+    }
+}
+
+// Voir une campagne
+function viewCampaign(id) {
+    alert('Fonctionnalité de prévisualisation à venir !');
+}
+
+// Supprimer une campagne
+async function deleteCampaign(id) {
+    if (!confirm('Supprimer cette campagne ?')) return;
+    
+    try {
+        const response = await fetch(`/api/marketing/campaigns/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Campagne supprimée', 'success');
+            loadCampaigns();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la suppression', 'error');
+    }
+}
+
+// Modals
+function openCreateModal() {
+    document.getElementById('createModal').classList.add('active');
+}
+
+function closeCreateModal() {
+    document.getElementById('createModal').classList.remove('active');
+}
+
+function openGenerateModal() {
+    document.getElementById('generateModal').classList.add('active');
+}
+
+function closeGenerateModal() {
+    document.getElementById('generateModal').classList.remove('active');
+}
+
+// Notification
+function showNotification(message, type) {
+    // Ne pas afficher d'alerte pour éviter les popups intrusifs
+    console.log(`[${type}] ${message}`);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    loadCampaigns();
+});
+</script>
+{% endblock %}

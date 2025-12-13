@@ -1,0 +1,604 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}📺 Créateur de Série IA - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .series-creator {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .creator-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .creator-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Wizard Steps */
+    .wizard-steps {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .wizard-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0.5;
+        transition: all 0.3s;
+    }
+
+    .wizard-step.active {
+        opacity: 1;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .wizard-step.active .step-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    /* Form */
+    .form-container {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* Grid Selections */
+    .selection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .selection-card {
+        padding: 1.5rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .selection-card:hover {
+        border-color: #667eea;
+        transform: translateY(-5px);
+    }
+
+    .selection-card.selected {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .selection-icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .selection-name {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .selection-desc {
+        font-size: 0.875rem;
+        color: #666;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .btn-secondary {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loading-content {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 500px;
+    }
+
+    .loading-spinner {
+        width: 80px;
+        height: 80px;
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 2rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        width: 0%;
+        transition: width 0.3s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="series-creator">
+    <div class="creator-header">
+        <h1>📺 Créateur de Série IA</h1>
+        <p>Créez des séries complètes avec scripts et images générés par IA</p>
+    </div>
+
+    <!-- Wizard Steps -->
+    <div class="wizard-steps">
+        <div class="wizard-step active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-label">Concept</div>
+        </div>
+        <div class="wizard-step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-label">Genre</div>
+        </div>
+        <div class="wizard-step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-label">Style</div>
+        </div>
+        <div class="wizard-step" data-step="4">
+            <div class="step-number">4</div>
+            <div class="step-label">Configuration</div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+        <form id="seriesForm">
+            <!-- Step 1: Concept -->
+            <div class="form-step active" data-step="1">
+                <h2>📝 Concept de votre série</h2>
+                
+                <div class="form-group">
+                    <label for="title">Titre de la série *</label>
+                    <input type="text" id="title" name="title" required 
+                           placeholder="Ex: Les Aventures de Luna">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" required
+                              placeholder="Décrivez votre série en quelques phrases..."></textarea>
+                </div>
+            </div>
+
+            <!-- Step 2: Genre -->
+            <div class="form-step" data-step="2">
+                <h2>🎭 Choisissez le genre</h2>
+                <div class="selection-grid" id="genreGrid">
+                    <!-- Genres will be loaded here -->
+                </div>
+                <input type="hidden" id="genre" name="genre">
+            </div>
+
+            <!-- Step 3: Style -->
+            <div class="form-step" data-step="3">
+                <h2>🎨 Style visuel</h2>
+                <div class="selection-grid" id="styleGrid">
+                    <!-- Styles will be loaded here -->
+                </div>
+                <input type="hidden" id="style" name="style">
+
+                <h2 style="margin-top: 2rem;">👥 Public cible</h2>
+                <div class="selection-grid" id="audienceGrid">
+                    <!-- Audiences will be loaded here -->
+                </div>
+                <input type="hidden" id="target_audience" name="target_audience">
+            </div>
+
+            <!-- Step 4: Configuration -->
+            <div class="form-step" data-step="4">
+                <h2>⚙️ Configuration</h2>
+                
+                <div class="form-group">
+                    <label for="num_episodes">Nombre d'épisodes</label>
+                    <select id="num_episodes" name="num_episodes">
+                        <option value="5">5 épisodes</option>
+                        <option value="10" selected>10 épisodes</option>
+                        <option value="15">15 épisodes</option>
+                        <option value="20">20 épisodes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="episode_duration">Durée par épisode (minutes)</label>
+                    <select id="episode_duration" name="episode_duration">
+                        <option value="3">3 minutes</option>
+                        <option value="5" selected>5 minutes</option>
+                        <option value="10">10 minutes</option>
+                        <option value="15">15 minutes</option>
+                    </select>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-top: 2rem;">
+                    <h3>📊 Résumé</h3>
+                    <p><strong>Titre:</strong> <span id="summaryTitle">-</span></p>
+                    <p><strong>Genre:</strong> <span id="summaryGenre">-</span></p>
+                    <p><strong>Style:</strong> <span id="summaryStyle">-</span></p>
+                    <p><strong>Public:</strong> <span id="summaryAudience">-</span></p>
+                    <p><strong>Épisodes:</strong> <span id="summaryEpisodes">10</span></p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()">
+                    ← Précédent
+                </button>
+                <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                    Suivant →
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                    🎬 Créer la Série
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h2>Génération de votre série en cours...</h2>
+        <p id="loadingMessage">Création du concept et des personnages...</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    let genres = [];
+    let styles = [];
+    let audiences = [];
+    let selectedGenre = null;
+    let selectedStyle = null;
+    let selectedAudience = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadGenres();
+        await loadStyles();
+        await loadAudiences();
+        updateStepDisplay();
+    });
+
+    async function loadGenres() {
+        try {
+            const response = await fetch('/api/series/genres');
+            const data = await response.json();
+            
+            if (data.success) {
+                genres = data.genres;
+                const grid = document.getElementById('genreGrid');
+                grid.innerHTML = genres.map(genre => `
+                    <div class="selection-card" onclick="selectGenre('${genre.id}', '${genre.name}')">
+                        <div class="selection-icon">${genre.icon}</div>
+                        <div class="selection-name">${genre.name}</div>
+                        <div class="selection-desc">${genre.description}</div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async function loadStyles() {
+        try {
+            const response = await fetch('/api/series/styles');
+            const data = await response.json();
+            
+            if (data.success) {
+                styles = data.styles;
+                const grid = document.getElementById('styleGrid');
+                grid.innerHTML = styles.map(style => `
+                    <div class="selection-card" onclick="selectStyle('${style.id}', '${style.name}')">
+                        <div class="selection-icon">${style.icon}</div>
+                        <div class="selection-name">${style.name}</div>
+                        <div class="selection-desc">${style.description}</div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async function loadAudiences() {
+        try {
+            const response = await fetch('/api/series/audiences');
+            const data = await response.json();
+            
+            if (data.success) {
+                audiences = data.audiences;
+                const grid = document.getElementById('audienceGrid');
+                grid.innerHTML = audiences.map(aud => `
+                    <div class="selection-card" onclick="selectAudience('${aud.id}', '${aud.name}')">
+                        <div class="selection-icon">${aud.icon}</div>
+                        <div class="selection-name">${aud.name}</div>
+                        <div class="selection-desc">${aud.age}</div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    function selectGenre(id, name) {
+        selectedGenre = {id, name};
+        document.getElementById('genre').value = id;
+        document.querySelectorAll('#genreGrid .selection-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        document.getElementById('summaryGenre').textContent = name;
+    }
+
+    function selectStyle(id, name) {
+        selectedStyle = {id, name};
+        document.getElementById('style').value = id;
+        document.querySelectorAll('#styleGrid .selection-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        document.getElementById('summaryStyle').textContent = name;
+    }
+
+    function selectAudience(id, name) {
+        selectedAudience = {id, name};
+        document.getElementById('target_audience').value = id;
+        document.querySelectorAll('#audienceGrid .selection-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        document.getElementById('summaryAudience').textContent = name;
+    }
+
+    function updateStepDisplay() {
+        // Update wizard steps
+        document.querySelectorAll('.wizard-step').forEach(step => {
+            const stepNum = parseInt(step.dataset.step);
+            step.classList.toggle('active', stepNum === currentStep);
+        });
+
+        // Update form steps
+        document.querySelectorAll('.form-step').forEach(step => {
+            const stepNum = parseInt(step.dataset.step);
+            step.classList.toggle('active', stepNum === currentStep);
+        });
+
+        // Update buttons
+        document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'block';
+        document.getElementById('nextBtn').style.display = currentStep === 4 ? 'none' : 'block';
+        document.getElementById('submitBtn').style.display = currentStep === 4 ? 'block' : 'none';
+
+        // Update summary
+        if (currentStep === 4) {
+            document.getElementById('summaryTitle').textContent = document.getElementById('title').value || '-';
+            document.getElementById('summaryEpisodes').textContent = document.getElementById('num_episodes').value;
+        }
+    }
+
+    function nextStep() {
+        if (currentStep < 4) {
+            // Validation
+            if (currentStep === 1) {
+                if (!document.getElementById('title').value || !document.getElementById('description').value) {
+                    alert('Veuillez remplir tous les champs');
+                    return;
+                }
+            } else if (currentStep === 2 && !selectedGenre) {
+                alert('Veuillez sélectionner un genre');
+                return;
+            } else if (currentStep === 3 && (!selectedStyle || !selectedAudience)) {
+                alert('Veuillez sélectionner un style et un public cible');
+                return;
+            }
+
+            currentStep++;
+            updateStepDisplay();
+        }
+    }
+
+    function previousStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateStepDisplay();
+        }
+    }
+
+    document.getElementById('seriesForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            genre: document.getElementById('genre').value,
+            target_audience: document.getElementById('target_audience').value,
+            num_episodes: parseInt(document.getElementById('num_episodes').value),
+            episode_duration: parseInt(document.getElementById('episode_duration').value),
+            style: document.getElementById('style').value
+        };
+
+        // Show loading
+        document.getElementById('loadingOverlay').classList.add('active');
+
+        try {
+            const response = await fetch('/api/series/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Simulate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            window.location.href = '/series/' + data.series.id;
+                        }, 1000);
+                    }
+                }, 500);
+            } else {
+                alert('❌ Erreur: ' + (data.error || 'Erreur inconnue'));
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors de la création');
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+    });
+</script>
+{% endblock %}

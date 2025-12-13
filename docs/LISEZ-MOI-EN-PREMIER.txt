@@ -1,0 +1,138 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                    🚀 WEBOX MULTI-IA - DEMARRAGE RAPIDE                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+✨ POUR DEMARRER (1 SEUL CLIC)
+═══════════════════════════════════════════════════════════════════════════════
+
+Double-cliquez sur ce fichier :
+
+   📁 DEMARRER-WEBOX.bat
+
+Puis cliquez sur "OUI" quand Windows demande l'autorisation.
+
+C'EST TOUT ! 🎉
+
+
+🌐 ACCES A L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Apres le demarrage, l'application sera accessible sur :
+
+   ✅ http://webox.local:8501      (comme vos autres projets)
+   ✅ http://localhost:8501
+   ✅ http://127.0.0.1:8501
+
+
+🔑 CONFIGURATION DES CLES API (IMPORTANT)
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour utiliser les IA, vous devez configurer AU MOINS UNE cle API.
+
+Le script vous demandera si vous voulez les configurer.
+Repondez "O" (Oui) et ajoutez vos cles dans le fichier .env
+
+Ou obtenir les cles :
+
+   OpenAI (GPT-4) :
+   → https://platform.openai.com/api-keys
+
+   Anthropic (Claude) :
+   → https://console.anthropic.com/
+
+   Google AI (Gemini) :
+   → https://makersuite.google.com/app/apikey
+
+
+📋 CE QUE LE SCRIPT FAIT AUTOMATIQUEMENT
+═══════════════════════════════════════════════════════════════════════════════
+
+1. ✅ Configure webox.local dans le fichier hosts Windows
+2. ✅ Verifie vos cles API
+3. ✅ Arrete les anciennes instances de l'application
+4. ✅ Lance l'application Streamlit
+5. ✅ Ouvre le navigateur sur http://webox.local:8501
+
+
+🎯 FONCTIONNALITES PRINCIPALES
+═══════════════════════════════════════════════════════════════════════════════
+
+💬 Chat Multi-IA
+   → Discutez avec GPT-4, Claude et Gemini simultanement
+   → Comparez les reponses cote a cote
+
+🎯 Assistants Specialises
+   → 6 assistants pre-configures
+   → Marketing, Developpement, Business, Coach, Traducteur, Creatif
+
+📚 Bibliotheque de Prompts
+   → Prompts cle en main par categorie
+   → Creez vos propres prompts
+
+🔍 Verification Croisee
+   → Validez les reponses avec une autre IA
+
+📁 Organisation
+   → Dossiers thematiques
+   → Historique des conversations
+
+
+🛑 ARRETER L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Dans la fenetre PowerShell qui s'est ouverte :
+   → Appuyez sur Ctrl+C
+
+
+🔄 REDEMARRER L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Double-cliquez a nouveau sur :
+   📁 DEMARRER-WEBOX.bat
+
+
+📖 DOCUMENTATION COMPLETE
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 COMMENT_DEMARRER.txt        → Instructions de demarrage
+📖 QUICKSTART.md               → Guide de demarrage rapide
+📖 GUIDE_UTILISATION.md        → Guide complet
+📖 EXEMPLES.md                 → 15+ exemples concrets
+📖 CONFIGURATION_RAPIDE.md     → Configuration detaillee
+
+
+🐛 EN CAS DE PROBLEME
+═══════════════════════════════════════════════════════════════════════════════
+
+Si webox.local ne fonctionne pas :
+   → Le script configure automatiquement le fichier hosts
+   → Si ca ne marche toujours pas, utilisez http://localhost:8501
+
+Si "Aucune IA configuree" :
+   → Configurez vos cles API dans le fichier .env
+   → Consultez la section "Configuration des cles API" ci-dessus
+
+Si l'application ne demarre pas :
+   → Verifiez que Python est installe : python --version
+   → Reinstallez les dependances : pip install -r requirements.txt
+
+
+💡 ASTUCE
+═══════════════════════════════════════════════════════════════════════════════
+
+Creez un raccourci de DEMARRER-WEBOX.bat sur votre bureau
+pour lancer l'application encore plus rapidement !
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    🎉 TOUT EST CONFIGURE AUTOMATIQUEMENT !
+
+              Double-cliquez sur DEMARRER-WEBOX.bat pour commencer
+
+                    L'application s'ouvrira sur webox.local
+
+═══════════════════════════════════════════════════════════════════════════════

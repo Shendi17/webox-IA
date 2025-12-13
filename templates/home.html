@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title_webox }} {{ title_multi_ia }} - L'Interface IA la Plus Complète{% endblock %}
+
+{% block content %}
+<!-- HEADER NAVIGATION -->
+<header class="main-header">
+    <div class="header-container">
+        <div class="header-logo">
+            <a href="/">
+                <span class="emoji">{{ title_emoji }}</span>
+                <span class="webox">{{ title_webox }}</span>
+                <span class="multi-ia">{{ title_multi_ia }}</span>
+            </a>
+        </div>
+        
+        <nav class="header-nav">
+            {% if user %}
+                <span class="user-welcome">Bonjour, {{ user.name }} 👋</span>
+                <a href="/dashboard" class="btn btn-dashboard">📊 Dashboard</a>
+                <a href="/logout" class="btn btn-logout">🚪 Déconnexion</a>
+            {% else %}
+                <a href="/login" class="btn btn-login">🔐 Connexion</a>
+                <a href="/register" class="btn btn-register">📝 Inscription</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+<!-- HERO SECTION - CONTRÔLE TOTAL -->
+<section class="hero">
+    <div class="hero-container">
+        <!-- Titre -->
+        <h1 class="hero-title">
+            <span class="emoji">{{ title_emoji }}</span>
+            <span class="webox">{{ title_webox }}</span>
+            <span class="multi-ia">{{ title_multi_ia }}</span>
+        </h1>
+        
+        <!-- Sous-titre -->
+        <h2 class="hero-subtitle">{{ subtitle }}</h2>
+        
+        <!-- Image -->
+        <div class="hero-image-container">
+            <img src="/static/images/Webox-IA.png" alt="WeBox Multi-IA" class="hero-image">
+        </div>
+        
+        <!-- Features -->
+        <p class="hero-features">{{ hero_features }}</p>
+        
+        <!-- Description -->
+        <p class="hero-description">{{ hero_description }}</p>
+        
+        <!-- Boutons CTA -->
+        <div class="hero-buttons">
+            <a href="/login" class="btn btn-primary">
+                🔐 Connexion
+            </a>
+            <a href="/register" class="btn btn-secondary">
+                📝 Inscription
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="stats">
+    <div class="stats-container">
+        {% for stat in stats %}
+        <div class="stat-item">
+            <div class="stat-number">{{ stat.number }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- FEATURES SECTION DÉTAILLÉE -->
+<section class="features-detailed">
+    <div class="features-detailed-container">
+        <h2 class="section-title">🚀 Fonctionnalités Complètes</h2>
+        
+        <div class="features-columns">
+            <!-- Colonne 1 -->
+            <div class="feature-column">
+                {% for feature in features_col1 %}
+                <div class="feature-block">
+                    <div class="feature-block-icon">{{ feature.icon }}</div>
+                    <h3>{{ feature.title }}</h3>
+                    <p>{{ feature.description }}</p>
+                    <ul class="feature-list">
+                        {% for item in feature.features %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Colonne 2 -->
+            <div class="feature-column">
+                {% for feature in features_col2 %}
+                <div class="feature-block">
+                    <div class="feature-block-icon">{{ feature.icon }}</div>
+                    <h3>{{ feature.title }}</h3>
+                    <p>{{ feature.description }}</p>
+                    <ul class="feature-list">
+                        {% for item in feature.features %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Colonne 3 -->
+            <div class="feature-column">
+                {% for feature in features_col3 %}
+                <div class="feature-block">
+                    <div class="feature-block-icon">{{ feature.icon }}</div>
+                    <h3>{{ feature.title }}</h3>
+                    <p>{{ feature.description }}</p>
+                    <ul class="feature-list">
+                        {% for item in feature.features %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE SECTION -->
+<section class="why-choose">
+    <div class="why-choose-container">
+        <h2 class="section-title">✨ Pourquoi Choisir WeBox Multi-IA ?</h2>
+        
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <h3>Rapide et Efficace</h3>
+                <p>Automatisez vos tâches en quelques clics. Interface intuitive et réactive.</p>
+            </div>
+            
+            <div class="why-card">
+                <div class="why-icon">🔒</div>
+                <h3>Sécurisé</h3>
+                <p>Vos données sont protégées et chiffrées. Conformité RGPD garantie.</p>
+            </div>
+            
+            <div class="why-card">
+                <div class="why-icon">🎯</div>
+                <h3>Précis</h3>
+                <p>Des résultats de haute qualité à chaque fois. IA de dernière génération.</p>
+            </div>
+            
+            <div class="why-card">
+                <div class="why-icon">💰</div>
+                <h3>Économique</h3>
+                <p>Un seul abonnement pour 50+ APIs. Économisez jusqu'à 80% sur vos coûts IA.</p>
+            </div>
+            
+            <div class="why-card">
+                <div class="why-icon">🔄</div>
+                <h3>Mis à jour</h3>
+                <p>Nouvelles fonctionnalités chaque semaine. Toujours à la pointe de l'IA.</p>
+            </div>
+            
+            <div class="why-card">
+                <div class="why-icon">🌍</div>
+                <h3>Multilingue</h3>
+                <p>Support de 100+ langues. Interface disponible en français, anglais, espagnol.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS SECTION -->
+<section class="testimonials">
+    <div class="testimonials-container">
+        <h2 class="section-title">💬 Ce Que Disent Nos Utilisateurs</h2>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"WeBox Multi-IA a transformé notre façon de travailler. Les agents IA nous font gagner un temps précieux sur les tâches répétitives !"</p>
+                <div class="testimonial-author">
+                    <strong>Marie Dubois</strong>
+                    <span>CEO, TechStart</span>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Interface incroyablement complète et intuitive. J'utilise quotidiennement le chat multi-IA et la génération d'images. Un vrai gain de productivité !"</p>
+                <div class="testimonial-author">
+                    <strong>Thomas Martin</strong>
+                    <span>Designer Freelance</span>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">"L'assistant vocal est bluffant de réalisme ! Nous l'avons intégré à notre service client et les retours sont excellents. Bravo !"</p>
+                <div class="testimonial-author">
+                    <strong>Sophie Laurent</strong>
+                    <span>Directrice Marketing, InnovateCorp</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-container">
+        <p>&copy; 2025 WeBox Multi-IA. Tous droits réservés.</p>
+        <div class="footer-links">
+            <a href="/about">À propos</a>
+            <a href="/contact">Contact</a>
+            <a href="/privacy">Confidentialité</a>
+            <a href="/terms">Conditions</a>
+        </div>
+    </div>
+</footer>
+{% endblock %}

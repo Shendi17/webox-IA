@@ -1,0 +1,408 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Collaboration - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+* { pointer-events: auto !important; }
+
+.collab-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    height: calc(100vh - 250px);
+}
+
+.contacts-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.contact-item:hover {
+    background: #f8f9fa;
+}
+
+.contact-item.active {
+    background: #e3f2fd;
+}
+
+.contact-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-name {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.contact-status {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.chat-panel {
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.message {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.message.sent {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-content {
+    max-width: 60%;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+}
+
+.message.sent .message-content {
+    background: #4169e1;
+    color: white;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 0.5rem;
+}
+
+.chat-input-container {
+    padding: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+    display: flex;
+    gap: 1rem;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 1rem;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #4169e1;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🤝 Collaboration</h1>
+    <p>Messagerie et projets d'équipe</p>
+</div>
+
+<div class="collab-grid">
+    <div class="contacts-panel">
+        <h3 style="margin-bottom: 1rem;">💬 Conversations</h3>
+        <div class="contact-item active">
+            <div class="contact-avatar">👤</div>
+            <div class="contact-info">
+                <div class="contact-name">Équipe WeBox</div>
+                <div class="contact-status">En ligne</div>
+            </div>
+        </div>
+        <div class="contact-item">
+            <div class="contact-avatar">🤖</div>
+            <div class="contact-info">
+                <div class="contact-name">Support IA</div>
+                <div class="contact-status">Disponible 24/7</div>
+            </div>
+        </div>
+        <div class="contact-item">
+            <div class="contact-avatar">👥</div>
+            <div class="contact-info">
+                <div class="contact-name">Projet Alpha</div>
+                <div class="contact-status">3 membres</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-panel">
+        <div class="chat-header">
+            <h3>💬 Équipe WeBox</h3>
+            <p style="color: #999; font-size: 0.9rem;">En ligne</p>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message">
+                <div class="message-avatar">👤</div>
+                <div>
+                    <div class="message-content">
+                        Bienvenue sur WeBox ! Comment puis-je vous aider aujourd'hui ?
+                    </div>
+                    <div class="message-time">10:15</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-avatar">👨</div>
+                <div>
+                    <div class="message-content">
+                        Bonjour ! Je souhaite en savoir plus sur les fonctionnalités.
+                    </div>
+                    <div class="message-time">10:16</div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="message-avatar">👤</div>
+                <div>
+                    <div class="message-content">
+                        Avec plaisir ! WeBox vous permet d'accéder à toutes les IAs en un seul endroit. Vous pouvez gérer vos prompts, automatiser vos tâches, et bien plus encore !
+                    </div>
+                    <div class="message-time">10:17</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="messageInput" placeholder="Tapez votre message...">
+            <button class="sidebar-btn primary" onclick="sendMessage()">📤 Envoyer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Fonctionnalités de collaboration -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+    <div class="dashboard-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+        <h3>Messagerie Instantanée</h3>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+            Communiquez en temps réel avec votre équipe, partagez des fichiers et des idées.
+        </p>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <strong>Fonctionnalités :</strong><br>
+            • Messages instantanés<br>
+            • Partage de fichiers<br>
+            • Emojis et réactions<br>
+            • Notifications en temps réel
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+        <h3>Gestion de Projets</h3>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+            Organisez vos projets, assignez des tâches et suivez l'avancement en équipe.
+        </p>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <strong>Fonctionnalités :</strong><br>
+            • Tableaux Kanban<br>
+            • Assignation de tâches<br>
+            • Deadlines et rappels<br>
+            • Suivi de progression
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📹</div>
+        <h3>Visioconférence</h3>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+            Organisez des réunions vidéo avec partage d'écran et enregistrement.
+        </p>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <strong>Fonctionnalités :</strong><br>
+            • Appels vidéo HD<br>
+            • Partage d'écran<br>
+            • Enregistrement<br>
+            • Jusqu'à 50 participants
+        </div>
+    </div>
+</div>
+
+<!-- Intégrations collaboration -->
+<div class="dashboard-card" style="margin-top: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h2 style="margin-bottom: 1.5rem;">🔌 Intégrations Disponibles</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+            <strong>Slack</strong>
+            <p style="opacity: 0.9; font-size: 0.9rem; margin-top: 0.5rem;">Synchronisation bidirectionnelle</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📧</div>
+            <strong>Gmail</strong>
+            <p style="opacity: 0.9; font-size: 0.9rem; margin-top: 0.5rem;">Notifications par email</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+            <strong>Trello</strong>
+            <p style="opacity: 0.9; font-size: 0.9rem; margin-top: 0.5rem;">Import/Export de projets</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📱</div>
+            <strong>Teams</strong>
+            <p style="opacity: 0.9; font-size: 0.9rem; margin-top: 0.5rem;">Intégration Microsoft</p>
+        </div>
+    </div>
+</div>
+
+<!-- Avantages collaboration -->
+<div class="dashboard-card" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">✨ Pourquoi Collaborer sur WeBox ?</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚀</div>
+            <strong>Productivité +40%</strong>
+            <p style="color: #666; margin-top: 0.5rem;">Communication centralisée = moins de temps perdu</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔒</div>
+            <strong>Sécurité Renforcée</strong>
+            <p style="color: #666; margin-top: 0.5rem;">Chiffrement end-to-end, conformité RGPD</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+            <strong>IA Intégrée</strong>
+            <p style="color: #666; margin-top: 0.5rem;">Résumés automatiques, suggestions intelligentes</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+            <strong>Économies</strong>
+            <p style="color: #666; margin-top: 0.5rem;">Remplace 5+ outils en un seul</p>
+        </div>
+    </div>
+</div>
+
+<!-- Cas d'usage -->
+<div class="dashboard-card" style="margin-top: 2rem; background: #fff3cd;">
+    <h2 style="margin-bottom: 1.5rem;">💼 Cas d'Usage</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">🏢 Équipes Distantes</h3>
+            <p style="color: #666;">Travaillez efficacement en télétravail avec tous les outils nécessaires en un seul endroit.</p>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">🚀 Startups</h3>
+            <p style="color: #666;">Lancez-vous rapidement sans investir dans de multiples outils de collaboration coûteux.</p>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">🎓 Éducation</h3>
+            <p style="color: #666;">Facilitez la collaboration entre étudiants et enseignants pour les projets de groupe.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Roadmap -->
+<div class="dashboard-card" style="margin-top: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">🗺️ Roadmap 2025</h2>
+    <div style="line-height: 2.5;">
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem; background: #e8f5e9; border-radius: 8px; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.5rem;">✅</span>
+            <strong>Q1 2025 :</strong> Messagerie instantanée et partage de fichiers
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem; background: #fff3cd; border-radius: 8px; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.5rem;">🔄</span>
+            <strong>Q2 2025 :</strong> Visioconférence et partage d'écran
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.5rem;">⏳</span>
+            <strong>Q3 2025 :</strong> Gestion de projets Kanban
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 8px;">
+            <span style="font-size: 1.5rem;">⏳</span>
+            <strong>Q4 2025 :</strong> IA de résumé et traduction automatique
+        </div>
+    </div>
+</div>
+
+<script>
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    const messagesContainer = document.getElementById('chatMessages');
+    const now = new Date();
+    const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+    
+    messagesContainer.innerHTML += `
+        <div class="message sent">
+            <div class="message-avatar">👨</div>
+            <div>
+                <div class="message-content">${message}</div>
+                <div class="message-time">${time}</div>
+            </div>
+        </div>
+    `;
+    
+    input.value = '';
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Réponse automatique après 1 seconde
+    setTimeout(() => {
+        messagesContainer.innerHTML += `
+            <div class="message">
+                <div class="message-avatar">👤</div>
+                <div>
+                    <div class="message-content">Message reçu ! Notre équipe vous répondra bientôt.</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            </div>
+        `;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 1000);
+}
+
+document.getElementById('messageInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});</script>
+{% endblock %}

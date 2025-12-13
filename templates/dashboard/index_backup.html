@@ -1,0 +1,753 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Dashboard - WeBox Multi-IA{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* Barre de recherche globale */
+.global-search {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+}
+
+/* Notifications */
+.notifications-container {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 9999;
+    max-width: 400px;
+}
+
+.notification {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideInRight 0.3s ease;
+    border-left: 4px solid;
+}
+
+.notification.success { border-left-color: #28a745; }
+.notification.info { border-left-color: #4169e1; }
+.notification.warning { border-left-color: #ffc107; }
+.notification.error { border-left-color: #dc3545; }
+
+.notification-icon {
+    font-size: 1.5rem;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-message {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.notification-time {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    line-height: 1;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Statistiques */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.5s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Actions rapides */
+.quick-actions {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.quick-actions h2 {
+    margin-bottom: 1.5rem;
+    color: #1a1a2e;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.action-icon {
+    font-size: 2.5rem;
+}
+
+.action-label {
+    font-weight: 600;
+}
+
+/* Projets récents */
+.recent-projects {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.recent-projects h2 {
+    margin-bottom: 1.5rem;
+    color: #1a1a2e;
+}
+
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.project-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.project-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 10px;
+}
+
+.project-info {
+    flex: 1;
+}
+
+.project-name {
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.project-meta {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.project-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.project-status.published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.project-status.draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.project-status.completed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.project-action {
+    background: #4169e1;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.project-action:hover {
+    background: #3558c9;
+    transform: scale(1.05);
+}
+
+/* Thème toggle */
+.theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1) rotate(20deg);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .theme-toggle {
+        top: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    
+    .notifications-container {
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+    }
+}
+
+/* Loading skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Notifications Container -->
+<div class="notifications-container" id="notificationsContainer"></div>
+
+<!-- Page Header -->
+<div class="page-header">
+    <h1>🏠 Dashboard</h1>
+    <p>Bienvenue {{ user.name }} ! Voici un aperçu de votre activité</p>
+</div>
+
+<!-- Barre de recherche globale -->
+<div class="global-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" placeholder="Rechercher un projet, un outil, une fonctionnalité..." id="globalSearch">
+</div>
+
+<!-- Statistiques -->
+<div class="stats-grid" id="statsGrid">
+    <div class="stat-card skeleton" style="height: 100px;"></div>
+    <div class="stat-card skeleton" style="height: 100px;"></div>
+    <div class="stat-card skeleton" style="height: 100px;"></div>
+    <div class="stat-card skeleton" style="height: 100px;"></div>
+</div>
+
+<!-- Actions Rapides -->
+<div class="quick-actions">
+    <h2>⚡ Actions Rapides</h2>
+    <div class="actions-grid">
+        <button class="action-btn" onclick="location.href='/website-builder'">
+            <span class="action-icon">🌐</span>
+            <span class="action-label">Nouveau Site</span>
+        </button>
+        <button class="action-btn" onclick="location.href='/funnels'">
+            <span class="action-icon">🎯</span>
+            <span class="action-label">Nouveau Tunnel</span>
+        </button>
+        <button class="action-btn" onclick="location.href='/chat'">
+            <span class="action-icon">💬</span>
+            <span class="action-label">Nouveau Chat</span>
+        </button>
+        <button class="action-btn" onclick="location.href='/generation'">
+            <span class="action-icon">🎨</span>
+            <span class="action-label">Générer Média</span>
+        </button>
+        <button class="action-btn" onclick="location.href='/prompts'">
+            <span class="action-icon">📚</span>
+            <span class="action-label">Prompts</span>
+        </button>
+        <button class="action-btn" onclick="location.href='/agents'">
+            <span class="action-icon">🤖</span>
+            <span class="action-label">Agents IA</span>
+        </button>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Utilisation des IA -->
+    <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        <h2 style="margin-bottom: 1.5rem; color: #1a1a2e;">🤖 Utilisation des IA</h2>
+        <canvas id="aiUsageChart" style="max-height: 300px;"></canvas>
+    </div>
+    
+    <!-- Activité sur 30 jours -->
+    <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        <h2 style="margin-bottom: 1.5rem; color: #1a1a2e;">📈 Activité (30 jours)</h2>
+        <canvas id="activityChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
+
+<!-- Activité Récente -->
+<div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.5rem; color: #1a1a2e;">🕐 Activité Récente</h2>
+    <div id="recentActivity">
+        <div class="skeleton" style="height: 60px; margin-bottom: 1rem;"></div>
+        <div class="skeleton" style="height: 60px; margin-bottom: 1rem;"></div>
+        <div class="skeleton" style="height: 60px;"></div>
+    </div>
+</div>
+
+<!-- Projets Récents -->
+<div class="recent-projects">
+    <h2>📂 Projets Récents</h2>
+    <div class="projects-list" id="projectsList">
+        <div class="skeleton" style="height: 80px; margin-bottom: 1rem;"></div>
+        <div class="skeleton" style="height: 80px; margin-bottom: 1rem;"></div>
+        <div class="skeleton" style="height: 80px;"></div>
+    </div>
+</div>
+
+<!-- Thème Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">
+    <span id="themeIcon">🌙</span>
+</button>
+
+<script>
+// Charger les statistiques
+async function loadStats() {
+    try {
+        const response = await fetch('/api/dashboard/stats');
+        const data = await response.json();
+        
+        const statsGrid = document.getElementById('statsGrid');
+        statsGrid.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-icon">🌐</div>
+                <div class="stat-content">
+                    <div class="stat-value">${data.websites}</div>
+                    <div class="stat-label">Sites Web</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <div class="stat-value">${data.funnels}</div>
+                    <div class="stat-label">Tunnels</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-content">
+                    <div class="stat-value">${data.conversations}</div>
+                    <div class="stat-label">Conversations</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎨</div>
+                <div class="stat-content">
+                    <div class="stat-value">${data.generations}</div>
+                    <div class="stat-label">Générations</div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Erreur chargement stats:', error);
+    }
+}
+
+// Charger les projets récents
+async function loadRecentProjects() {
+    try {
+        const response = await fetch('/api/dashboard/recent-projects');
+        const data = await response.json();
+        
+        const projectsList = document.getElementById('projectsList');
+        projectsList.innerHTML = data.projects.map(project => `
+            <div class="project-item">
+                <div class="project-icon">${project.icon}</div>
+                <div class="project-info">
+                    <div class="project-name">${project.name}</div>
+                    <div class="project-meta">${project.updated}</div>
+                </div>
+                <span class="project-status ${project.status}">${
+                    project.status === 'published' ? 'Publié' :
+                    project.status === 'draft' ? 'Brouillon' :
+                    'Terminé'
+                }</span>
+                <button class="project-action" onclick="location.href='${project.url}'">Ouvrir</button>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erreur chargement projets:', error);
+    }
+}
+
+// Charger les notifications
+async function loadNotifications() {
+    try {
+        const response = await fetch('/api/dashboard/notifications');
+        const data = await response.json();
+        
+        const container = document.getElementById('notificationsContainer');
+        data.notifications.filter(n => !n.read).forEach(notif => {
+            showNotification(notif);
+        });
+    } catch (error) {
+        console.error('Erreur chargement notifications:', error);
+    }
+}
+
+// Afficher une notification
+function showNotification(notif) {
+    const container = document.getElementById('notificationsContainer');
+    const div = document.createElement('div');
+    div.className = `notification ${notif.type}`;
+    div.innerHTML = `
+        <span class="notification-icon">${notif.icon}</span>
+        <div class="notification-content">
+            <div class="notification-message">${notif.message}</div>
+            <div class="notification-time">${notif.time}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    container.appendChild(div);
+    
+    // Auto-fermer après 5 secondes
+    setTimeout(() => {
+        div.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => div.remove(), 300);
+    }, 5000);
+}
+
+// Recherche globale
+document.getElementById('globalSearch').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    // TODO: Implémenter la recherche
+});
+
+// Toggle thème
+function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById('themeIcon');
+    
+    if (body.classList.contains('dark-theme')) {
+        body.classList.remove('dark-theme');
+        icon.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.classList.add('dark-theme');
+        icon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+// Charger le thème sauvegardé
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+    document.body.classList.add('dark-theme');
+    document.getElementById('themeIcon').textContent = '☀️';
+}
+
+// Charger l'activité récente
+async function loadRecentActivity() {
+    try {
+        const response = await fetch('/api/dashboard/recent-activity');
+        const data = await response.json();
+        
+        const container = document.getElementById('recentActivity');
+        if (data.activities && data.activities.length > 0) {
+            container.innerHTML = data.activities.map(activity => `
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; margin-bottom: 0.75rem; transition: all 0.3s ease;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                    <div style="font-size: 2rem; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 10px;">${activity.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1a1a2e; margin-bottom: 0.25rem;">${activity.title}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${activity.description}</div>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #999;">${activity.time}</div>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">Aucune activité récente</div>';
+        }
+    } catch (error) {
+        console.error('Erreur chargement activité:', error);
+        document.getElementById('recentActivity').innerHTML = '<div style="text-align: center; padding: 2rem; color: #999;">Aucune activité récente</div>';
+    }
+}
+
+// Créer le graphique d'utilisation des IA
+function createAIUsageChart() {
+    const ctx = document.getElementById('aiUsageChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['GPT-4', 'Claude', 'Gemini', 'DALL-E', 'Mistral'],
+            datasets: [{
+                data: [35, 25, 20, 15, 5],
+                backgroundColor: [
+                    '#667eea',
+                    '#764ba2',
+                    '#f093fb',
+                    '#4facfe',
+                    '#43e97b'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Créer le graphique d'activité
+function createActivityChart() {
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    const days = [];
+    const values = [];
+    
+    // Générer les 30 derniers jours
+    for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        days.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+        values.push(Math.floor(Math.random() * 50) + 10);
+    }
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [{
+                label: 'Générations',
+                data: values,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45,
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Charger tout au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadRecentProjects();
+    loadRecentActivity();
+    loadNotifications();
+    
+    // Créer les graphiques
+    setTimeout(() => {
+        createAIUsageChart();
+        createActivityChart();
+    }, 500);
+});
+</script>
+{% endblock %}

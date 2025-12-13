@@ -1,0 +1,566 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Réseaux Sociaux - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.platform-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.platform-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.platform-card.connected {
+    border: 3px solid #28a745;
+}
+
+.platform-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.platform-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.platform-status {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.btn-connect {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-connect:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+}
+
+.btn-disconnect {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.post-creator {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.post-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.platforms-selector {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.platform-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.platform-checkbox:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.platform-checkbox input:checked + label {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.post-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-ai {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-schedule {
+    background: linear-gradient(135deg, #4169e1 0%, #667eea 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-publish {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.posts-list {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.post-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1.5rem 0;
+}
+
+.post-item:last-child {
+    border-bottom: none;
+}
+
+.post-content {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.post-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.post-platforms {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.platform-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📱 Réseaux Sociaux</h1>
+    <p>Gérez et programmez vos publications sur toutes les plateformes</p>
+</div>
+
+<!-- Statistiques -->
+<div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+        <div class="stat-value" id="totalPosts">0</div>
+        <div class="stat-label">Posts totaux</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="publishedPosts">0</div>
+        <div class="stat-label">Publiés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="scheduledPosts">0</div>
+        <div class="stat-label">Programmés</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="connectedAccounts">0</div>
+        <div class="stat-label">Comptes connectés</div>
+    </div>
+</div>
+
+<!-- Comptes connectés -->
+<h2>🔗 Comptes connectés</h2>
+<div class="social-grid" id="platformsGrid">
+    <!-- Généré par JavaScript -->
+</div>
+
+<!-- Créateur de post -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2 style="margin: 0;">✍️ Créer un post</h2>
+    <a href="/content?type=social" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #1a1a2e; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+        🤖 Générer avec l'IA
+    </a>
+</div>
+<div class="post-creator">
+    <textarea class="post-textarea" id="postContent" placeholder="Écrivez votre post..."></textarea>
+    
+    <div class="platforms-selector" id="platformsSelector">
+        <!-- Généré par JavaScript -->
+    </div>
+    
+    <div class="post-actions">
+        <button class="btn-ai" onclick="generateCaption()">✨ Générer caption IA</button>
+        <button class="btn-ai" onclick="generateHashtags()">🏷️ Générer hashtags</button>
+        <button class="btn-schedule" onclick="schedulePost()">📅 Programmer</button>
+        <button class="btn-publish" onclick="publishNow()">🚀 Publier maintenant</button>
+    </div>
+</div>
+
+<!-- Liste des posts -->
+<h2>📋 Mes posts</h2>
+<div class="posts-list" id="postsList">
+    <!-- Généré par JavaScript -->
+</div>
+
+<script>
+const platforms = [
+    { id: 'instagram', name: 'Instagram', icon: '📷', color: '#E4405F' },
+    { id: 'facebook', name: 'Facebook', icon: '👥', color: '#1877F2' },
+    { id: 'twitter', name: 'Twitter/X', icon: '🐦', color: '#1DA1F2' },
+    { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: '#0A66C2' },
+    { id: 'tiktok', name: 'TikTok', icon: '🎵', color: '#000000' },
+    { id: 'youtube', name: 'YouTube', icon: '📺', color: '#FF0000' }
+];
+
+let connectedAccounts = [];
+let selectedPlatforms = [];
+
+async function loadAccounts() {
+    try {
+        const response = await fetch('/social/api/accounts');
+        const data = await response.json();
+        
+        if (data.success) {
+            connectedAccounts = data.accounts;
+            renderPlatforms();
+            renderPlatformSelector();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+function renderPlatforms() {
+    const grid = document.getElementById('platformsGrid');
+    grid.innerHTML = platforms.map(platform => {
+        const isConnected = connectedAccounts.some(acc => acc.platform === platform.id);
+        const account = connectedAccounts.find(acc => acc.platform === platform.id);
+        
+        return `
+            <div class="platform-card ${isConnected ? 'connected' : ''}">
+                <div class="platform-icon">${platform.icon}</div>
+                <div class="platform-name">${platform.name}</div>
+                <div class="platform-status">
+                    ${isConnected ? `✅ Connecté (${account.account_name})` : '❌ Non connecté'}
+                </div>
+                ${isConnected ? 
+                    `<button class="btn-disconnect" onclick="disconnect(${account.id})">Déconnecter</button>` :
+                    `<button class="btn-connect" onclick="connect('${platform.id}')">Connecter</button>`
+                }
+            </div>
+        `;
+    }).join('');
+}
+
+function renderPlatformSelector() {
+    const selector = document.getElementById('platformsSelector');
+    const connectedPlatformIds = connectedAccounts.map(acc => acc.platform);
+    
+    selector.innerHTML = platforms.filter(p => connectedPlatformIds.includes(p.id)).map(platform => `
+        <label class="platform-checkbox">
+            <input type="checkbox" value="${platform.id}" onchange="togglePlatform('${platform.id}')">
+            <span>${platform.icon} ${platform.name}</span>
+        </label>
+    `).join('');
+}
+
+function togglePlatform(platformId) {
+    if (selectedPlatforms.includes(platformId)) {
+        selectedPlatforms = selectedPlatforms.filter(p => p !== platformId);
+    } else {
+        selectedPlatforms.push(platformId);
+    }
+}
+
+async function connect(platform) {
+    try {
+        const response = await fetch(`/social/api/connect/${platform}`, { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ ${platform} connecté !`);
+            await loadAccounts();
+            await loadStats();
+        }
+    } catch (error) {
+        alert('❌ Erreur de connexion');
+    }
+}
+
+async function disconnect(accountId) {
+    if (!confirm('Déconnecter ce compte ?')) return;
+    
+    try {
+        const response = await fetch(`/social/api/disconnect/${accountId}`, { method: 'DELETE' });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Compte déconnecté');
+            await loadAccounts();
+            await loadStats();
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function generateCaption() {
+    const topic = prompt('Sujet du post:', '');
+    if (!topic) return;
+    
+    const tone = prompt('Ton (professional/casual/funny/inspirational):', 'professional');
+    
+    try {
+        const response = await fetch('/social/api/generate/caption', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic, tone, platform: 'instagram' })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('postContent').value = data.caption;
+            alert(`✅ Caption générée ! Coût: $${data.cost}`);
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function generateHashtags() {
+    const content = document.getElementById('postContent').value;
+    if (!content) {
+        alert('Écrivez d\'abord du contenu');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/social/api/generate/hashtags', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content, platform: 'instagram', count: 10 })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('postContent').value += '\n\n' + data.hashtags.join(' ');
+            alert(`✅ Hashtags générés ! Coût: $${data.cost}`);
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function schedulePost() {
+    const content = document.getElementById('postContent').value;
+    if (!content || selectedPlatforms.length === 0) {
+        alert('Remplissez le contenu et sélectionnez au moins une plateforme');
+        return;
+    }
+    
+    const scheduledTime = prompt('Date et heure (YYYY-MM-DD HH:MM):', '');
+    if (!scheduledTime) return;
+    
+    try {
+        const response = await fetch('/social/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content,
+                platforms: selectedPlatforms,
+                scheduled_time: scheduledTime
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert('✅ Post programmé !');
+            document.getElementById('postContent').value = '';
+            selectedPlatforms = [];
+            await loadPosts();
+            await loadStats();
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function publishNow() {
+    const content = document.getElementById('postContent').value;
+    if (!content || selectedPlatforms.length === 0) {
+        alert('Remplissez le contenu et sélectionnez au moins une plateforme');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/social/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content,
+                platforms: selectedPlatforms,
+                scheduled_time: new Date().toISOString()
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const publishResponse = await fetch(`/social/api/posts/${data.post.id}/publish`, { method: 'POST' });
+            const publishData = await publishResponse.json();
+            
+            if (publishData.success) {
+                alert('✅ Post publié !');
+                document.getElementById('postContent').value = '';
+                selectedPlatforms = [];
+                await loadPosts();
+                await loadStats();
+            }
+        }
+    } catch (error) {
+        alert('❌ Erreur');
+    }
+}
+
+async function loadPosts() {
+    try {
+        const response = await fetch('/social/api/posts?limit=20');
+        const data = await response.json();
+        
+        if (data.success) {
+            renderPosts(data.posts);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+function renderPosts(posts) {
+    const list = document.getElementById('postsList');
+    
+    if (posts.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:#999;">Aucun post</p>';
+        return;
+    }
+    
+    list.innerHTML = posts.map(post => `
+        <div class="post-item">
+            <div class="post-content">${post.content.substring(0, 200)}${post.content.length > 200 ? '...' : ''}</div>
+            <div class="post-meta">
+                <span>📅 ${new Date(post.scheduled_time).toLocaleString('fr-FR')}</span>
+                <span>📊 ${post.status}</span>
+            </div>
+            <div class="post-platforms">
+                ${post.platforms.map(p => {
+                    const platform = platforms.find(pl => pl.id === p);
+                    return `<span class="platform-badge" style="background:${platform?.color};color:white;">${platform?.icon} ${platform?.name}</span>`;
+                }).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadStats() {
+    try {
+        const response = await fetch('/social/api/stats/overview');
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('totalPosts').textContent = data.stats.total_posts;
+            document.getElementById('publishedPosts').textContent = data.stats.published_posts;
+            document.getElementById('scheduledPosts').textContent = data.stats.scheduled_posts;
+            document.getElementById('connectedAccounts').textContent = data.stats.connected_accounts;
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadAccounts();
+    await loadPosts();
+    await loadStats();
+});
+</script>
+{% endblock %}

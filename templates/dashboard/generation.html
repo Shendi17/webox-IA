@@ -1,0 +1,1082 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Génération - WeBox Studio Créatif{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Studio Créatif Section */
+.studio-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.studio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.studio-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: #1a1a2e;
+}
+
+.studio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.studio-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.studio-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.studio-desc {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.studio-card.active {
+    background: #f0f0f0;
+}
+
+.studio-section-title {
+    margin-bottom: 0.5rem;
+}
+
+.studio-section-subtitle {
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+/* Historique */
+.history-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.history-item {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.history-item:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.history-thumbnail {
+    width: 100%;
+    height: 150px;
+    background: #ddd;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.history-info {
+    font-size: 0.9rem;
+}
+
+.history-type {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.history-date {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.history-refresh-btn {
+    padding: 0.5rem 1rem;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.history-refresh-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.history-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+/* Tabs */
+.tabs-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #1a1a2e;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.tab-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Generation Form */
+.generation-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.btn-generate {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.cost-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.info-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.info-card h3 {
+    margin-bottom: 1rem;
+}
+
+.info-card-content {
+    font-size: 0.9rem;
+}
+
+.info-card-text {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.info-card-list {
+    font-size: 0.9rem;
+    line-height: 1.8;
+}
+
+.model-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.model-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.model-desc {
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.model-price {
+    font-weight: 600;
+}
+
+.model-price.premium {
+    color: #667eea;
+}
+
+.model-price.free {
+    color: #6bcf7f;
+}
+
+.section-title {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.free-badge {
+    padding: 1rem;
+    background: #6bcf7f;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .generation-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .studio-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>🎨 Génération Multi-Format</h1>
+    <p>Créez du contenu avec le Studio Créatif et les outils de génération IA</p>
+</div>
+
+<!-- Studio Créatif Section -->
+<div class="studio-section">
+    <h2 class="studio-section-title">🎨 Studio Créatif - Accès Rapide</h2>
+    <p class="studio-section-subtitle">7 outils professionnels pour créer du contenu exceptionnel</p>
+    
+    <div class="studio-grid">
+        <a href="/podcast/create" class="studio-card">
+            <div class="studio-icon">🎙️</div>
+            <div class="studio-name">Podcast Creator</div>
+            <div class="studio-desc">Scripts + Audio</div>
+        </a>
+        
+        <a href="/avatar/create" class="studio-card">
+            <div class="studio-icon">👤</div>
+            <div class="studio-name">Avatar Generator</div>
+            <div class="studio-desc">7 styles</div>
+        </a>
+        
+        <a href="/series/create" class="studio-card">
+            <div class="studio-icon">📺</div>
+            <div class="studio-name">Séries IA</div>
+            <div class="studio-desc">Scripts + Images</div>
+        </a>
+        
+        <a href="/pwa/create" class="studio-card">
+            <div class="studio-icon">📱</div>
+            <div class="studio-name">PWA Generator</div>
+            <div class="studio-desc">6 templates</div>
+        </a>
+        
+        <a href="/documents" class="studio-card">
+            <div class="studio-icon">📄</div>
+            <div class="studio-name">Documents IA</div>
+            <div class="studio-desc">Analyse</div>
+        </a>
+        
+        <a href="/chat" class="studio-card">
+            <div class="studio-icon">🤖</div>
+            <div class="studio-name">Agent IA 24/7</div>
+            <div class="studio-desc">Chat</div>
+        </a>
+        
+        <a href="/generation" class="studio-card active">
+            <div class="studio-icon">✨</div>
+            <div class="studio-name">Génération</div>
+            <div class="studio-desc">Actuel</div>
+        </a>
+    </div>
+</div>
+
+<!-- Historique des Générations -->
+<div class="history-section">
+    <div class="history-header">
+        <h2>📋 Historique des Générations</h2>
+        <button onclick="loadHistory()" class="history-refresh-btn">
+            🔄 Actualiser
+        </button>
+    </div>
+    
+    <div class="history-grid" id="historyGrid">
+        <!-- L'historique sera chargé ici -->
+        <div class="history-empty">
+            Aucune génération récente
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-container">
+    <button class="tab-btn active" onclick="switchTab('images')">🖼️ Images</button>
+    <button class="tab-btn" onclick="switchTab('videos')">🎬 Vidéos</button>
+    <button class="tab-btn" onclick="switchTab('audio')">🎙️ Audio</button>
+    <button class="tab-btn" onclick="switchTab('ebooks')">📚 eBooks</button>
+    <button class="tab-btn" onclick="switchTab('shorts')">📱 Shorts</button>
+    <button class="tab-btn" onclick="switchTab('ads')">📺 Publicités</button>
+    <button class="tab-btn" onclick="switchTab('logos')">🎨 Logos</button>
+    <button class="tab-btn" onclick="switchTab('text')">📝 Texte</button>
+    <button class="tab-btn" onclick="switchTab('code')">💻 Code</button>
+</div>
+
+<!-- Tab Content: Images -->
+<div class="tab-content active" id="images-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">🖼️ Génération d'Images IA</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="imageModel">
+                    <option value="dall-e-3">DALL-E 3 (OpenAI) - Qualité premium</option>
+                    <option value="dall-e-2">DALL-E 2 (OpenAI) - Économique</option>
+                    <option value="stable-diffusion">Stable Diffusion - Open source</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description (Prompt) *</label>
+                <textarea class="form-textarea" id="imagePrompt" placeholder="Ex: A futuristic cityscape at sunset, cyberpunk style, neon lights, highly detailed, 8k quality"></textarea>
+                <span class="form-hint">💡 Soyez précis : style, couleurs, ambiance, détails</span>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Taille</label>
+                    <select class="form-select" id="imageSize">
+                        <option value="1024x1024">1024x1024 (Carré)</option>
+                        <option value="1792x1024">1792x1024 (Paysage)</option>
+                        <option value="1024x1792">1024x1792 (Portrait)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Qualité</label>
+                    <select class="form-select" id="imageQuality">
+                        <option value="standard">Standard ($0.04)</option>
+                        <option value="hd">HD ($0.08)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn-generate" onclick="generateImage()">
+                🎨 Générer l'image
+            </button>
+            
+            <div class="cost-info">
+                <strong>💰 Coût estimé :</strong> <span id="imageCost">$0.04</span> par image
+            </div>
+        </div>
+        
+        <div>
+            <div class="info-card">
+                <h3>📊 Modèles disponibles</h3>
+                <div class="info-card-content">
+                    <div class="model-item">
+                        <strong>DALL-E 3</strong>
+                        <div class="model-desc">✅ Meilleure qualité</div>
+                        <div class="model-price premium">$0.04 - $0.12</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>Stable Diffusion</strong>
+                        <div class="model-desc">✅ Open source</div>
+                        <div class="model-price free">GRATUIT</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>💡 Conseils</h3>
+                <ul class="info-card-list">
+                    <li>Soyez précis dans vos descriptions</li>
+                    <li>Mentionnez le style artistique</li>
+                    <li>Ajoutez des détails techniques</li>
+                    <li>Utilisez des mots-clés pertinents</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Vidéos -->
+<div class="tab-content" id="videos-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">🎬 Génération de Vidéos IA</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Description de la vidéo *</label>
+                <textarea class="form-textarea" placeholder="Ex: A cinematic shot of a robot walking through a futuristic city"></textarea>
+                <span class="form-hint">🎬 Décrivez l'action, le style, l'ambiance</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Durée</label>
+                <select class="form-select">
+                    <option value="3">3 secondes</option>
+                    <option value="5">5 secondes</option>
+                    <option value="10">10 secondes</option>
+                </select>
+            </div>
+            
+            <button class="btn-generate">
+                🎬 Générer la vidéo
+            </button>
+            
+            <div class="cost-info">
+                <strong>💰 Coût estimé :</strong> $0.50 - $2.00 par vidéo
+            </div>
+        </div>
+        
+        <div>
+            <div class="info-card">
+                <h3>🎬 Modèles vidéo</h3>
+                <div class="info-card-content">
+                    <div class="model-item">
+                        <strong>Runway Gen-2</strong>
+                        <div class="model-desc">Haute qualité cinématique</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>Pika Labs</strong>
+                        <div class="model-desc">Animations créatives</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Audio -->
+<div class="tab-content" id="audio-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">🎙️ Génération Audio & Voix IA</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Texte à convertir *</label>
+                <textarea class="form-textarea" placeholder="Entrez le texte que vous souhaitez convertir en audio"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Voix</label>
+                <select class="form-select">
+                    <option value="alloy">Alloy (Neutre)</option>
+                    <option value="echo">Echo (Masculine)</option>
+                    <option value="fable">Fable (Britannique)</option>
+                    <option value="nova">Nova (Féminine)</option>
+                    <option value="shimmer">Shimmer (Douce)</option>
+                </select>
+            </div>
+            
+            <button class="btn-generate">
+                🎙️ Générer l'audio
+            </button>
+            
+            <div class="cost-info">
+                <strong>💰 Coût estimé :</strong> $0.015 par 1000 caractères
+            </div>
+        </div>
+        
+        <div>
+            <div class="info-card">
+                <h3>🎙️ Voix disponibles</h3>
+                <p class="info-card-text">
+                    6 voix professionnelles avec OpenAI TTS pour créer des narrations, podcasts, et contenus audio de qualité.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: eBooks -->
+<div class="tab-content" id="ebooks-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">📚 Création d'eBooks complets</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Sujet / Thème *</label>
+                <textarea class="form-textarea" id="ebookTopic" placeholder="Ex: Guide complet du marketing digital pour débutants"></textarea>
+                <span class="form-hint">📚 Donnez un sujet clair, l'audience, et l'objectif</span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Longueur</label>
+                    <select class="form-select" id="ebookLength">
+                        <option value="short">Court (10-20 pages)</option>
+                        <option value="medium" selected>Moyen (20-40 pages)</option>
+                        <option value="long">Long (40-80 pages)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <select class="form-select" id="ebookFormat">
+                        <option value="pdf" selected>PDF</option>
+                        <option value="docx">Word (DOCX)</option>
+                        <option value="md">Markdown</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Ton & Style</label>
+                <select class="form-select" id="ebookTone">
+                    <option value="professional" selected>Professionnel</option>
+                    <option value="friendly">Accessible</option>
+                    <option value="academic">Académique</option>
+                    <option value="sales">Commercial</option>
+                </select>
+            </div>
+
+            <button class="btn-generate" onclick="generateEbook()">
+                📚 Générer l'eBook
+            </button>
+
+            <div class="cost-info">
+                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.0 Flash (texte)
+            </div>
+        </div>
+
+        <div>
+            <div class="info-card">
+                <h3>✅ Ce que vous obtenez</h3>
+                <ul class="info-card-list">
+                    <li>Sommaire structuré</li>
+                    <li>Chapitres + sous-chapitres</li>
+                    <li>Conclusion + checklist</li>
+                    <li>Call-to-action final</li>
+                </ul>
+            </div>
+            
+            <div class="info-card">
+                <h3>💡 Conseils</h3>
+                <p class="info-card-text">
+                    Précisez votre audience (débutants, experts), le secteur, et le résultat attendu. Cela améliore fortement la qualité.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Shorts -->
+<div class="tab-content" id="shorts-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">📱 Vidéos Shorts (TikTok, Reels, YouTube Shorts)</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Objectif *</label>
+                <select class="form-select" id="shortGoal">
+                    <option value="awareness" selected>Notoriété</option>
+                    <option value="education">Éducation</option>
+                    <option value="lead">Génération de leads</option>
+                    <option value="sales">Vente</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Sujet *</label>
+                <textarea class="form-textarea" id="shortTopic" placeholder="Ex: 3 erreurs marketing qui coûtent cher"></textarea>
+                <span class="form-hint">📱 On génère un script court + plan de scène</span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Plateforme</label>
+                    <select class="form-select" id="shortPlatform">
+                        <option value="tiktok" selected>TikTok</option>
+                        <option value="reels">Instagram Reels</option>
+                        <option value="ytshorts">YouTube Shorts</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Durée</label>
+                    <select class="form-select" id="shortDuration">
+                        <option value="15" selected>15s</option>
+                        <option value="30">30s</option>
+                        <option value="45">45s</option>
+                        <option value="60">60s</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-generate" onclick="generateShort()">
+                📱 Générer le Short
+            </button>
+
+            <div class="cost-info">
+                <strong>💰 Coût :</strong> GRATUIT pour script + plan (Gemini 2.0 Flash). Vidéo = selon fournisseur.
+            </div>
+        </div>
+
+        <div>
+            <div class="info-card">
+                <h3>📦 Livraison</h3>
+                <ul class="info-card-list">
+                    <li>Hook (0-3s)</li>
+                    <li>Structure scène par scène</li>
+                    <li>Texte écran (captions)</li>
+                    <li>Call-to-action</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🎬 Astuce</h3>
+                <p class="info-card-text">
+                    Les shorts performants ont un hook immédiat, des phrases courtes, et une seule idée forte.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Ads -->
+<div class="tab-content" id="ads-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">📺 Publicités vidéo</h2>
+
+            <div class="form-group">
+                <label class="form-label">Produit / Service *</label>
+                <textarea class="form-textarea" id="adOffer" placeholder="Ex: Application de gestion de budget pour indépendants"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Audience cible</label>
+                <input class="form-input" id="adAudience" placeholder="Ex: freelances, PME, e-commerce" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Plateforme</label>
+                    <select class="form-select" id="adPlatform">
+                        <option value="meta" selected>Meta (FB/IG)</option>
+                        <option value="tiktok">TikTok Ads</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Durée</label>
+                    <select class="form-select" id="adDuration">
+                        <option value="15" selected>15s</option>
+                        <option value="30">30s</option>
+                        <option value="45">45s</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Angle créatif</label>
+                <select class="form-select" id="adAngle">
+                    <option value="problem-solution" selected>Problème → Solution</option>
+                    <option value="testimonial">Témoignage</option>
+                    <option value="before-after">Avant / Après</option>
+                    <option value="ugc">UGC (style utilisateur)</option>
+                </select>
+            </div>
+
+            <button class="btn-generate" onclick="generateAd()">
+                📺 Générer la publicité
+            </button>
+
+            <div class="cost-info">
+                <strong>💰 Coût :</strong> GRATUIT pour script + storyboard (Gemini 2.0 Flash). Vidéo = selon fournisseur.
+            </div>
+        </div>
+
+        <div>
+            <div class="info-card">
+                <h3>✅ Inclus</h3>
+                <ul class="info-card-list">
+                    <li>Hook publicitaire</li>
+                    <li>Script voix-off</li>
+                    <li>Storyboard (scènes)</li>
+                    <li>Captions</li>
+                    <li>CTA final</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>📌 Conseil</h3>
+                <p class="info-card-text">
+                    Donnez 1 bénéfice principal + 1 preuve (chiffre, témoignage, démonstration).
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Logos -->
+<div class="tab-content" id="logos-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">🎨 Logos professionnels</h2>
+
+            <div class="form-group">
+                <label class="form-label">Nom de la marque *</label>
+                <input class="form-input" id="logoBrand" placeholder="Ex: WeBox" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Slogan (optionnel)</label>
+                <input class="form-input" id="logoTagline" placeholder="Ex: Studio Créatif IA" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Secteur</label>
+                <input class="form-input" id="logoIndustry" placeholder="Ex: Marketing, SaaS, Restaurant" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Style</label>
+                    <select class="form-select" id="logoStyle">
+                        <option value="minimal" selected>Minimal</option>
+                        <option value="modern">Moderne</option>
+                        <option value="luxury">Luxe</option>
+                        <option value="playful">Fun</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Couleurs</label>
+                    <select class="form-select" id="logoColors">
+                        <option value="blue" selected>Bleu / Violet</option>
+                        <option value="black">Noir / Blanc</option>
+                        <option value="warm">Chaud (orange/rouge)</option>
+                        <option value="green">Vert</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-generate" onclick="generateLogo()">
+                🎨 Générer le logo
+            </button>
+
+            <div class="cost-info">
+                <strong>💰 Coût :</strong> Selon modèle image (DALL-E / Stable Diffusion)
+            </div>
+        </div>
+
+        <div>
+            <div class="info-card">
+                <h3>🎯 Recommandations</h3>
+                <ul class="info-card-list">
+                    <li>Décrivez 2-3 valeurs (ex: moderne, fiable, premium)</li>
+                    <li>Précisez si vous voulez un pictogramme ou un wordmark</li>
+                    <li>Indiquez si le logo doit être lisible en petit</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>📦 Export</h3>
+                <p class="info-card-text">
+                    Vous pourrez exporter en PNG. Un export SVG pourra être ajouté ensuite.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Texte -->
+<div class="tab-content" id="text-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">📝 Génération de Texte IA</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Type de contenu</label>
+                <select class="form-select">
+                    <option value="article">Article de blog</option>
+                    <option value="description">Description produit</option>
+                    <option value="email">Email marketing</option>
+                    <option value="social">Post réseaux sociaux</option>
+                    <option value="script">Script vidéo</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Sujet *</label>
+                <textarea class="form-textarea" placeholder="Ex: Les avantages de l'IA dans le marketing digital"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Longueur</label>
+                <select class="form-select">
+                    <option value="short">Court (100-300 mots)</option>
+                    <option value="medium">Moyen (300-800 mots)</option>
+                    <option value="long">Long (800-1500 mots)</option>
+                </select>
+            </div>
+            
+            <button class="btn-generate">
+                📝 Générer le texte
+            </button>
+            
+            <div class="cost-info">
+                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.0 Flash
+            </div>
+        </div>
+        
+        <div>
+            <div class="info-card">
+                <h3>✨ Gemini 2.0 Flash</h3>
+                <p class="info-card-text">
+                    Génération de texte illimitée et gratuite avec le modèle Gemini 2.0 Flash de Google.
+                </p>
+                <div class="free-badge">
+                    🎉 GRATUIT
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content: Code -->
+<div class="tab-content" id="code-content">
+    <div class="generation-container">
+        <div>
+            <h2 class="section-title">💻 Génération de Code IA</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Langage</label>
+                <select class="form-select">
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="html">HTML/CSS</option>
+                    <option value="react">React</option>
+                    <option value="sql">SQL</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description de la fonctionnalité *</label>
+                <textarea class="form-textarea" placeholder="Ex: Créer une fonction qui trie un tableau d'objets par date"></textarea>
+            </div>
+            
+            <button class="btn-generate">
+                💻 Générer le code
+            </button>
+            
+            <div class="cost-info">
+                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.0 Flash
+            </div>
+        </div>
+        
+        <div>
+            <div class="info-card">
+                <h3>💻 Langages supportés</h3>
+                <ul class="info-card-list">
+                    <li>Python</li>
+                    <li>JavaScript / TypeScript</li>
+                    <li>HTML / CSS</li>
+                    <li>React / Vue / Angular</li>
+                    <li>SQL / NoSQL</li>
+                    <li>Et bien plus...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Switch tabs
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-content').classList.add('active');
+    
+    // Add active to clicked button
+    event.target.classList.add('active');
+}
+
+// Load history
+async function loadHistory() {
+    const grid = document.getElementById('historyGrid');
+    grid.innerHTML = '<div class="history-empty">Chargement...</div>';
+    
+    // Simuler le chargement (à remplacer par un vrai appel API)
+    setTimeout(() => {
+        grid.innerHTML = `
+            <div class="history-item">
+                <div class="history-thumbnail">🖼️</div>
+                <div class="history-info">
+                    <div class="history-type">Image DALL-E 3</div>
+                    <div class="history-date">Il y a 2 heures</div>
+                </div>
+            </div>
+            <div class="history-item">
+                <div class="history-thumbnail">🎙️</div>
+                <div class="history-info">
+                    <div class="history-type">Podcast IA</div>
+                    <div class="history-date">Il y a 5 heures</div>
+                </div>
+            </div>
+            <div class="history-item">
+                <div class="history-thumbnail">👤</div>
+                <div class="history-info">
+                    <div class="history-type">Avatar</div>
+                    <div class="history-date">Hier</div>
+                </div>
+            </div>
+        `;
+    }, 500);
+}
+
+// Generate image
+function generateImage() {
+    alert('Génération d\'image en cours... (À implémenter)');
+}
+
+// eBook
+function generateEbook() {
+    alert('Génération d\'eBook en cours... (À implémenter)');
+}
+
+// Shorts
+function generateShort() {
+    alert('Génération de Short en cours... (À implémenter)');
+}
+
+// Ads
+function generateAd() {
+    alert('Génération de publicité vidéo en cours... (À implémenter)');
+}
+
+// Logos
+function generateLogo() {
+    alert('Génération de logo en cours... (À implémenter)');
+}
+ 
+// Load history on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadHistory();
+});
+</script>
+{% endblock %}

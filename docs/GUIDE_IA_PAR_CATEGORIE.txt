@@ -1,0 +1,366 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                  🏆 TOP 50 DES IA - GUIDE PAR CATÉGORIE                     ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+📊 VUE D'ENSEMBLE
+═══════════════════════════════════════════════════════════════════════════════
+
+Total : 50+ IA classées en 5 catégories
+Mise à jour : Janvier 2025
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       💬 TEXTE & CONVERSATION (15 IA)                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+🥇 GPT-4 Turbo (OpenAI)
+   • Meilleure qualité globale
+   • Prix : $10-30/1M tokens
+   • ✅ Intégré dans WeBox
+
+🥈 Claude 3.5 Sonnet (Anthropic)
+   • Contexte long (200K tokens)
+   • Prix : $3-15/1M tokens
+   • ✅ Intégré dans WeBox
+
+🥉 Gemini 1.5 Pro (Google)
+   • Contexte ultra-long (1M tokens)
+   • Prix : GRATUIT
+   • ✅ Intégré dans WeBox
+
+4. Mistral Large (Mistral AI)
+   • Excellent en français
+   • Prix : $8/1M tokens
+   • ✅ Intégré dans WeBox
+
+5. Command R+ (Cohere)
+   • 100+ langues
+   • Prix : $3-15/1M tokens
+   • ✅ Intégré dans WeBox
+
+6. Perplexity 70B Online
+   • Recherche web temps réel
+   • ✅ Intégré dans WeBox
+
+7. Grok Beta (xAI)
+   • Accès Twitter/X
+   • ✅ Intégré dans WeBox
+
+8. Qwen 2 72B (Alibaba)
+   • Excellent en chinois
+   • ✅ Intégré dans WeBox
+
+9. Llama 3.1 70B (Meta)
+   • Open-source, gratuit
+   • ✅ Intégré dans WeBox
+
+10. Mixtral 8x7B (Mistral)
+    • MoE, contexte long
+    • ✅ Intégré dans WeBox
+
+11. Yi 34B (01.AI)
+12. Falcon 180B (TII)
+13. Vicuna 33B (LMSYS)
+14. ChatGLM 3 (Tsinghua)
+15. Baichuan 2 (Baichuan)
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       💻 CODE & PROGRAMMATION (10 IA)                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+🥇 DeepSeek Coder (DeepSeek)
+   • Expert en code
+   • Prix : $0.14/1M tokens
+   • ✅ Intégré dans WeBox
+
+🥈 GPT-4 Turbo (OpenAI)
+   • Excellent en code
+   • Prix : $10-30/1M tokens
+   • ✅ Intégré dans WeBox
+
+🥉 Claude 3.5 Sonnet (Anthropic)
+   • Refactoring expert
+   • Prix : $3-15/1M tokens
+   • ✅ Intégré dans WeBox
+
+4. CodeLlama 70B (Meta)
+   • Spécialisé code, gratuit
+   • ✅ Intégré dans WeBox
+
+5. GitHub Copilot (GitHub/OpenAI)
+   • Autocomplétion IDE
+   • Prix : $10/mois
+
+6. Cursor AI (Cursor)
+   • IDE complet avec IA
+   • Prix : $20/mois
+
+7. Replit Ghostwriter (Replit)
+   • IDE en ligne
+   • Prix : $10/mois
+
+8. Tabnine (Tabnine)
+   • Autocomplétion
+   • Prix : Gratuit / $12/mois
+
+9. Amazon CodeWhisperer (AWS)
+   • Intégration AWS
+   • Prix : GRATUIT
+
+10. Phind (Phind)
+    • Moteur de recherche dev
+    • Prix : Gratuit / $15/mois
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    🎨 IMAGES & GÉNÉRATION VISUELLE (10 IA)                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+🥇 Midjourney V6 (Midjourney)
+   • Meilleure qualité artistique
+   • Prix : $10-60/mois
+
+🥈 DALL-E 3 (OpenAI)
+   • Compréhension du texte
+   • Prix : $0.04-0.12/image
+
+🥉 Stable Diffusion XL (Stability AI)
+   • Open-source, gratuit
+   • Prix : GRATUIT
+
+4. Adobe Firefly (Adobe)
+   • Intégration Adobe
+   • Inclus dans Creative Cloud
+
+5. Leonardo AI (Leonardo)
+   • Game art, styles variés
+   • Prix : Gratuit / $10-48/mois
+
+6. Ideogram (Ideogram)
+   • Excellent pour texte
+   • Prix : Gratuit / $8-48/mois
+
+7. Flux.1 (Black Forest Labs)
+   • Qualité exceptionnelle
+   • Prix : Variable
+
+8. Playground AI (Playground)
+   • Interface intuitive
+   • Prix : GRATUIT / $15/mois
+
+9. DreamStudio (Stability AI)
+   • Interface Stable Diffusion
+   • Prix : Pay-per-use
+
+10. Canva AI (Canva)
+    • Design + templates
+    • Prix : Gratuit / $12.99/mois
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         🎬 VIDÉO & ANIMATION (8 IA)                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+🥇 Runway Gen-2 (Runway)
+   • Meilleure qualité vidéo
+   • Prix : $12-76/mois
+
+🥈 Pika Labs (Pika)
+   • Animations fluides
+   • Prix : Gratuit / $10-70/mois
+
+🥉 Sora (OpenAI)
+   • Vidéos longues (1 min)
+   • Prix : Accès limité (beta)
+
+4. Synthesia (Synthesia)
+   • Avatars réalistes
+   • Prix : $29-89/mois
+
+5. HeyGen (HeyGen)
+   • Avatars personnalisés
+   • Prix : Gratuit / $29-89/mois
+
+6. D-ID (D-ID)
+   • Avatars parlants
+   • Prix : $5.9-300/mois
+
+7. Descript (Descript)
+   • Édition par texte
+   • Prix : Gratuit / $12-24/mois
+
+8. Fliki (Fliki)
+   • Text-to-speech vidéo
+   • Prix : Gratuit / $21-88/mois
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           🎙️ AUDIO & VOIX (7 IA)                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+🥇 ElevenLabs (ElevenLabs)
+   • Voix ultra-réalistes
+   • Prix : Gratuit / $5-330/mois
+
+🥈 Suno AI (Suno)
+   • Génération musicale
+   • Prix : Gratuit / $10-30/mois
+
+🥉 Udio (Udio)
+   • Qualité audio pro
+   • Prix : Gratuit / $10-30/mois
+
+4. Murf AI (Murf)
+   • Voix professionnelles
+   • Prix : Gratuit / $19-99/mois
+
+5. Play.ht (Play.ht)
+   • 800+ voix
+   • Prix : Gratuit / $31-99/mois
+
+6. Whisper (OpenAI)
+   • Transcription audio
+   • Prix : GRATUIT (open-source)
+
+7. AssemblyAI (AssemblyAI)
+   • Transcription + analyse
+   • Prix : Pay-per-use
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🏆 TOP 10 GLOBAL (TOUS DOMAINES)
+
+1. GPT-4 Turbo (OpenAI) - Meilleure IA généraliste
+2. Claude 3.5 Sonnet (Anthropic) - Meilleure pour analyse
+3. Midjourney V6 - Meilleure pour images
+4. Runway Gen-2 - Meilleure pour vidéo
+5. ElevenLabs - Meilleure pour voix
+6. DeepSeek Coder - Meilleure pour code
+7. Gemini 1.5 Pro (Google) - Meilleur gratuit
+8. Groq - Meilleure vitesse
+9. Perplexity - Meilleure recherche web
+10. Suno AI - Meilleure pour musique
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💰 TOP 10 GRATUIT
+
+1. Gemini 1.5 Pro (Google) - Gratuit, illimité
+2. Groq - Ultra rapide, gratuit
+3. Llama 3.1 (Meta) - Open-source
+4. Stable Diffusion XL - Images, open-source
+5. Whisper (OpenAI) - Transcription, open-source
+6. HuggingFace - Accès à nombreux modèles
+7. Mistral Open-source - Texte, open-source
+8. CodeWhisperer (AWS) - Code, gratuit
+9. Playground AI - Images, gratuit
+10. Suno AI - Musique, version gratuite
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚡ TOP 5 VITESSE
+
+1. Groq - 500 tokens/sec (Llama 3.1)
+2. GPT-3.5 Turbo - Très rapide
+3. Command Light (Cohere) - Ultra rapide
+4. Llama 3.1 8B (via Groq) - Instantané
+5. Gemma 7B (via Groq) - Très rapide
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 RECOMMANDATIONS PAR CAS D'USAGE
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Rédaction de contenu                                                        │
+│ → GPT-4 Turbo, Claude 3.5, Mistral Large                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Programmation                                                               │
+│ → DeepSeek Coder, GPT-4, Claude 3.5, CodeLlama                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Recherche web                                                               │
+│ → Perplexity, Grok (Twitter/X)                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Multilingue                                                                 │
+│ → Qwen 2 (chinois), Cohere (100+ langues), Mistral (français)             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Design graphique                                                            │
+│ → Midjourney, DALL-E 3, Adobe Firefly                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Vidéo marketing                                                             │
+│ → Runway, Pika, Synthesia, HeyGen                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Podcasts/Audiobooks                                                         │
+│ → ElevenLabs, Murf AI, Play.ht                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Musique                                                                     │
+│ → Suno AI, Udio                                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Transcription                                                               │
+│ → Whisper, AssemblyAI                                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Budget limité                                                               │
+│ → Gemini, Groq, Stable Diffusion, Llama 3.1                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 STATISTIQUES PAR CATÉGORIE
+
+Catégorie          Nombre    Gratuit    Prix Moyen
+─────────────────────────────────────────────────────────────────────────────
+Texte              15        5          $5-30/1M tokens
+Code               10        3          $10-30/mois
+Images             10        3          $10-60/mois
+Vidéo              8         1          $12-76/mois
+Audio              7         2          $10-99/mois
+─────────────────────────────────────────────────────────────────────────────
+TOTAL              50        14         Variable
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ WEBOX MULTI-IA INTÈGRE 12 DES MEILLEURES IA
+
+💬 Texte & Conversation :
+   ✅ GPT-4 Turbo (OpenAI)
+   ✅ Claude 3.5 Sonnet (Anthropic)
+   ✅ Gemini 1.5 Pro (Google)
+   ✅ Mistral Large (Mistral AI)
+   ✅ Command R+ (Cohere)
+   ✅ Perplexity 70B Online
+   ✅ Grok Beta (xAI)
+   ✅ Qwen 2 72B (Alibaba)
+   ✅ Llama 3.1 70B (Meta)
+   ✅ Mixtral 8x7B
+
+💻 Code & Programmation :
+   ✅ DeepSeek Coder
+   ✅ CodeLlama 70B
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔗 LIENS UTILES
+
+Comparateurs :
+• https://artificialanalysis.ai - Comparaison de performances
+• https://chat.lmsys.org - Arena de comparaison
+• https://huggingface.co/spaces/lmsys/chatbot-arena-leaderboard
+
+Communautés :
+• https://www.reddit.com/r/artificial
+• https://www.reddit.com/r/LocalLLaMA
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📅 Dernière mise à jour : Janvier 2025
+🔄 Prochaine mise à jour : Février 2025
+
+═══════════════════════════════════════════════════════════════════════════════
+
+          Vous avez accès aux meilleures IA du marché ! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════

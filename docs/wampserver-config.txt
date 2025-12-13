@@ -1,0 +1,98 @@
+═══════════════════════════════════════════════════════════════════════════════
+CONFIGURATION WAMPSERVER POUR WEBOX.LOCAL
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANT : Cette application Streamlit ne nécessite PAS WampServer !
+Streamlit est un serveur web Python autonome.
+
+Cependant, si vous souhaitez configurer un proxy Apache via WampServer :
+
+═══════════════════════════════════════════════════════════════════════════════
+OPTION 1 : UTILISATION DIRECTE (RECOMMANDÉ)
+═══════════════════════════════════════════════════════════════════════════════
+
+L'application Streamlit fonctionne directement sur :
+→ http://localhost:8501
+
+Pas besoin de WampServer !
+
+
+═══════════════════════════════════════════════════════════════════════════════
+OPTION 2 : CONFIGURATION AVEC WAMPSERVER (PROXY)
+═══════════════════════════════════════════════════════════════════════════════
+
+Si vous voulez vraiment utiliser http://webox.local/, suivez ces étapes :
+
+1️⃣  MODIFIER LE FICHIER HOSTS
+   ─────────────────────────────
+   Ouvrez en tant qu'administrateur :
+   C:\Windows\System32\drivers\etc\hosts
+   
+   Ajoutez cette ligne :
+   127.0.0.1    webox.local
+
+
+2️⃣  CRÉER UN VIRTUALHOST APACHE
+   ──────────────────────────────
+   Créez le fichier :
+   C:\wamp64\bin\apache\apache2.x.x\conf\extra\httpd-vhosts.conf
+   
+   Ajoutez cette configuration :
+
+<VirtualHost *:80>
+    ServerName webox.local
+    ServerAlias www.webox.local
+    
+    # Proxy vers Streamlit
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8501/
+    ProxyPassReverse / http://localhost:8501/
+    
+    # Logs
+    ErrorLog "logs/webox-error.log"
+    CustomLog "logs/webox-access.log" common
+</VirtualHost>
+
+
+3️⃣  ACTIVER LES MODULES APACHE
+   ────────────────────────────
+   Dans httpd.conf, décommentez ces lignes :
+   
+   LoadModule proxy_module modules/mod_proxy.so
+   LoadModule proxy_http_module modules/mod_proxy_http.so
+   LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
+
+
+4️⃣  REDÉMARRER WAMPSERVER
+   ───────────────────────
+   - Clic droit sur l'icône WampServer
+   - Redémarrer tous les services
+
+
+═══════════════════════════════════════════════════════════════════════════════
+MÉTHODE SIMPLE SANS WAMPSERVER (RECOMMANDÉ)
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour accéder via un nom personnalisé sans WampServer :
+
+1. Modifiez C:\Windows\System32\drivers\etc\hosts (en admin)
+   Ajoutez : 127.0.0.1    webox.local
+
+2. Lancez Streamlit sur le port 80 :
+   streamlit run app.py --server.port 80
+
+3. Accédez à : http://webox.local/
+
+⚠️ Note : Le port 80 nécessite des droits administrateur
+
+
+═══════════════════════════════════════════════════════════════════════════════
+RECOMMANDATION FINALE
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ UTILISEZ SIMPLEMENT : http://localhost:8501
+   → Pas de configuration nécessaire
+   → Fonctionne immédiatement
+   → Plus simple et plus rapide
+
+═══════════════════════════════════════════════════════════════════════════════

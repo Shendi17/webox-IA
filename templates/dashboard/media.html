@@ -1,0 +1,1236 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Gestionnaire Média - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Désactiver les scripts parasites */
+* {
+    pointer-events: auto !important;
+}
+
+/* Stats cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card-media {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card-media:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value-media {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label-media {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Upload zone */
+.upload-zone {
+    border: 3px dashed #4169e1;
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.upload-zone:hover {
+    border-color: #0f3460;
+    background: linear-gradient(135deg, #e8f0ff 0%, #f8f9ff 100%);
+}
+
+.upload-zone.dragover {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+}
+
+.upload-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.upload-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.upload-subtitle {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.upload-input {
+    display: none;
+}
+
+/* Filters */
+.filters-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #1a1a2e;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #f8f9fa;
+}
+
+.filter-btn.active {
+    background: #4169e1;
+    color: white;
+    border-color: #4169e1;
+}
+
+/* Files grid */
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.file-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.file-preview {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+}
+
+.file-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.file-preview-icon {
+    font-size: 4rem;
+    color: white;
+}
+
+.file-info {
+    padding: 1rem;
+}
+
+.file-name {
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 0.75rem;
+}
+
+.file-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.file-action-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-download {
+    background: #4169e1;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #0f3460;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #a71d2a;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+}
+
+/* Loading */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4169e1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Toast */
+.toast-media {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 10001;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.toast-media.success { border-left: 4px solid #28a745; }
+.toast-media.error { border-left: 4px solid #dc3545; }
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #999;
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+
+/* Image Editor Modal */
+.editor-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    overflow-y: auto;
+}
+
+.editor-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.editor-container {
+    background: white;
+    border-radius: 20px;
+    max-width: 1400px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.editor-header h2 {
+    margin: 0;
+    color: #1a1a2e;
+}
+
+.editor-close {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.editor-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+.preview-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.image-preview-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.image-preview-box img {
+    max-width: 100%;
+    max-height: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.image-preview-box label {
+    display: block;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    color: #666;
+}
+
+.tools-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tool-category {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.tool-category h3 {
+    margin: 0 0 1rem 0;
+    color: #1a1a2e;
+    font-size: 1.1rem;
+}
+
+.tool-btn {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.tool-btn:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+    transform: translateX(5px);
+}
+
+.tool-btn .icon {
+    font-size: 1.5rem;
+}
+
+.tool-btn .info {
+    flex: 1;
+    text-align: left;
+}
+
+.tool-btn .name {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.tool-btn .desc {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.tool-btn .cost {
+    font-size: 0.85rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.editor-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 2px solid #e0e0e0;
+}
+
+.editor-actions button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+}
+
+.btn-download-edited {
+    background: linear-gradient(135deg, #4169e1 0%, #667eea 100%);
+    color: white;
+}
+
+.btn-download-edited:hover {
+    background: linear-gradient(135deg, #0f3460 0%, #5568d3 100%);
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+/* Processing overlay */
+.processing-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.95);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 12px;
+}
+
+.processing-overlay.active {
+    display: flex;
+}
+
+.processing-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .editor-content {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📁 Gestionnaire Média</h1>
+    <p>Uploadez et gérez vos fichiers (images, vidéos, documents)</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" id="statsContainer">
+    <div class="stat-card-media">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value-media" id="totalFiles">-</div>
+        <div class="stat-label-media">Fichiers</div>
+    </div>
+    <div class="stat-card-media">
+        <div class="stat-icon">💾</div>
+        <div class="stat-value-media" id="totalSize">-</div>
+        <div class="stat-label-media">Stockage</div>
+    </div>
+    <div class="stat-card-media">
+        <div class="stat-icon">🖼️</div>
+        <div class="stat-value-media" id="totalImages">-</div>
+        <div class="stat-label-media">Images</div>
+    </div>
+    <div class="stat-card-media">
+        <div class="stat-icon">📄</div>
+        <div class="stat-value-media" id="totalDocuments">-</div>
+        <div class="stat-label-media">Documents</div>
+    </div>
+</div>
+
+<!-- Upload Zone -->
+<div class="dashboard-card">
+    <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">☁️</div>
+        <div class="upload-title">Glissez vos fichiers ici</div>
+        <div class="upload-subtitle">ou cliquez pour sélectionner</div>
+        <button class="sidebar-btn primary">📤 Choisir des fichiers</button>
+        <input type="file" id="fileInput" class="upload-input" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv">
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filters-container">
+    <button class="filter-btn active" data-type="all">Tous</button>
+    <button class="filter-btn" data-type="image">🖼️ Images</button>
+    <button class="filter-btn" data-type="video">🎥 Vidéos</button>
+    <button class="filter-btn" data-type="audio">🎵 Audio</button>
+    <button class="filter-btn" data-type="document">📄 Documents</button>
+    <button class="filter-btn" data-type="other">📦 Autres</button>
+</div>
+
+<!-- Files Grid -->
+<div class="files-grid" id="filesGrid">
+    <!-- Les fichiers seront chargés ici -->
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div>Upload en cours...</div>
+    </div>
+</div>
+
+<!-- Image Editor Modal -->
+<div class="editor-modal" id="imageEditorModal">
+    <div class="editor-container">
+        <div class="editor-header">
+            <h2>✨ Éditeur d'Images IA</h2>
+            <button class="editor-close" onclick="closeImageEditor()">❌ Fermer</button>
+        </div>
+        
+        <div class="editor-content">
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="image-preview-box" style="position: relative;">
+                    <img id="editorOriginalImage" src="" alt="Image originale">
+                    <label>Image actuelle</label>
+                    <div class="processing-overlay" id="processingOverlay">
+                        <div class="processing-spinner"></div>
+                        <p><strong id="processingText">Traitement en cours...</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tools Section -->
+            <div class="tools-section">
+                <div class="tool-category">
+                    <h3>🎨 Outils d'édition IA</h3>
+                    
+                    <button class="tool-btn" onclick="applyUpscaling()">
+                        <span class="icon">🔍</span>
+                        <div class="info">
+                            <div class="name">AI Upscaling</div>
+                            <div class="desc">Augmenter la résolution 2x/4x</div>
+                        </div>
+                        <span class="cost">$0.10</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="removeBackground()">
+                        <span class="icon">🎨</span>
+                        <div class="info">
+                            <div class="name">Supprimer le fond</div>
+                            <div class="desc">Arrière-plan transparent</div>
+                        </div>
+                        <span class="cost">$0.05</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="enhanceFace()">
+                        <span class="icon">👤</span>
+                        <div class="info">
+                            <div class="name">Améliorer visage</div>
+                            <div class="desc">Netteté, peau, détails</div>
+                        </div>
+                        <span class="cost">$0.15</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="applyStyleTransfer()">
+                        <span class="icon">🎨</span>
+                        <div class="info">
+                            <div class="name">Style artistique</div>
+                            <div class="desc">Van Gogh, Picasso, Anime...</div>
+                        </div>
+                        <span class="cost">$0.20</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="openInpainting()">
+                        <span class="icon">✏️</span>
+                        <div class="info">
+                            <div class="name">Inpainting</div>
+                            <div class="desc">Ajouter/Supprimer éléments</div>
+                        </div>
+                        <span class="cost">$0.25</span>
+                    </button>
+                    
+                    <button class="tool-btn" onclick="applyFilters()">
+                        <span class="icon">🌈</span>
+                        <div class="info">
+                            <div class="name">Filtres IA</div>
+                            <div class="desc">HDR, Cinematic, Vintage...</div>
+                        </div>
+                        <span class="cost">$0.05</span>
+                    </button>
+                </div>
+                
+                <div class="tool-category">
+                    <h3>📊 Informations</h3>
+                    <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                        <strong>Fichier:</strong> <span id="editorFilename">-</span><br>
+                        <strong>ID:</strong> <span id="editorFileId">-</span><br>
+                        <strong>Éditions:</strong> <span id="editorEditCount">0</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="editor-actions">
+            <button class="btn-cancel" onclick="closeImageEditor()">❌ Annuler</button>
+            <button class="btn-download-edited" onclick="downloadEditedImage()">📥 Télécharger</button>
+            <button class="btn-save" onclick="saveEditedImage()">💾 Sauvegarder</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== GESTIONNAIRE MÉDIA PROFESSIONNEL ==========
+
+let currentFilter = 'all';
+
+// Toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-media ${type}`;
+    toast.innerHTML = `
+        <span style="font-size: 1.5rem;">${type === 'success' ? '✅' : '❌'}</span>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Get file icon
+function getFileIcon(fileType) {
+    const icons = {
+        'image': '🖼️',
+        'video': '🎥',
+        'audio': '🎵',
+        'document': '📄',
+        'other': '📦'
+    };
+    return icons[fileType] || '📦';
+}
+
+// Load stats
+async function loadStats() {
+    try {
+        const response = await fetch('/api/media/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            const stats = data.stats;
+            document.getElementById('totalFiles').textContent = stats.total_files;
+            document.getElementById('totalSize').textContent = formatFileSize(stats.total_size);
+            
+            // Stats par type
+            const byType = stats.by_type;
+            const images = byType.find(s => s.type === 'image');
+            const documents = byType.find(s => s.type === 'document');
+            
+            document.getElementById('totalImages').textContent = images ? images.count : 0;
+            document.getElementById('totalDocuments').textContent = documents ? documents.count : 0;
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des stats:', error);
+    }
+}
+
+// Load files
+async function loadFiles(fileType = 'all') {
+    try {
+        const url = fileType === 'all' ? 
+            '/api/media/files' : 
+            `/api/media/files?file_type=${fileType}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayFiles(data.files);
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des fichiers:', error);
+        showToast('Erreur lors du chargement des fichiers', 'error');
+    }
+}
+
+// Display files
+function displayFiles(files) {
+    const grid = document.getElementById('filesGrid');
+    
+    if (files.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+                <div class="empty-icon">📁</div>
+                <p>Aucun fichier dans cette catégorie</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = files.map(file => `
+        <div class="file-card">
+            <div class="file-preview">
+                ${file.file_type === 'image' ? 
+                    `<img src="${file.public_url}" alt="${file.filename}">` :
+                    `<div class="file-preview-icon">${getFileIcon(file.file_type)}</div>`
+                }
+            </div>
+            <div class="file-info">
+                <div class="file-name" title="${file.filename}">${file.filename}</div>
+                <div class="file-meta">
+                    <span>${formatFileSize(file.file_size)}</span>
+                    <span>${file.file_type}</span>
+                </div>
+                <div class="file-actions">
+                    ${file.file_type === 'image' ? 
+                        `<button class="file-action-btn btn-edit" onclick="openImageEditor(${file.id}, '${file.public_url}', '${file.filename}')">✨ Éditer IA</button>` : 
+                        ''}
+                    <button class="file-action-btn btn-download" onclick="downloadFile(${file.id})">⬇️ Télécharger</button>
+                    <button class="file-action-btn btn-delete" onclick="deleteFile(${file.id})">🗑️ Supprimer</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Upload files
+async function uploadFiles(files) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    
+    try {
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch('/api/media/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                showToast(`Erreur: ${data.detail}`, 'error');
+            }
+        }
+        
+        showToast(`✅ ${files.length} fichier(s) uploadé(s) avec succès !`, 'success');
+        await loadStats();
+        await loadFiles(currentFilter);
+    } catch (error) {
+        console.error('Erreur lors de l\'upload:', error);
+        showToast('Erreur lors de l\'upload', 'error');
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+// Download file
+async function downloadFile(fileId) {
+    window.open(`/api/media/download/${fileId}`, '_blank');
+}
+
+// Delete file
+async function deleteFile(fileId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/media/files/${fileId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Fichier supprimé avec succès', 'success');
+            await loadStats();
+            await loadFiles(currentFilter);
+        } else {
+            showToast('Erreur lors de la suppression', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('Erreur lors de la suppression', 'error');
+    }
+}
+
+// Event listeners
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+// Click to upload
+uploadZone.addEventListener('click', () => {
+    fileInput.click();
+});
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+        uploadFiles(files);
+    }
+    fileInput.value = '';
+});
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+        uploadFiles(files);
+    }
+});
+
+// Filters
+document.querySelector('.filters-container').addEventListener('click', (e) => {
+    if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        e.target.classList.add('active');
+        
+        currentFilter = e.target.dataset.type;
+        loadFiles(currentFilter);
+    }
+});
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {    loadStats();
+    loadFiles();
+});
+
+// ==================== ÉDITEUR D'IMAGES IA ====================
+
+let currentEditingFile = {
+    id: null,
+    url: null,
+    filename: null,
+    editCount: 0
+};
+
+function openImageEditor(fileId, fileUrl, filename) {
+    currentEditingFile = {
+        id: fileId,
+        url: fileUrl,
+        filename: filename,
+        editCount: 0
+    };
+    
+    document.getElementById('editorOriginalImage').src = fileUrl;
+    document.getElementById('editorFilename').textContent = filename;
+    document.getElementById('editorFileId').textContent = fileId;
+    document.getElementById('editorEditCount').textContent = '0';
+    
+    document.getElementById('imageEditorModal').classList.add('active');
+}
+
+function closeImageEditor() {
+    document.getElementById('imageEditorModal').classList.remove('active');
+    currentEditingFile = { id: null, url: null, filename: null, editCount: 0 };
+}
+
+function showProcessing(text = 'Traitement en cours...') {
+    document.getElementById('processingText').textContent = text;
+    document.getElementById('processingOverlay').classList.add('active');
+}
+
+function hideProcessing() {
+    document.getElementById('processingOverlay').classList.remove('active');
+}
+
+async function applyUpscaling() {
+    if (!currentEditingFile.id) return;
+    
+    const factor = prompt('Facteur d\'upscaling (2, 4, ou 8):', '2');
+    if (!factor || !['2', '4', '8'].includes(factor)) {
+        showToast('Facteur invalide. Choisissez 2, 4 ou 8.', 'error');
+        return;
+    }
+    
+    showProcessing('🔍 Upscaling en cours...');
+    
+    try {
+        const response = await fetch('/api/media/edit/upscale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_id: currentEditingFile.id,
+                factor: parseInt(factor)
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('editorOriginalImage').src = data.result_url;
+            currentEditingFile.url = data.result_url;
+            currentEditingFile.editCount++;
+            document.getElementById('editorEditCount').textContent = currentEditingFile.editCount;
+            showToast(`✅ Upscaling ${factor}x appliqué !`, 'success');
+        } else {
+            showToast(`❌ Erreur: ${data.detail}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur lors de l\'upscaling', 'error');
+    } finally {
+        hideProcessing();
+    }
+}
+
+async function removeBackground() {
+    if (!currentEditingFile.id) return;
+    
+    const bgType = prompt('Type d\'arrière-plan:\n1. Transparent\n2. Blanc\n3. Flou\n\nEntrez 1, 2 ou 3:', '1');
+    if (!bgType || !['1', '2', '3'].includes(bgType)) {
+        showToast('Choix invalide', 'error');
+        return;
+    }
+    
+    const bgTypes = { '1': 'transparent', '2': 'white', '3': 'blur' };
+    
+    showProcessing('🎨 Suppression du fond...');
+    
+    try {
+        const response = await fetch('/api/media/edit/remove-bg', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_id: currentEditingFile.id,
+                background_type: bgTypes[bgType]
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('editorOriginalImage').src = data.result_url;
+            currentEditingFile.url = data.result_url;
+            currentEditingFile.editCount++;
+            document.getElementById('editorEditCount').textContent = currentEditingFile.editCount;
+            showToast('✅ Fond supprimé !', 'success');
+        } else {
+            showToast(`❌ Erreur: ${data.detail}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur lors de la suppression du fond', 'error');
+    } finally {
+        hideProcessing();
+    }
+}
+
+async function enhanceFace() {
+    if (!currentEditingFile.id) return;
+    
+    showProcessing('👤 Amélioration du visage...');
+    
+    try {
+        const response = await fetch('/api/media/edit/enhance-face', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_id: currentEditingFile.id
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('editorOriginalImage').src = data.result_url;
+            currentEditingFile.url = data.result_url;
+            currentEditingFile.editCount++;
+            document.getElementById('editorEditCount').textContent = currentEditingFile.editCount;
+            showToast('✅ Visage amélioré !', 'success');
+        } else {
+            showToast(`❌ Erreur: ${data.detail}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur lors de l\'amélioration', 'error');
+    } finally {
+        hideProcessing();
+    }
+}
+
+async function applyStyleTransfer() {
+    if (!currentEditingFile.id) return;
+    
+    const style = prompt('Style artistique:\n1. Van Gogh\n2. Picasso\n3. Anime\n4. Aquarelle\n5. Cyberpunk\n\nEntrez 1-5:', '1');
+    if (!style || !['1', '2', '3', '4', '5'].includes(style)) {
+        showToast('Choix invalide', 'error');
+        return;
+    }
+    
+    const styles = { '1': 'van-gogh', '2': 'picasso', '3': 'anime', '4': 'watercolor', '5': 'cyberpunk' };
+    
+    showProcessing('🎨 Application du style...');
+    
+    try {
+        const response = await fetch('/api/media/edit/style-transfer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_id: currentEditingFile.id,
+                style: styles[style]
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('editorOriginalImage').src = data.result_url;
+            currentEditingFile.url = data.result_url;
+            currentEditingFile.editCount++;
+            document.getElementById('editorEditCount').textContent = currentEditingFile.editCount;
+            showToast('✅ Style appliqué !', 'success');
+        } else {
+            showToast(`❌ Erreur: ${data.detail}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur lors du transfert de style', 'error');
+    } finally {
+        hideProcessing();
+    }
+}
+
+async function openInpainting() {
+    if (!currentEditingFile.id) return;
+    
+    const prompt = prompt('Décrivez ce que vous voulez ajouter ou supprimer:', '');
+    if (!prompt || !prompt.trim()) {
+        showToast('Description requise', 'error');
+        return;
+    }
+    
+    showProcessing('✏️ Inpainting en cours...');
+    
+    try {
+        const response = await fetch('/api/media/edit/inpaint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_id: currentEditingFile.id,
+                prompt: prompt
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('editorOriginalImage').src = data.result_url;
+            currentEditingFile.url = data.result_url;
+            currentEditingFile.editCount++;
+            document.getElementById('editorEditCount').textContent = currentEditingFile.editCount;
+            showToast('✅ Inpainting appliqué !', 'success');
+        } else {
+            showToast(`❌ Erreur: ${data.detail}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur lors de l\'inpainting', 'error');
+    } finally {
+        hideProcessing();
+    }
+}
+
+async function applyFilters() {
+    if (!currentEditingFile.id) return;
+    
+    const filter = prompt('Filtre IA:\n1. HDR\n2. Cinematic\n3. Vintage\n4. Noir & Blanc+\n5. Warm Tone\n\nEntrez 1-5:', '1');
+    if (!filter || !['1', '2', '3', '4', '5'].includes(filter)) {
+        showToast('Choix invalide', 'error');
+        return;
+    }
+    
+    const filters = { '1': 'hdr', '2': 'cinematic', '3': 'vintage', '4': 'bw-enhanced', '5': 'warm' };
+    
+    showProcessing('🌈 Application du filtre...');
+    
+    try {
+        const response = await fetch('/api/media/edit/filter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image_id: currentEditingFile.id,
+                filter: filters[filter]
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('editorOriginalImage').src = data.result_url;
+            currentEditingFile.url = data.result_url;
+            currentEditingFile.editCount++;
+            document.getElementById('editorEditCount').textContent = currentEditingFile.editCount;
+            showToast('✅ Filtre appliqué !', 'success');
+        } else {
+            showToast(`❌ Erreur: ${data.detail}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showToast('❌ Erreur lors de l\'application du filtre', 'error');
+    } finally {
+        hideProcessing();
+    }
+}
+
+function downloadEditedImage() {
+    if (!currentEditingFile.url) return;
+    window.open(currentEditingFile.url, '_blank');
+    showToast('📥 Téléchargement lancé !', 'success');
+}
+
+async function saveEditedImage() {
+    if (!currentEditingFile.id || currentEditingFile.editCount === 0) {
+        showToast('⚠️ Aucune modification à sauvegarder', 'error');
+        return;
+    }
+    
+    showToast('💾 Image sauvegardée !', 'success');
+    await loadFiles(currentFilter);
+    closeImageEditor();
+}</script>
+{% endblock %}

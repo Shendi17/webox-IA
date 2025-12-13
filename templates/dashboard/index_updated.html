@@ -1,0 +1,475 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Dashboard - WeBox Studio Créatif{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* Page Header */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+/* Studio Créatif Section */
+.studio-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem;
+    border-radius: 20px;
+    margin-bottom: 3rem;
+    color: white;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+}
+
+.studio-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.studio-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.studio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.studio-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 3px solid transparent;
+    text-decoration: none;
+    color: #1a1a2e;
+}
+
+.studio-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    border-color: #ffd93d;
+}
+
+.studio-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.studio-name {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #1a1a2e;
+}
+
+.studio-desc {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    font-size: 3.5rem;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Actions rapides */
+.quick-actions {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+}
+
+.quick-actions h2 {
+    margin-bottom: 1.5rem;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.action-btn {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.action-icon {
+    font-size: 2.5rem;
+}
+
+.action-label {
+    font-weight: 600;
+}
+
+/* Activité récente */
+.recent-activity {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.recent-activity h2 {
+    margin-bottom: 1.5rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s;
+}
+
+.activity-item:hover {
+    background: #e9ecef;
+}
+
+.activity-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 10px;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.activity-desc {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.activity-time {
+    font-size: 0.875rem;
+    color: #999;
+}
+
+@media (max-width: 768px) {
+    .studio-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>🏠 Dashboard</h1>
+    <p>Bienvenue {{ user.name }} ! Voici un aperçu de votre Studio Créatif</p>
+</div>
+
+<!-- Studio Créatif Section -->
+<div class="studio-section">
+    <div class="studio-header">
+        <h2>🎨 Studio Créatif</h2>
+        <p>7 outils IA puissants pour créer du contenu exceptionnel</p>
+    </div>
+    
+    <div class="studio-grid">
+        <a href="/podcasts" class="studio-card">
+            <div class="studio-icon">🎙️</div>
+            <div class="studio-name">Podcasts IA</div>
+            <div class="studio-desc">Scripts + Audio + Cover</div>
+        </a>
+        
+        <a href="/avatars" class="studio-card">
+            <div class="studio-icon">👤</div>
+            <div class="studio-name">Avatars IA</div>
+            <div class="studio-desc">7 styles personnalisables</div>
+        </a>
+        
+        <a href="/series" class="studio-card">
+            <div class="studio-icon">📺</div>
+            <div class="studio-name">Séries IA</div>
+            <div class="studio-desc">Scripts + Scènes + Images</div>
+        </a>
+        
+        <a href="/pwa" class="studio-card">
+            <div class="studio-icon">📱</div>
+            <div class="studio-name">PWA Generator</div>
+            <div class="studio-desc">6 templates + Offline</div>
+        </a>
+        
+        <a href="/documents" class="studio-card">
+            <div class="studio-icon">📄</div>
+            <div class="studio-name">Documents IA</div>
+            <div class="studio-desc">Analyse + Extraction</div>
+        </a>
+        
+        <a href="/chat" class="studio-card">
+            <div class="studio-icon">🤖</div>
+            <div class="studio-name">Agent IA 24/7</div>
+            <div class="studio-desc">Chat intelligent</div>
+        </a>
+        
+        <a href="/generation" class="studio-card">
+            <div class="studio-icon">✨</div>
+            <div class="studio-name">Génération IA</div>
+            <div class="studio-desc">Contenu multi-format</div>
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🎙️</div>
+        <div class="stat-content">
+            <div class="stat-value" id="totalPodcasts">0</div>
+            <div class="stat-label">Podcasts créés</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-content">
+            <div class="stat-value" id="totalAvatars">0</div>
+            <div class="stat-label">Avatars générés</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">📺</div>
+        <div class="stat-content">
+            <div class="stat-value" id="totalSeries">0</div>
+            <div class="stat-label">Séries créées</div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">📄</div>
+        <div class="stat-content">
+            <div class="stat-value" id="totalDocuments">0</div>
+            <div class="stat-label">Documents analysés</div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="quick-actions">
+    <h2>⚡ Actions rapides</h2>
+    <div class="actions-grid">
+        <a href="/podcast/create" class="action-btn">
+            <div class="action-icon">🎙️</div>
+            <div class="action-label">Créer Podcast</div>
+        </a>
+        
+        <a href="/avatar/create" class="action-btn">
+            <div class="action-icon">👤</div>
+            <div class="action-label">Générer Avatar</div>
+        </a>
+        
+        <a href="/series/create" class="action-btn">
+            <div class="action-icon">📺</div>
+            <div class="action-label">Créer Série</div>
+        </a>
+        
+        <a href="/pwa/create" class="action-btn">
+            <div class="action-icon">📱</div>
+            <div class="action-label">Créer PWA</div>
+        </a>
+        
+        <a href="/documents" class="action-btn">
+            <div class="action-icon">📄</div>
+            <div class="action-label">Analyser Document</div>
+        </a>
+        
+        <a href="/chat" class="action-btn">
+            <div class="action-icon">💬</div>
+            <div class="action-label">Chat IA</div>
+        </a>
+        
+        <a href="/generation" class="action-btn">
+            <div class="action-icon">✨</div>
+            <div class="action-label">Génération</div>
+        </a>
+        
+        <a href="/admin/analytics" class="action-btn">
+            <div class="action-icon">📊</div>
+            <div class="action-label">Analytics</div>
+        </a>
+        
+        <a href="/projects" class="action-btn">
+            <div class="action-icon">📁</div>
+            <div class="action-label">Projets</div>
+        </a>
+        
+        <a href="/agents" class="action-btn">
+            <div class="action-icon">🤖</div>
+            <div class="action-label">Agents IA</div>
+        </a>
+        
+        <a href="/blog" class="action-btn">
+            <div class="action-icon">📝</div>
+            <div class="action-label">Blog</div>
+        </a>
+        
+        <a href="/profile" class="action-btn">
+            <div class="action-icon">⚙️</div>
+            <div class="action-label">Paramètres</div>
+        </a>
+    </div>
+</div>
+
+<!-- Activité récente -->
+<div class="recent-activity">
+    <h2>📋 Activité récente</h2>
+    <div id="recentActivity">
+        <div class="activity-item">
+            <div class="activity-icon">🎙️</div>
+            <div class="activity-content">
+                <div class="activity-title">Podcast créé</div>
+                <div class="activity-desc">Mon premier podcast IA</div>
+            </div>
+            <div class="activity-time">Il y a 2h</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Charger les stats
+async function loadStats() {
+    try {
+        // Podcasts
+        const podcastsRes = await fetch('/api/podcasts/stats/summary');
+        const podcastsData = await podcastsRes.json();
+        if (podcastsData.success) {
+            document.getElementById('totalPodcasts').textContent = podcastsData.stats.total_podcasts;
+        }
+        
+        // Avatars
+        const avatarsRes = await fetch('/api/avatars/stats/summary');
+        const avatarsData = await avatarsRes.json();
+        if (avatarsData.success) {
+            document.getElementById('totalAvatars').textContent = avatarsData.stats.total_avatars;
+        }
+        
+        // Séries
+        const seriesRes = await fetch('/api/series/stats/summary');
+        const seriesData = await seriesRes.json();
+        if (seriesData.success) {
+            document.getElementById('totalSeries').textContent = seriesData.stats.total_series;
+        }
+        
+        // Documents
+        const docsRes = await fetch('/api/documents/stats/summary');
+        const docsData = await docsRes.json();
+        if (docsData.success) {
+            document.getElementById('totalDocuments').textContent = docsData.stats.total_documents;
+        }
+    } catch (error) {
+        console.error('Erreur chargement stats:', error);
+    }
+}
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+});
+</script>
+{% endblock %}

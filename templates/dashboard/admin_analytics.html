@@ -1,0 +1,305 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}📊 Analytics Admin - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-page {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .stat-change {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .stat-change.positive {
+        color: #6bcf7f;
+    }
+
+    .stat-change.negative {
+        color: #ff4757;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .chart-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .performance-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .performance-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .performance-bar {
+        width: 100%;
+        height: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .performance-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s;
+    }
+
+    .cost-breakdown {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .cost-item:last-child {
+        border-bottom: none;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <h1>📊 Analytics & Monitoring</h1>
+    <p style="color: #666; margin-bottom: 2rem;">Tableau de bord administrateur</p>
+
+    <!-- Stats globales -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-icon">🎙️</div>
+            <div class="stat-value" id="totalPodcasts">0</div>
+            <div class="stat-label">Podcasts créés</div>
+            <div class="stat-change positive" id="podcastsChange">+0 aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👤</div>
+            <div class="stat-value" id="totalAvatars">0</div>
+            <div class="stat-label">Avatars générés</div>
+            <div class="stat-change positive" id="avatarsChange">+0 aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📺</div>
+            <div class="stat-value" id="totalSeries">0</div>
+            <div class="stat-label">Séries créées</div>
+            <div class="stat-change positive" id="seriesChange">+0 aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📱</div>
+            <div class="stat-value" id="totalPWA">0</div>
+            <div class="stat-label">PWA générées</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🤖</div>
+            <div class="stat-value" id="totalConversations">0</div>
+            <div class="stat-label">Conversations IA</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-value" id="totalMessages">0</div>
+            <div class="stat-label">Messages IA</div>
+        </div>
+    </div>
+
+    <!-- Performance -->
+    <h2>⚡ Performance du système</h2>
+    <div class="performance-grid" id="performanceGrid">
+        <div class="performance-card">
+            <h3>CPU</h3>
+            <div class="stat-value" id="cpuUsage">0%</div>
+            <div class="performance-bar">
+                <div class="performance-fill" id="cpuBar"></div>
+            </div>
+        </div>
+        <div class="performance-card">
+            <h3>Mémoire</h3>
+            <div class="stat-value" id="memoryUsage">0%</div>
+            <div class="performance-bar">
+                <div class="performance-fill" id="memoryBar"></div>
+            </div>
+        </div>
+        <div class="performance-card">
+            <h3>Disque</h3>
+            <div class="stat-value" id="diskUsage">0%</div>
+            <div class="performance-bar">
+                <div class="performance-fill" id="diskBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coûts -->
+    <h2 style="margin-top: 3rem;">💰 Estimation des coûts</h2>
+    <div class="cost-breakdown" id="costsBreakdown">
+        <div class="cost-item">
+            <span>Podcasts</span>
+            <span id="costPodcasts">$0.00</span>
+        </div>
+        <div class="cost-item">
+            <span>Avatars</span>
+            <span id="costAvatars">$0.00</span>
+        </div>
+        <div class="cost-item">
+            <span>Séries</span>
+            <span id="costSeries">$0.00</span>
+        </div>
+        <div class="cost-item">
+            <span>PWA</span>
+            <span id="costPWA">$0.00</span>
+        </div>
+        <div class="cost-item">
+            <span>React Native</span>
+            <span id="costRN">$0.00</span>
+        </div>
+        <div class="cost-item">
+            <span>TOTAL</span>
+            <span id="costTotal">$0.00</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadGlobalStats();
+        await loadPerformance();
+        await loadCosts();
+        
+        // Rafraîchir toutes les 30 secondes
+        setInterval(async () => {
+            await loadPerformance();
+        }, 30000);
+    });
+
+    async function loadGlobalStats() {
+        try {
+            const response = await fetch('/api/analytics/global');
+            const data = await response.json();
+
+            if (data.success) {
+                const stats = data.stats;
+                
+                document.getElementById('totalPodcasts').textContent = stats.podcasts.total;
+                document.getElementById('podcastsChange').textContent = `+${stats.podcasts.today} aujourd'hui`;
+                
+                document.getElementById('totalAvatars').textContent = stats.avatars.total;
+                document.getElementById('avatarsChange').textContent = `+${stats.avatars.today} aujourd'hui`;
+                
+                document.getElementById('totalSeries').textContent = stats.series.total;
+                document.getElementById('seriesChange').textContent = `+${stats.series.today} aujourd'hui`;
+                
+                document.getElementById('totalPWA').textContent = stats.pwa.total;
+                document.getElementById('totalConversations').textContent = stats.ai_agent.total_conversations;
+                document.getElementById('totalMessages').textContent = stats.ai_agent.total_messages;
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async function loadPerformance() {
+        try {
+            const response = await fetch('/api/analytics/performance');
+            const data = await response.json();
+
+            if (data.success) {
+                const metrics = data.metrics;
+                
+                document.getElementById('cpuUsage').textContent = metrics.cpu.usage_percent + '%';
+                document.getElementById('cpuBar').style.width = metrics.cpu.usage_percent + '%';
+                
+                document.getElementById('memoryUsage').textContent = metrics.memory.percent + '%';
+                document.getElementById('memoryBar').style.width = metrics.memory.percent + '%';
+                
+                document.getElementById('diskUsage').textContent = metrics.disk.percent + '%';
+                document.getElementById('diskBar').style.width = metrics.disk.percent + '%';
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    async function loadCosts() {
+        try {
+            const response = await fetch('/api/analytics/costs');
+            const data = await response.json();
+
+            if (data.success) {
+                const costs = data.costs;
+                
+                document.getElementById('costPodcasts').textContent = '$' + costs.podcasts;
+                document.getElementById('costAvatars').textContent = '$' + costs.avatars;
+                document.getElementById('costSeries').textContent = '$' + costs.series;
+                document.getElementById('costPWA').textContent = '$' + costs.pwa;
+                document.getElementById('costRN').textContent = '$' + costs.react_native;
+                document.getElementById('costTotal').textContent = '$' + costs.total;
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+</script>
+{% endblock %}

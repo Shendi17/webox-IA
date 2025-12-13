@@ -1,0 +1,1154 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Combinaisons IA - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+* { pointer-events: auto !important; }
+
+.workflow-builder {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.workflow-step {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.workflow-step.active {
+    border-color: #4169e1;
+    background: #e3f2fd;
+}
+
+.step-number {
+    position: absolute;
+    top: -12px;
+    left: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.ai-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* ==================== MODAL STYLES ==================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    padding: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* ==================== PROGRESS BAR ==================== */
+.progress-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.progress-container.active {
+    display: block;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.progress-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.progress-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.progress-bar-wrapper {
+    background: #e0e0e0;
+    border-radius: 10px;
+    height: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.progress-step {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin: 0 0.25rem;
+    transition: all 0.3s;
+}
+
+.progress-step.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.progress-step.active {
+    background: #cce5ff;
+    color: #004085;
+    font-weight: 600;
+}
+
+.progress-step.pending {
+    background: #f8f9fa;
+    color: #999;
+}
+
+/* ==================== RESULT CARD ==================== */
+.result-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #667eea;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.result-title {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 1.1rem;
+}
+
+.result-cost {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.result-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    color: #333;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.result-metadata {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.metadata-item {
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* ==================== NOTIFICATION TOAST ==================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.toast {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 300px;
+    animation: slideInRight 0.3s ease;
+}
+
+.toast.success { border-left: 4px solid #28a745; }
+.toast.error { border-left: 4px solid #dc3545; }
+.toast.warning { border-left: 4px solid #ffc107; }
+.toast.info { border-left: 4px solid #17a2b8; }
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.ai-option {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ai-option:hover {
+    border-color: #4169e1;
+    transform: translateY(-2px);
+}
+
+.ai-option.selected {
+    border-color: #4169e1;
+    background: #e3f2fd;
+}
+
+.template-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.template-card:hover {
+    border-color: #4169e1;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.arrow-down {
+    text-align: center;
+    font-size: 2rem;
+    color: #4169e1;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>🔄 Combinaisons IA</h1>
+    <p>Créez des workflows puissants en combinant plusieurs IA</p>
+</div>
+
+<!-- Templates prédéfinis -->
+<div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.5rem;">🎯 Templates de Combinaisons Populaires</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer;" onclick="loadTemplate('content-creation')">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
+            <strong style="font-size: 1.1rem;">Création de Contenu</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                GPT-4 (texte) → DALL-E (image) → ElevenLabs (voix)
+            </p>
+            <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 0.85rem;">
+                Parfait pour : Articles de blog avec visuels et narration
+            </div>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer;" onclick="loadTemplate('video-production')">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎬</div>
+            <strong style="font-size: 1.1rem;">Production Vidéo</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                Claude (script) → Midjourney (storyboard) → Runway (vidéo)
+            </p>
+            <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 0.85rem;">
+                Parfait pour : Vidéos marketing et tutoriels
+            </div>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer;" onclick="loadTemplate('data-analysis')">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+            <strong style="font-size: 1.1rem;">Analyse de Données</strong>
+            <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
+                GPT-4 (analyse) → Python (traitement) → Tableau (visualisation)
+            </p>
+            <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 0.85rem;">
+                Parfait pour : Rapports et dashboards automatisés
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Bar Container -->
+<div id="progressContainer" class="progress-container">
+    <div class="progress-header">
+        <div class="progress-title">⚙️ Exécution du Workflow</div>
+        <div class="progress-status">
+            <span class="spinner"></span>
+            <span id="progressStatusText">En cours...</span>
+        </div>
+    </div>
+    
+    <div class="progress-bar-wrapper">
+        <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+    </div>
+    
+    <div id="progressSteps" class="progress-steps">
+        <!-- Les étapes seront ajoutées dynamiquement -->
+    </div>
+</div>
+
+<!-- Workflow Builder -->
+<div class="dashboard-card">
+    <h2 style="margin-bottom: 1.5rem;">🛠️ Créer une Nouvelle Combinaison</h2>
+    
+    <div class="workflow-builder">
+        <!-- Étape 1 -->
+        <div class="workflow-step active">
+            <div class="step-number">1</div>
+            <h3 style="margin-bottom: 1rem;">Sélectionnez la première IA</h3>
+            <select id="step1-ai" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                <option value="">-- Choisir une IA --</option>
+                <optgroup label="💬 Texte">
+                    <option value="gpt4">GPT-4 (OpenAI)</option>
+                    <option value="claude">Claude 3 (Anthropic)</option>
+                    <option value="gemini">Gemini Pro (Google)</option>
+                </optgroup>
+                <optgroup label="🎨 Image">
+                    <option value="dalle">DALL-E 3</option>
+                    <option value="midjourney">Midjourney</option>
+                    <option value="stable-diffusion">Stable Diffusion</option>
+                </optgroup>
+                <optgroup label="🎙️ Audio">
+                    <option value="elevenlabs">ElevenLabs</option>
+                    <option value="openai-tts">OpenAI TTS</option>
+                </optgroup>
+            </select>
+            <input type="text" id="step1-prompt" placeholder="Votre prompt pour cette étape..." style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-top: 1rem;">
+        </div>
+        
+        <div class="arrow-down">⬇️</div>
+        
+        <!-- Étape 2 -->
+        <div class="workflow-step">
+            <div class="step-number">2</div>
+            <h3 style="margin-bottom: 1rem;">Sélectionnez la deuxième IA</h3>
+            <select id="step2-ai" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                <option value="">-- Choisir une IA --</option>
+                <optgroup label="💬 Texte">
+                    <option value="gpt4">GPT-4 (OpenAI)</option>
+                    <option value="claude">Claude 3 (Anthropic)</option>
+                    <option value="gemini">Gemini Pro (Google)</option>
+                </optgroup>
+                <optgroup label="🎨 Image">
+                    <option value="dalle">DALL-E 3</option>
+                    <option value="midjourney">Midjourney</option>
+                    <option value="stable-diffusion">Stable Diffusion</option>
+                </optgroup>
+                <optgroup label="🎙️ Audio">
+                    <option value="elevenlabs">ElevenLabs</option>
+                    <option value="openai-tts">OpenAI TTS</option>
+                </optgroup>
+            </select>
+            <input type="text" id="step2-prompt" placeholder="Utiliser le résultat de l'étape 1..." style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-top: 1rem;">
+        </div>
+        
+        <div class="arrow-down">⬇️</div>
+        
+        <!-- Étape 3 -->
+        <div class="workflow-step">
+            <div class="step-number">3</div>
+            <h3 style="margin-bottom: 1rem;">Sélectionnez la troisième IA (optionnel)</h3>
+            <select id="step3-ai" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                <option value="">-- Choisir une IA --</option>
+                <optgroup label="💬 Texte">
+                    <option value="gpt4">GPT-4 (OpenAI)</option>
+                    <option value="claude">Claude 3 (Anthropic)</option>
+                    <option value="gemini">Gemini Pro (Google)</option>
+                </optgroup>
+                <optgroup label="🎨 Image">
+                    <option value="dalle">DALL-E 3</option>
+                    <option value="midjourney">Midjourney</option>
+                    <option value="stable-diffusion">Stable Diffusion</option>
+                </optgroup>
+                <optgroup label="🎙️ Audio">
+                    <option value="elevenlabs">ElevenLabs</option>
+                    <option value="openai-tts">OpenAI TTS</option>
+                </optgroup>
+            </select>
+            <input type="text" id="step3-prompt" placeholder="Utiliser le résultat de l'étape 2..." style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-top: 1rem;">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button class="sidebar-btn primary" style="flex: 1;" onclick="executeWorkflow()">
+                ▶️ Exécuter le Workflow
+            </button>
+            <button class="sidebar-btn secondary" onclick="saveWorkflow()">
+                💾 Sauvegarder
+            </button>
+            <button class="sidebar-btn secondary" onclick="resetWorkflow()">
+                🔄 Réinitialiser
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Cas d'usage -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+    <div class="dashboard-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+        <h3>Marketing Visuel</h3>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+            Créez des campagnes marketing complètes : texte publicitaire + visuels + voix-off.
+        </p>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <strong>Workflow :</strong><br>
+            1. GPT-4 : Rédaction du texte<br>
+            2. DALL-E : Création des visuels<br>
+            3. ElevenLabs : Génération voix-off
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+        <h3>Contenu Éducatif</h3>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+            Produisez des tutoriels complets avec explications, illustrations et narration.
+        </p>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <strong>Workflow :</strong><br>
+            1. Claude : Structuration du cours<br>
+            2. Midjourney : Illustrations<br>
+            3. OpenAI TTS : Narration audio
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🎬</div>
+        <h3>Production Vidéo</h3>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">
+            Automatisez la création de vidéos : script + storyboard + montage.
+        </p>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+            <strong>Workflow :</strong><br>
+            1. GPT-4 : Écriture du script<br>
+            2. Stable Diffusion : Génération images<br>
+            3. Runway : Montage vidéo
+        </div>
+    </div>
+</div>
+
+<!-- Avantages -->
+<div class="dashboard-card" style="margin-top: 2rem; background: #fff3cd;">
+    <h2 style="margin-bottom: 1.5rem;">✨ Pourquoi Combiner Plusieurs IA ?</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">⚡ Gain de Temps</h3>
+            <p style="color: #666;">Automatisez des workflows complexes qui prendraient des heures manuellement.</p>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">🎯 Meilleure Qualité</h3>
+            <p style="color: #666;">Chaque IA excelle dans son domaine, combinées elles produisent des résultats optimaux.</p>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">🔄 Réutilisabilité</h3>
+            <p style="color: #666;">Sauvegardez vos workflows et réutilisez-les à l'infini avec de nouveaux inputs.</p>
+        </div>
+        <div>
+            <h3 style="color: #1a1a2e; margin-bottom: 0.5rem;">💰 Économies</h3>
+            <p style="color: #666;">Réduisez drastiquement les coûts de production de contenu multimédia.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Résultats -->
+<div id="resultsModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>✅ Résultats du Workflow</h2>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Les résultats seront insérés ici -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+// ==================== VARIABLES GLOBALES ====================
+let currentExecutionId = null;
+let pollingInterval = null;
+
+// ==================== CHARGEMENT DE TEMPLATES ====================
+async function loadTemplate(templateName) {
+    try {
+        const response = await fetch('/api/combinations/templates', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        const data = await response.json();
+        const template = data.templates[templateName];
+        
+        if (template && template.steps) {
+            // Charger les 3 premières étapes
+            const steps = template.steps;
+            
+            if (steps[0]) {
+                document.getElementById('step1-ai').value = steps[0].ai_provider;
+                document.getElementById('step1-prompt').value = steps[0].prompt;
+            }
+            
+            if (steps[1]) {
+                document.getElementById('step2-ai').value = steps[1].ai_provider;
+                document.getElementById('step2-prompt').value = steps[1].prompt;
+            }
+            
+            if (steps[2]) {
+                document.getElementById('step3-ai').value = steps[2].ai_provider;
+                document.getElementById('step3-prompt').value = steps[2].prompt;
+            }
+            
+            showNotification('✅ Template chargé ! Personnalisez les prompts et cliquez sur "Exécuter".', 'success');
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement du template:', error);
+        showNotification('❌ Erreur lors du chargement du template', 'error');
+    }
+}
+
+// ==================== EXÉCUTION DE WORKFLOW ====================
+async function executeWorkflow() {
+    // Récupérer les étapes
+    const steps = [];
+    
+    const step1 = {
+        step_number: 1,
+        ai_provider: document.getElementById('step1-ai').value,
+        prompt: document.getElementById('step1-prompt').value,
+        use_previous_output: false,
+        parameters: {}
+    };
+    
+    if (!step1.ai_provider || !step1.prompt) {
+        showNotification('⚠️ Veuillez remplir au moins la première étape !', 'warning');
+        return;
+    }
+    
+    steps.push(step1);
+    
+    // Étape 2 (optionnelle)
+    const step2AI = document.getElementById('step2-ai').value;
+    const step2Prompt = document.getElementById('step2-prompt').value;
+    
+    if (step2AI && step2Prompt) {
+        steps.push({
+            step_number: 2,
+            ai_provider: step2AI,
+            prompt: step2Prompt,
+            use_previous_output: true,
+            parameters: {}
+        });
+    }
+    
+    // Étape 3 (optionnelle)
+    const step3AI = document.getElementById('step3-ai').value;
+    const step3Prompt = document.getElementById('step3-prompt').value;
+    
+    if (step3AI && step3Prompt) {
+        steps.push({
+            step_number: 3,
+            ai_provider: step3AI,
+            prompt: step3Prompt,
+            use_previous_output: true,
+            parameters: {}
+        });
+    }
+    
+    // Demander l'input initial
+    const initialInput = prompt('Entrez le sujet/thème pour ce workflow:', '');
+    
+    if (!initialInput) {
+        showNotification('⚠️ Vous devez fournir un sujet/thème', 'warning');
+        return;
+    }
+    
+    // Afficher la barre de progression
+    showProgress(steps);
+    
+    // Lancer l'exécution
+    try {
+        showNotification('🚀 Lancement du workflow...', 'info');
+        
+        const response = await fetch('/api/combinations/execute', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                steps: steps,
+                initial_input: initialInput
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentExecutionId = data.execution_id;
+            showNotification('✅ Workflow lancé ! Exécution en cours...', 'success');
+            
+            // Démarrer le polling
+            startPolling(currentExecutionId);
+        } else {
+            showNotification('❌ Erreur lors du lancement du workflow', 'error');
+            hideProgress();
+        }
+        
+    } catch (error) {
+        console.error('Erreur lors de l\'exécution:', error);
+        showNotification('❌ Erreur lors de l\'exécution du workflow', 'error');
+        hideProgress();
+    }
+}
+
+// ==================== POLLING DU STATUT ====================
+function startPolling(executionId) {
+    // Arrêter le polling précédent si existant
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+    }
+    
+    // Polling toutes les 3 secondes
+    pollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/combinations/executions/${executionId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            // Mettre à jour l'affichage
+            updateExecutionStatus(data);
+            
+            // Si terminé ou en erreur, arrêter le polling
+            if (data.status === 'completed' || data.status === 'failed') {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                
+                if (data.status === 'completed') {
+                    showExecutionResults(data);
+                } else {
+                    showNotification(`❌ Workflow échoué: ${data.error_message}`, 'error');
+                }
+            }
+            
+        } catch (error) {
+            console.error('Erreur lors du polling:', error);
+        }
+    }, 3000);
+}
+
+function updateExecutionStatus(data) {
+    // Mettre à jour la barre de progression
+    if (data.status === 'running' && data.current_step && data.total_steps) {
+        updateProgress(data.current_step, data.total_steps, 'running');
+    }
+}
+
+function showExecutionResults(data) {
+    const results = data.results;
+    const cost = data.total_cost.toFixed(2);
+    
+    // Cacher la barre de progression
+    hideProgress();
+    
+    // Construire le HTML des résultats
+    let resultsHTML = `
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <div style="font-size: 1.2rem; font-weight: 600; color: #1a1a2e;">Workflow terminé avec succès !</div>
+                    <div style="color: #666; margin-top: 0.25rem;">Durée: ${calculateDuration(data.started_at, data.completed_at)}</div>
+                </div>
+                <div style="background: #d4edda; color: #155724; padding: 0.75rem 1.5rem; border-radius: 20px; font-weight: 600;">
+                    💰 $${cost}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Afficher chaque résultat
+    let stepNumber = 1;
+    for (const [stepKey, result] of Object.entries(results)) {
+        const providerName = getProviderName(result.metadata?.provider || 'unknown');
+        
+        resultsHTML += `
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-title">📍 Étape ${stepNumber} - ${providerName}</div>
+                    <div class="result-cost">$${result.cost.toFixed(3)}</div>
+                </div>
+                <div class="result-content">
+                    ${formatOutput(result.output, result.metadata)}
+                </div>
+                ${result.metadata && Object.keys(result.metadata).length > 0 ? `
+                    <div class="result-metadata">
+                        ${Object.entries(result.metadata).map(([key, value]) => `
+                            <div class="metadata-item">
+                                <strong>${key}:</strong> ${value}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        stepNumber++;
+    }
+    
+    // Ajouter un bouton de téléchargement
+    resultsHTML += `
+        <div style="margin-top: 2rem; text-align: center;">
+            <button onclick="downloadResults()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: 600;">
+                📥 Télécharger les Résultats
+            </button>
+        </div>
+    `;
+    
+    // Afficher dans la modal
+    document.getElementById('modalBody').innerHTML = resultsHTML;
+    openModal();
+    
+    // Notification de succès
+    showNotification('✅ Workflow terminé avec succès !', 'success');
+}
+
+function calculateDuration(startedAt, completedAt) {
+    if (!startedAt || !completedAt) return 'N/A';
+    const start = new Date(startedAt);
+    const end = new Date(completedAt);
+    const diff = Math.round((end - start) / 1000);
+    return `${diff}s`;
+}
+
+function getProviderName(provider) {
+    const names = {
+        'gpt4': 'GPT-4',
+        'claude': 'Claude 3',
+        'gemini': 'Gemini Pro',
+        'dalle': 'DALL-E 3',
+        'midjourney': 'Midjourney',
+        'stable-diffusion': 'Stable Diffusion',
+        'elevenlabs': 'ElevenLabs',
+        'openai-tts': 'OpenAI TTS',
+        'suno': 'Suno AI',
+        'udio': 'Udio',
+        'runway': 'Runway ML',
+        'pika': 'Pika Labs',
+        'luma': 'Luma AI'
+    };
+    return names[provider] || provider;
+}
+
+function formatOutput(output, metadata) {
+    // Si c'est une URL d'image
+    if (metadata?.image_url) {
+        return `
+            <div style="text-align: center;">
+                <img src="${metadata.image_url}" alt="Generated image" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+                <div style="color: #666; font-size: 0.9rem;">${output}</div>
+            </div>
+        `;
+    }
+    
+    // Si c'est une URL audio
+    if (metadata?.audio_url) {
+        return `
+            <div style="text-align: center;">
+                <audio controls style="width: 100%; margin-bottom: 1rem;">
+                    <source src="${metadata.audio_url}" type="audio/mpeg">
+                </audio>
+                <div style="color: #666; font-size: 0.9rem;">${output}</div>
+            </div>
+        `;
+    }
+    
+    // Si c'est une URL vidéo
+    if (metadata?.video_url) {
+        return `
+            <div style="text-align: center;">
+                <video controls style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+                    <source src="${metadata.video_url}" type="video/mp4">
+                </video>
+                <div style="color: #666; font-size: 0.9rem;">${output}</div>
+            </div>
+        `;
+    }
+    
+    // Texte par défaut
+    return output.replace(/\n/g, '<br>');
+}
+
+function downloadResults() {
+    showNotification('📥 Téléchargement en cours...', 'info');
+    // TODO: Implémenter le téléchargement réel
+}
+
+// ==================== SAUVEGARDE DE WORKFLOW ====================
+async function saveWorkflow() {
+    const name = prompt('Nom du workflow:', '');
+    
+    if (!name) {
+        return;
+    }
+    
+    const steps = [];
+    
+    // Récupérer les étapes
+    const step1 = {
+        step_number: 1,
+        ai_provider: document.getElementById('step1-ai').value,
+        prompt: document.getElementById('step1-prompt').value,
+        use_previous_output: false,
+        parameters: {}
+    };
+    
+    if (!step1.ai_provider || !step1.prompt) {
+        showNotification('⚠️ Veuillez remplir au moins la première étape !', 'warning');
+        return;
+    }
+    
+    steps.push(step1);
+    
+    const step2AI = document.getElementById('step2-ai').value;
+    const step2Prompt = document.getElementById('step2-prompt').value;
+    
+    if (step2AI && step2Prompt) {
+        steps.push({
+            step_number: 2,
+            ai_provider: step2AI,
+            prompt: step2Prompt,
+            use_previous_output: true,
+            parameters: {}
+        });
+    }
+    
+    const step3AI = document.getElementById('step3-ai').value;
+    const step3Prompt = document.getElementById('step3-prompt').value;
+    
+    if (step3AI && step3Prompt) {
+        steps.push({
+            step_number: 3,
+            ai_provider: step3AI,
+            prompt: step3Prompt,
+            use_previous_output: true,
+            parameters: {}
+        });
+    }
+    
+    try {
+        const response = await fetch('/api/combinations/workflows', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                name: name,
+                description: `Workflow avec ${steps.length} étapes`,
+                steps: steps,
+                is_template: false
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showNotification('💾 Workflow sauvegardé avec succès !', 'success');
+        } else {
+            showNotification('❌ Erreur lors de la sauvegarde', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Erreur lors de la sauvegarde:', error);
+        showNotification('❌ Erreur lors de la sauvegarde du workflow', 'error');
+    }
+}
+
+// ==================== RÉINITIALISATION ====================
+function resetWorkflow() {
+    document.getElementById('step1-ai').value = '';
+    document.getElementById('step1-prompt').value = '';
+    document.getElementById('step2-ai').value = '';
+    document.getElementById('step2-prompt').value = '';
+    document.getElementById('step3-ai').value = '';
+    document.getElementById('step3-prompt').value = '';
+    
+    showNotification('🔄 Workflow réinitialisé !', 'info');
+}
+
+// ==================== NOTIFICATIONS TOAST ====================
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icon = {
+        'success': '✅',
+        'error': '❌',
+        'warning': '⚠️',
+        'info': 'ℹ️'
+    }[type] || 'ℹ️';
+    
+    toast.innerHTML = `
+        <div style="font-size: 1.5rem;">${icon}</div>
+        <div style="flex: 1;">${message}</div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto-suppression après 5 secondes
+    setTimeout(() => {
+        toast.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// ==================== MODAL ====================
+function openModal() {
+    document.getElementById('resultsModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('resultsModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Fermer la modal en cliquant sur l'overlay
+document.getElementById('resultsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+// ==================== PROGRESS BAR ====================
+function showProgress(steps) {
+    const container = document.getElementById('progressContainer');
+    const stepsContainer = document.getElementById('progressSteps');
+    
+    container.classList.add('active');
+    
+    // Créer les étapes
+    stepsContainer.innerHTML = '';
+    steps.forEach((step, index) => {
+        const stepEl = document.createElement('div');
+        stepEl.className = 'progress-step pending';
+        stepEl.id = `progress-step-${index + 1}`;
+        stepEl.innerHTML = `
+            <div style="font-weight: 600; margin-bottom: 0.25rem;">Étape ${index + 1}</div>
+            <div style="font-size: 0.85rem;">${step.ai_provider}</div>
+        `;
+        stepsContainer.appendChild(stepEl);
+    });
+}
+
+function updateProgress(currentStep, totalSteps, status) {
+    const progressBar = document.getElementById('progressBar');
+    const statusText = document.getElementById('progressStatusText');
+    const percentage = (currentStep / totalSteps) * 100;
+    
+    progressBar.style.width = percentage + '%';
+    
+    // Mettre à jour le texte de statut
+    if (status === 'running') {
+        statusText.textContent = `Étape ${currentStep}/${totalSteps}`;
+    } else if (status === 'completed') {
+        statusText.textContent = 'Terminé !';
+    } else if (status === 'failed') {
+        statusText.textContent = 'Échoué';
+    }
+    
+    // Mettre à jour les étapes visuelles
+    for (let i = 1; i <= totalSteps; i++) {
+        const stepEl = document.getElementById(`progress-step-${i}`);
+        if (stepEl) {
+            if (i < currentStep) {
+                stepEl.className = 'progress-step completed';
+            } else if (i === currentStep) {
+                stepEl.className = 'progress-step active';
+            } else {
+                stepEl.className = 'progress-step pending';
+            }
+        }
+    }
+}
+
+function hideProgress() {
+    const container = document.getElementById('progressContainer');
+    container.classList.remove('active');
+}</script>
+{% endblock %}

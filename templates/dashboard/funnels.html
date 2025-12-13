@@ -1,0 +1,375 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Tunnels de Vente - WeBox IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/modals.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-text">
+                <h1>🎯 Tunnels de Vente</h1>
+                <p>Créez des tunnels de conversion optimisés avec l'IA</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-ai" onclick="openGenerateModal()">
+                    🤖 Générer avec IA
+                </button>
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    + Créer un tunnel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des tunnels -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">📊 Mes Tunnels</h2>
+        </div>
+        <div id="funnelsContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">🎯</div>
+                <p>Chargement des tunnels...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Créer Tunnel -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🎯 Créer un Tunnel</h2>
+            <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createForm" onsubmit="createFunnel(event)">
+                <div class="form-group">
+                    <label>Nom du tunnel *</label>
+                    <input type="text" name="name" required placeholder="Mon tunnel de conversion">
+                </div>
+                <div class="form-group">
+                    <label>Type de tunnel *</label>
+                    <select name="funnel_type" required>
+                        <option value="lead_magnet">🎯 Lead Magnet</option>
+                        <option value="webinar">🎥 Webinaire</option>
+                        <option value="product">💰 Vente de Produit</option>
+                        <option value="consultation">💬 Consultation</option>
+                        <option value="membership">🎓 Membership</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Description de votre tunnel..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Générer avec IA -->
+<div id="generateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🤖 Générer un Tunnel avec IA</h2>
+            <button class="modal-close" onclick="closeGenerateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="generateForm" onsubmit="generateFunnel(event)">
+                <div class="form-group">
+                    <label>Type de tunnel *</label>
+                    <select name="funnel_type" required>
+                        <option value="lead_magnet">🎯 Lead Magnet</option>
+                        <option value="webinar">🎥 Webinaire</option>
+                        <option value="product">💰 Vente de Produit</option>
+                        <option value="consultation">💬 Consultation</option>
+                        <option value="membership">🎓 Membership</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sujet / Produit *</label>
+                    <input type="text" name="topic" required placeholder="Formation Marketing Digital">
+                </div>
+                <div class="form-group">
+                    <label>Audience cible *</label>
+                    <input type="text" name="target_audience" required placeholder="Entrepreneurs, PME...">
+                </div>
+                <div class="form-group">
+                    <label>Objectif principal</label>
+                    <input type="text" name="goal" placeholder="Générer des leads qualifiés...">
+                </div>
+                <div class="form-group">
+                    <label>Budget estimé (€)</label>
+                    <input type="number" name="budget" placeholder="1000" min="0">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeGenerateModal()">Annuler</button>
+                    <button type="submit" class="btn btn-ai">🤖 Générer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let funnels = [];
+
+// Charger les tunnels
+async function loadFunnels() {
+    const container = document.getElementById('funnelsContainer');
+    
+    try {
+        const response = await fetch('/api/marketing/funnels');
+        const data = await response.json();
+        
+        if (data.success && data.funnels.length > 0) {
+            displayFunnels(data.funnels);
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎯</div>
+                    <p>Aucun tunnel de vente</p>
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        + Créer votre premier tunnel
+                    </button>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <p>Erreur lors du chargement des tunnels</p>
+            </div>
+        `;
+    }
+}
+
+// Afficher les tunnels
+function displayFunnels(funnels) {
+    const container = document.getElementById('funnelsContainer');
+    
+    const typeIcons = {
+        'lead_magnet': '🎯',
+        'webinar': '🎥',
+        'product': '💰',
+        'consultation': '💬',
+        'membership': '🎓'
+    };
+
+    container.innerHTML = `
+        <div class="cards-grid">
+            ${funnels.map(funnel => `
+                <div class="card">
+                    <div class="card-header">
+                        <h3>${typeIcons[funnel.funnel_type] || '🎯'} ${funnel.name}</h3>
+                        <span class="badge" style="background: ${funnel.is_active ? '#28a745' : '#ffc107'}20; color: ${funnel.is_active ? '#28a745' : '#ffc107'};">
+                            ${funnel.is_active ? '✅ Actif' : '📝 Brouillon'}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        ${funnel.description ? `<p>${funnel.description}</p>` : ''}
+                        <p><strong>📊 Type:</strong> ${getFunnelTypeLabel(funnel.funnel_type)}</p>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;">${funnel.total_visits || 0}</div>
+                                <div style="font-size: 0.75rem; color: #666;">Visites</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #38ef7d;">${funnel.total_conversions || 0}</div>
+                                <div style="font-size: 0.75rem; color: #666;">Conversions</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #f093fb;">${((funnel.conversion_rate || 0) * 100).toFixed(1)}%</div>
+                                <div style="font-size: 0.75rem; color: #666;">Taux</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" onclick="viewFunnel(${funnel.id})" style="flex: 1;">
+                            👁️ Voir
+                        </button>
+                        ${!funnel.is_active ? `
+                            <button class="btn btn-secondary" onclick="activateFunnel(${funnel.id})">
+                                🚀 Activer
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-danger" onclick="deleteFunnel(${funnel.id})">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function getFunnelTypeLabel(type) {
+    const labels = {
+        'lead_magnet': 'Lead Magnet',
+        'webinar': 'Webinaire',
+        'product': 'Vente de Produit',
+        'consultation': 'Consultation',
+        'membership': 'Membership'
+    };
+    return labels[type] || type;
+}
+
+// Créer un tunnel
+async function createFunnel(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const funnelData = {
+        name: formData.get('name'),
+        funnel_type: formData.get('funnel_type'),
+        description: formData.get('description')
+    };
+    
+    try {
+        const response = await fetch('/api/marketing/funnels', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(funnelData)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Tunnel créé avec succès !', 'success');
+            closeCreateModal();
+            form.reset();
+            loadFunnels();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la création', 'error');
+    }
+}
+
+// Générer un tunnel avec IA
+async function generateFunnel(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const generateData = {
+        funnel_type: formData.get('funnel_type'),
+        topic: formData.get('topic'),
+        target_audience: formData.get('target_audience'),
+        goal: formData.get('goal'),
+        budget: parseFloat(formData.get('budget')) || 0
+    };
+    
+    showNotification('🤖 Génération en cours...', 'info');
+    
+    try {
+        const response = await fetch('/api/marketing/funnels/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(generateData)
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Tunnel généré avec succès !', 'success');
+            closeGenerateModal();
+            form.reset();
+            loadFunnels();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la génération', 'error');
+    }
+}
+
+// Voir un tunnel
+function viewFunnel(id) {
+    alert('Fonctionnalité de visualisation à venir !\n\n- Éditeur de pages\n- Analytics détaillés\n- Gestion des automatisations');
+}
+
+// Activer un tunnel
+async function activateFunnel(id) {
+    if (!confirm('Activer ce tunnel ?')) return;
+    
+    try {
+        const response = await fetch(`/api/marketing/funnels/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_active: true })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Tunnel activé !', 'success');
+            loadFunnels();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de l\'activation', 'error');
+    }
+}
+
+// Supprimer un tunnel
+async function deleteFunnel(id) {
+    if (!confirm('Supprimer ce tunnel ?')) return;
+    
+    try {
+        const response = await fetch(`/api/marketing/funnels/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (data.success) {
+            showNotification('✅ Tunnel supprimé', 'success');
+            loadFunnels();
+        } else {
+            showNotification('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors de la suppression', 'error');
+    }
+}
+
+// Modals
+function openCreateModal() {
+    document.getElementById('createModal').classList.add('active');
+}
+
+function closeCreateModal() {
+    document.getElementById('createModal').classList.remove('active');
+}
+
+function openGenerateModal() {
+    document.getElementById('generateModal').classList.add('active');
+}
+
+function closeGenerateModal() {
+    document.getElementById('generateModal').classList.remove('active');
+}
+
+// Notification
+function showNotification(message, type) {
+    // Ne pas afficher d'alerte pour éviter les popups intrusifs}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    loadFunnels();
+});
+</script>
+{% endblock %}

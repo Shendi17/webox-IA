@@ -1,0 +1,672 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Créer un Projet - WeBox IA{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Wizard Container */
+.wizard-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Steps */
+.wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.wizard-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.wizard-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.wizard-step.active .step-circle {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+.wizard-step.completed .step-circle {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.step-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.wizard-step.active .step-label {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Content */
+.wizard-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+}
+
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.step-description {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a1a2e;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Type Selection */
+.type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.type-card {
+    padding: 1.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.type-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.type-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.type-name {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+/* Templates Grid */
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.template-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.template-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.template-card.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.template-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.template-name {
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.25rem;
+}
+
+.template-description {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.template-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.template-tag {
+    padding: 0.25rem 0.5rem;
+    background: #f0f0f0;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+/* Summary */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.summary-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.summary-value {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+/* Buttons */
+.wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wizard-container">
+    <!-- Header -->
+    <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
+        <h1>🏗️ Créer un Nouveau Projet</h1>
+        <p>Suivez les étapes pour créer votre projet web</p>
+    </div>
+
+    <!-- Steps -->
+    <div class="wizard-steps">
+        <div class="wizard-step active" data-step="1">
+            <div class="step-circle">1</div>
+            <div class="step-label">Type</div>
+        </div>
+        <div class="wizard-step" data-step="2">
+            <div class="step-circle">2</div>
+            <div class="step-label">Informations</div>
+        </div>
+        <div class="wizard-step" data-step="3">
+            <div class="step-circle">3</div>
+            <div class="step-label">Template</div>
+        </div>
+        <div class="wizard-step" data-step="4">
+            <div class="step-circle">4</div>
+            <div class="step-label">Récapitulatif</div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="wizard-content">
+        <!-- Step 1: Type -->
+        <div class="step-content active" data-step="1">
+            <h2 class="step-title">Choisissez le type de projet</h2>
+            <p class="step-description">Sélectionnez la technologie que vous souhaitez utiliser</p>
+            
+            <div class="type-grid">
+                <div class="type-card" data-type="static">
+                    <div class="type-icon">📄</div>
+                    <div class="type-name">Static</div>
+                    <div class="type-description">HTML/CSS/JS</div>
+                </div>
+                <div class="type-card" data-type="react">
+                    <div class="type-icon">⚛️</div>
+                    <div class="type-name">React</div>
+                    <div class="type-description">SPA moderne</div>
+                </div>
+                <div class="type-card" data-type="vue">
+                    <div class="type-icon">💚</div>
+                    <div class="type-name">Vue.js</div>
+                    <div class="type-description">Framework progressif</div>
+                </div>
+                <div class="type-card" data-type="nextjs">
+                    <div class="type-icon">▲</div>
+                    <div class="type-name">Next.js</div>
+                    <div class="type-description">React avec SSR</div>
+                </div>
+                <div class="type-card" data-type="django">
+                    <div class="type-icon">🐍</div>
+                    <div class="type-name">Django</div>
+                    <div class="type-description">Python web</div>
+                </div>
+                <div class="type-card" data-type="fastapi">
+                    <div class="type-icon">⚡</div>
+                    <div class="type-name">FastAPI</div>
+                    <div class="type-description">API moderne</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Informations -->
+        <div class="step-content" data-step="2">
+            <h2 class="step-title">Informations du projet</h2>
+            <p class="step-description">Donnez un nom et une description à votre projet</p>
+            
+            <div class="form-group">
+                <label class="form-label">Nom du projet *</label>
+                <input type="text" class="form-input" id="projectName" placeholder="Mon Super Projet" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-input form-textarea" id="projectDescription" placeholder="Décrivez votre projet..."></textarea>
+            </div>
+        </div>
+
+        <!-- Step 3: Template -->
+        <div class="step-content" data-step="3">
+            <h2 class="step-title">Choisissez un template</h2>
+            <p class="step-description">Démarrez avec un template ou créez from scratch</p>
+            
+            <div class="templates-grid" id="templatesGrid">
+                <div class="template-card" data-template="0">
+                    <div class="template-icon">✨</div>
+                    <div class="template-name">From Scratch</div>
+                    <div class="template-description">Commencer avec un projet vide</div>
+                </div>
+                <!-- Templates chargés dynamiquement -->
+            </div>
+        </div>
+
+        <!-- Step 4: Summary -->
+        <div class="step-content" data-step="4">
+            <h2 class="step-title">Récapitulatif</h2>
+            <p class="step-description">Vérifiez les informations avant de créer le projet</p>
+            
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Type</div>
+                    <div class="summary-value" id="summaryType">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Nom</div>
+                    <div class="summary-value" id="summaryName">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Description</div>
+                    <div class="summary-value" id="summaryDescription">-</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Template</div>
+                    <div class="summary-value" id="summaryTemplate">-</div>
+                </div>
+            </div>
+            
+            <div class="loading" id="creatingLoader" style="display: none;">
+                <div class="spinner"></div>
+                <p>Création du projet en cours...</p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="wizard-actions">
+            <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                ← Précédent
+            </button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                Suivant →
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+let projectData = {
+    type: '',
+    name: '',
+    description: '',
+    template_id: null
+};
+let templates = [];
+
+// Charger les templates
+async function loadTemplates() {
+    try {
+        const response = await fetch('/api/templates/list');
+        const data = await response.json();
+        
+        if (!data.success) {
+            console.error('Erreur:', data.error);
+            return;
+        }
+        
+        templates = data.templates;
+        
+        const grid = document.getElementById('templatesGrid');
+        templates.forEach(template => {
+            const card = document.createElement('div');
+            card.className = 'template-card';
+            card.dataset.template = template.id;
+            card.innerHTML = `
+                <div class="template-icon">${getTemplateCategoryIcon(template.category)}</div>
+                <div class="template-name">${template.name}</div>
+                <div class="template-description">${template.description}</div>
+                <div class="template-tags">
+                    ${template.tags ? template.tags.map(tag => `<span class="template-tag">${tag}</span>`).join('') : ''}
+                </div>
+            `;
+            card.onclick = () => selectTemplate(template.id, card);
+            grid.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Erreur chargement templates:', error);
+    }
+}
+
+function getTemplateIcon(type) {
+    const icons = {
+        'static': '📄',
+        'react': '⚛️',
+        'vue': '💚',
+        'nextjs': '▲'
+    };
+    return icons[type] || '🌐';
+}
+
+function getTemplateCategoryIcon(category) {
+    const icons = {
+        'Marketing': '📢',
+        'Personnel': '👤',
+        'Contenu': '📝',
+        'E-commerce': '🛍️',
+        'Business': '💼'
+    };
+    return icons[category] || '🌐';
+}
+
+// Sélection type
+document.querySelectorAll('.type-card').forEach(card => {
+    card.onclick = () => {
+        document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        projectData.type = card.dataset.type;
+    };
+});
+
+// Sélection template
+function selectTemplate(templateId, cardElement) {
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+    cardElement.classList.add('selected');
+    projectData.template_id = templateId == '0' ? null : templateId;
+}
+
+// Navigation
+function nextStep() {
+    // Validation
+    if (currentStep === 1 && !projectData.type) {
+        alert('Veuillez sélectionner un type de projet');
+        return;
+    }
+    
+    if (currentStep === 2) {
+        const name = document.getElementById('projectName').value;
+        if (!name) {
+            alert('Veuillez entrer un nom de projet');
+            return;
+        }
+        projectData.name = name;
+        projectData.description = document.getElementById('projectDescription').value;
+    }
+    
+    if (currentStep === 3) {
+        // Afficher le récapitulatif
+        document.getElementById('summaryType').textContent = projectData.type;
+        document.getElementById('summaryName').textContent = projectData.name;
+        document.getElementById('summaryDescription').textContent = projectData.description || 'Aucune';
+        
+        const template = templates.find(t => t.id === projectData.template_id);
+        document.getElementById('summaryTemplate').textContent = template ? template.name : 'From Scratch';
+    }
+    
+    if (currentStep === 4) {
+        // Créer le projet
+        createProject();
+        return;
+    }
+    
+    // Passer à l'étape suivante
+    currentStep++;
+    updateWizard();
+}
+
+function previousStep() {
+    currentStep--;
+    updateWizard();
+}
+
+function updateWizard() {
+    // Mettre à jour les steps
+    document.querySelectorAll('.wizard-step').forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index + 1 < currentStep) {
+            step.classList.add('completed');
+        } else if (index + 1 === currentStep) {
+            step.classList.add('active');
+        }
+    });
+    
+    // Mettre à jour le contenu
+    document.querySelectorAll('.step-content').forEach((content, index) => {
+        content.classList.remove('active');
+        if (index + 1 === currentStep) {
+            content.classList.add('active');
+        }
+    });
+    
+    // Mettre à jour les boutons
+    document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+    document.getElementById('nextBtn').textContent = currentStep === 4 ? '✨ Créer le Projet' : 'Suivant →';
+}
+
+// Créer le projet
+async function createProject() {
+    const loader = document.getElementById('creatingLoader');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    loader.style.display = 'block';
+    nextBtn.disabled = true;
+    
+    try {
+        let response, data;
+        
+        // Si un template est sélectionné, utiliser l'API templates
+        if (projectData.template_id) {
+            response = await fetch('/api/templates/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    template_id: projectData.template_id,
+                    project_name: projectData.name,
+                    customization: {
+                        title: projectData.name,
+                        description: projectData.description
+                    }
+                })
+            });
+        } else {
+            // Sinon créer un projet vide
+            response = await fetch('/api/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(projectData)
+            });
+        }
+        
+        data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ Projet créé avec succès !\n\nNom : ${projectData.name}\n${data.files_created ? `Fichiers créés : ${data.files_created.length}` : ''}`);
+            window.location.href = '/projects';
+        } else {
+            alert(`❌ Erreur : ${data.error || 'Erreur lors de la création du projet'}`);
+            loader.style.display = 'none';
+            nextBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur lors de la création du projet');
+        loader.style.display = 'none';
+        nextBtn.disabled = false;
+    }
+}
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', loadTemplates);
+</script>
+{% endblock %}

@@ -1,0 +1,156 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                  🔐 IDENTIFIANTS ADMINISTRATEUR - WEBOX MULTI-IA            ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+✅ COMPTE ADMIN PRÉ-CRÉÉ
+═══════════════════════════════════════════════════════════════════════════════
+
+Le compte administrateur est créé automatiquement au premier lancement.
+
+
+🔑 IDENTIFIANTS
+═══════════════════════════════════════════════════════════════════════════════
+
+📧 Email :        admin@webox.com
+🔒 Mot de passe : admin123
+👤 Nom :          Administrateur
+🎯 Rôle :         admin
+
+
+🚀 COMMENT SE CONNECTER
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Lancez l'application :
+   - Double-cliquez sur LANCER-WEBOX.bat
+   OU
+   - streamlit run app.py
+
+2. La landing page s'affiche automatiquement
+
+3. Cliquez sur le bouton "🔐 Connexion"
+
+4. Un modal s'ouvre avec le formulaire
+
+5. Entrez les identifiants :
+   Email :        admin@webox.com
+   Mot de passe : admin123
+
+6. Cliquez sur "Se connecter"
+
+7. ✅ Vous êtes connecté en tant qu'administrateur !
+
+
+💡 INFORMATIONS IMPORTANTES
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Le compte admin est créé automatiquement
+✅ Le mot de passe est hashé en SHA-256
+✅ Jamais stocké en clair dans users.json
+✅ Créé uniquement si users.json n'existe pas
+✅ Vous pouvez créer d'autres comptes via "Inscription"
+
+
+📁 FICHIER DE STOCKAGE
+═══════════════════════════════════════════════════════════════════════════════
+
+Les utilisateurs sont stockés dans : users.json
+
+Structure :
+{
+  "admin@webox.com": {
+    "name": "Administrateur",
+    "password": "hash_sha256_du_mot_de_passe",
+    "created_at": "2025-01-19T15:00:00",
+    "last_login": null,
+    "role": "admin"
+  }
+}
+
+⚠️ Ce fichier est dans .gitignore pour la sécurité
+
+
+🔒 SÉCURITÉ
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Hashage SHA-256 des mots de passe
+✅ Aucun mot de passe en clair
+✅ Authentification sécurisée
+✅ Session Streamlit protégée
+✅ Fichier users.json protégé (.gitignore)
+
+
+🆕 CRÉER D'AUTRES COMPTES
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Cliquez sur "📝 Inscription" sur la landing page
+2. Remplissez le formulaire :
+   - Nom complet
+   - Email
+   - Mot de passe (min 6 caractères)
+   - Confirmation du mot de passe
+3. Acceptez les conditions
+4. Cliquez sur "Créer mon compte"
+5. Connectez-vous avec vos nouveaux identifiants
+
+
+🎯 UTILISATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Une fois connecté avec le compte admin, vous avez accès à :
+
+✅ 💬 Chat Multi-IA
+✅ 🎯 Assistants Spécialisés
+✅ 📚 Bibliothèque de Prompts
+✅ 🔧 Liste d'Outils IA (50+ outils)
+✅ 🔄 Combinaisons de Prompts
+✅ ⚡ Automatisation Pipedream
+✅ ⚙️ Configuration
+
+Votre nom "Administrateur" s'affiche dans la sidebar.
+
+
+🚪 DÉCONNEXION
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour vous déconnecter :
+
+1. Allez en bas de la sidebar (barre latérale gauche)
+2. Cliquez sur "🚪 Déconnexion"
+3. Vous êtes redirigé vers la landing page
+
+
+⚠️ IMPORTANT
+═══════════════════════════════════════════════════════════════════════════════
+
+- Ne partagez pas ces identifiants
+- Changez le mot de passe en production
+- Le compte admin a tous les droits
+- Utilisé uniquement pour les tests et la démo
+
+
+📝 NOTES
+═══════════════════════════════════════════════════════════════════════════════
+
+- Le compte admin est créé au PREMIER lancement
+- Si users.json existe déjà, il n'est pas recréé
+- Pour réinitialiser : supprimez users.json et relancez
+- Le mot de passe peut être changé dans auth.py (ligne 27)
+
+
+🎉 PRÊT À UTILISER !
+═══════════════════════════════════════════════════════════════════════════════
+
+Lancez l'application et connectez-vous avec :
+
+📧 admin@webox.com
+🔒 admin123
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    Profitez de WeBox Multi-IA ! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════

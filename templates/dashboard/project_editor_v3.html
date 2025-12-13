@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Web IA - {{ project.name }} - WeBox</title>
+    
+    <!-- Xterm.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
+    
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+/* Layout principal */
+.editor-container {
+    display: flex;
+    height: 100vh;
+    background: #1e1e1e;
+}
+
+/* Sidebar fichiers */
+.file-explorer {
+    width: 250px;
+    background: #252526;
+    border-right: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+}
+
+.explorer-header {
+    padding: 1rem;
+    background: #2d2d30;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.explorer-title {
+    color: #cccccc;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.explorer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.file-tree-item {
+    padding: 0.5rem;
+    color: #cccccc;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.file-tree-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.file-tree-item.active {
+    background: #37373d;
+}
+
+/* Zone principale avec split */
+.editor-main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+/* Panel Éditeur */
+.editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 400px;
+}
+
+/* Panel Prévisualisation */
+.preview-panel {
+    width: 0;
+    display: none;
+    flex-direction: column;
+    border-left: 1px solid #3e3e42;
+    background: #1e1e1e;
+    transition: width 0.3s ease;
+}
+
+.preview-panel.active {
+    width: 50%;
+    display: flex;
+}
+
+.preview-header {
+    background: #2d2d30;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-title {
+    color: #cccccc;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.preview-iframe {
+    flex: 1;
+    border: none;
+    background: white;
+}
+
+.editor-header {
+    background: #2d2d30;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #3e3e42;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.editor-tab {
+    padding: 0.5rem 1rem;
+    background: #2d2d30;
+    color: #cccccc;
+    border: none;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+}
+
+.editor-tab.active {
+    background: #1e1e1e;
+    color: #ffffff;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    color: #cccccc;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+}
+
+.btn-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+#monaco-editor {
+    flex: 1;
+    width: 100%;
+}
+
+/* Terminal */
+.terminal-container {
+    height: 200px;
+    background: #1e1e1e;
+    border-top: 1px solid #3e3e42;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-header {
+    background: #2d2d30;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.terminal-title {
+    color: #cccccc;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+#terminal {
+    flex: 1;
+    padding: 0.5rem;
+}
+
+/* Panel Chat IA */
+.ai-chat-panel {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #3e3e42;
+    background: #252526;
+}
+
+.ai-chat-panel.hidden {
+    display: none;
+}
+
+.ai-chat-header {
+    background: #2d2d30;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.ai-chat-title {
+    color: #cccccc;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ai-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ai-message {
+    display: flex;
+    gap: 0.75rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.ai-message.user {
+    flex-direction: row-reverse;
+}
+
+.ai-message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.ai-message.assistant .ai-message-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ai-message.user .ai-message-avatar {
+    background: #3e3e42;
+}
+
+.ai-message-content {
+    flex: 1;
+    background: #2d2d30;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    color: #cccccc;
+    line-height: 1.5;
+}
+
+.ai-message.user .ai-message-content {
+    background: #37373d;
+}
+
+.ai-message-content code {
+    background: #1e1e1e;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9em;
+}
+
+.ai-message-content pre {
+    background: #1e1e1e;
+    padding: 0.75rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+}
+
+.ai-chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid #3e3e42;
+    background: #2d2d30;
+}
+
+.ai-chat-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.ai-chat-input {
+    flex: 1;
+    background: #1e1e1e;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    resize: none;
+    font-family: inherit;
+    max-height: 120px;
+}
+
+.ai-chat-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.ai-chat-send {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.ai-chat-send:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.ai-chat-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.ai-chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.ai-suggestion {
+    background: #37373d;
+    color: #cccccc;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-suggestion:hover {
+    background: #3e3e42;
+    color: #ffffff;
+}
+
+/* AI Model Selector */
+.ai-model-selector {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #3e3e42;
+    background: #2d2d30;
+}
+
+.ai-model-label {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.ai-model-select {
+    width: 100%;
+    background: #1e1e1e;
+    border: 1px solid #3e3e42;
+    color: #cccccc;
+    padding: 0.6rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-model-select:hover {
+    border-color: #667eea;
+}
+
+.ai-model-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.ai-model-option {
+    padding: 0.5rem;
+}
+
+/* Commands Help */
+.commands-help {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: #2d2d30;
+    border: 1px solid #3e3e42;
+    border-radius: 8px 8px 0 0;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+}
+
+.command-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.command-item:last-child {
+    border-bottom: none;
+}
+
+.command-item:hover {
+    background: #3e3e42;
+}
+
+.command-name {
+    color: #667eea;
+    font-weight: 600;
+    font-family: 'Consolas', monospace;
+}
+
+.command-desc {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* Status bar */
+.status-bar {
+    background: #007acc;
+    color: white;
+    padding: 0.4rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.status-left, .status-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .file-explorer {
+        width: 200px;
+    }
+    
+    .ai-chat-panel {
+        width: 300px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="editor-container">
+    <!-- Sidebar Fichiers -->
+    <div class="file-explorer">
+        <div class="explorer-header">
+            <div class="explorer-title">📁 Fichiers</div>
+        </div>
+        <div class="explorer-content" id="fileTree">
+            <!-- Arborescence chargée dynamiquement -->
+        </div>
+    </div>
+    
+    <!-- Zone principale -->
+    <div class="editor-main">
+        <!-- Panel Éditeur -->
+        <div class="editor-panel">
+            <!-- Header avec onglets -->
+            <div class="editor-header">
+                <div class="editor-tabs" id="editorTabs">
+                    <!-- Onglets dynamiques -->
+                </div>
+                <div class="editor-actions">
+                    <button class="btn-action" onclick="saveFile()" title="Sauvegarder (Ctrl+S)">💾</button>
+                    <button class="btn-action" onclick="togglePreview()" title="Prévisualisation" id="previewBtn">👁️</button>
+                    <button class="btn-action" onclick="toggleAIChat()" title="Chat IA">🤖</button>
+                    <button class="btn-action" onclick="openDeployModal()" title="Déployer">🚀</button>
+                </div>
+            </div>
+            
+            <!-- Éditeur Monaco -->
+            <div id="monaco-editor"></div>
+            
+            <!-- Terminal -->
+            <div class="terminal-container" id="terminalContainer">
+                <div class="terminal-header">
+                    <span class="terminal-title">⚡ Terminal</span>
+                    <div class="terminal-actions">
+                        <button class="btn-action" onclick="clearTerminal()" title="Effacer">🗑️</button>
+                        <button class="btn-action" onclick="toggleTerminal()" title="Masquer">➖</button>
+                    </div>
+                </div>
+                <div id="terminal"></div>
+            </div>
+        </div>
+        
+        <!-- Panel Prévisualisation -->
+        <div class="preview-panel" id="previewPanel">
+            <div class="preview-header">
+                <span class="preview-title">👁️ Prévisualisation</span>
+                <button class="btn-action" onclick="togglePreview()" title="Fermer">✖️</button>
+            </div>
+            <iframe id="previewFrame" class="preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+        
+        <!-- Panel Chat IA -->
+        <div class="ai-chat-panel" id="aiChatPanel">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <span>🤖</span>
+                    <span>Assistant IA</span>
+                </div>
+                <button class="btn-action" onclick="toggleAIChat()" title="Fermer">✖️</button>
+            </div>
+            
+            <!-- Sélecteur de modèle IA -->
+            <div class="ai-model-selector">
+                <label class="ai-model-label">Modèle IA</label>
+                <select id="aiModelSelect" class="ai-model-select">
+                    <optgroup label="🔥 Derniers modèles (2024)">
+                        <option value="gpt-4o" selected>GPT-4o (Le plus récent OpenAI)</option>
+                        <option value="claude-3.5-sonnet">Claude 3.5 Sonnet (Le plus récent Anthropic)</option>
+                    </optgroup>
+                    <optgroup label="OpenAI">
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Rapide)</option>
+                    </optgroup>
+                    <optgroup label="Anthropic Claude">
+                        <option value="claude-3-opus">Claude 3 Opus (Puissant)</option>
+                        <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                        <option value="claude-3-haiku">Claude 3 Haiku (Rapide)</option>
+                    </optgroup>
+                    <optgroup label="Google">
+                        <option value="gemini-pro">Gemini Pro (Gratuit)</option>
+                    </optgroup>
+                    <optgroup label="Mistral AI">
+                        <option value="mistral-large">Mistral Large</option>
+                        <option value="mistral-medium">Mistral Medium</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-message assistant">
+                    <div class="ai-message-avatar">🤖</div>
+                    <div class="ai-message-content">
+                        Bonjour ! Je suis votre assistant IA pour le développement web. 
+                        Je peux vous aider à :
+                        <br><br>
+                        • Écrire du code<br>
+                        • Corriger des bugs<br>
+                        • Expliquer des concepts<br>
+                        • Optimiser votre code<br>
+                        <br>
+                        Comment puis-je vous aider ?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ai-chat-input-container">
+                <div class="ai-suggestions">
+                    <button class="ai-suggestion" onclick="sendQuickMessage('/explain')">💡 Explique</button>
+                    <button class="ai-suggestion" onclick="sendQuickMessage('/fix')">🐛 Corrige</button>
+                    <button class="ai-suggestion" onclick="sendQuickMessage('/optimize')">⚡ Optimise</button>
+                    <button class="ai-suggestion" onclick="sendQuickMessage('/refactor')">🔄 Refactor</button>
+                </div>
+                <div class="ai-input-wrapper">
+                    <textarea id="aiChatInput" class="ai-input" placeholder="Tape / pour les commandes ou pose une question..." rows="3"></textarea>
+                    <button id="aiChatSend" class="ai-send-btn" onclick="sendAIMessage()">Envoyer</button>
+                </div>
+                <div id="commandsHelp" class="commands-help" style="display: none;">
+                    <div class="command-item" onclick="insertCommand('/explain')">
+                        <span class="command-name">/explain</span>
+                        <span class="command-desc">Expliquer le code</span>
+                    </div>
+                    <div class="command-item" onclick="insertCommand('/fix')">
+                        <span class="command-name">/fix</span>
+                        <span class="command-desc">Corriger les bugs</span>
+                    </div>
+                    <div class="command-item" onclick="insertCommand('/optimize')">
+                        <span class="command-name">/optimize</span>
+                        <span class="command-desc">Optimiser le code</span>
+                    </div>
+                    <div class="command-item" onclick="insertCommand('/refactor')">
+                        <span class="command-name">/refactor</span>
+                        <span class="command-desc">Refactoriser</span>
+                    </div>
+                    <div class="command-item" onclick="insertCommand('/test')">
+                        <span class="command-name">/test</span>
+                        <span class="command-desc">Générer des tests</span>
+                    </div>
+                    <div class="command-item" onclick="insertCommand('/doc')">
+                        <span class="command-name">/doc</span>
+                        <span class="command-desc">Générer la documentation</span>
+                    </div>
+                    <div class="command-item" onclick="insertCommand('/review')">
+                        <span class="command-name">/review</span>
+                        <span class="command-desc">Code review</span>
+                    </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+    <div class="status-left">
+        <span class="status-item">
+            <span id="statusFile">Aucun fichier ouvert</span>
+        </span>
+        <span class="status-item">
+            <span id="statusLanguage">Texte brut</span>
+        </span>
+    </div>
+    <div class="status-right">
+        <span class="status-item">
+            <span id="statusPosition">Ln 1, Col 1</span>
+        </span>
+        <span class="status-item" id="statusSaved">
+            ✅ Sauvegardé
+        </span>
+    </div>
+</div>
+
+<!-- Monaco Editor CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<!-- Xterm.js JS -->
+<script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+
+<script>
+const projectId = parseInt('{{ project_id }}');
+let editor = null;
+let terminal = null;
+let currentFile = null;
+let fileContents = {};
+let aiChatVisible = true;
+
+// ==================== MONACO EDITOR ====================
+function initMonaco() {
+    if (typeof monaco === 'undefined') {
+        console.log('Monaco pas encore chargé, attente...');
+        setTimeout(initMonaco, 100);
+        return;
+    }
+    
+    try {
+        editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+            value: '// Sélectionnez un fichier pour commencer\n// Ou créez un nouveau fichier',
+            language: 'javascript',
+            theme: 'vs-dark',
+            automaticLayout: true,
+            fontSize: 14,
+            minimap: { enabled: true },
+            scrollBeyondLastLine: false,
+            wordWrap: 'on'
+        });
+        
+        console.log('Monaco Editor initialisé');
+        
+        // Sauvegarde automatique
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+            saveFile();
+        });
+        
+        // Update position
+        editor.onDidChangeCursorPosition(() => {
+            const position = editor.getPosition();
+            document.getElementById('statusPosition').textContent = `Ln ${position.lineNumber}, Col ${position.column}`;
+        });
+        
+        // Update status bar on change
+        editor.onDidChangeModelContent(() => {
+            updateStatusBar();
+            
+            // Auto-refresh preview si activée
+            if (previewVisible && currentFile && currentFile.endsWith('.html')) {
+                clearTimeout(window.previewRefreshTimeout);
+                window.previewRefreshTimeout = setTimeout(() => {
+                    refreshPreview();
+                }, 500);
+            }
+        });
+    } catch (error) {
+        console.error('Erreur initialisation Monaco:', error);
+    }
+}
+
+// Charger Monaco avec require.js
+if (typeof require !== 'undefined') {
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+        initMonaco();
+    });
+} else {
+    setTimeout(initMonaco, 1000);
+}
+
+// ==================== TERMINAL ====================
+function initTerminal() {
+    if (typeof Terminal === 'undefined') {
+        console.warn('Terminal non disponible');
+        document.getElementById('terminalContainer').style.display = 'none';
+        return;
+    }
+    
+    terminal = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Consolas, "Courier New", monospace',
+        theme: {
+            background: '#1e1e1e',
+            foreground: '#cccccc'
+        }
+    });
+    
+    const fitAddon = new FitAddon.FitAddon();
+    terminal.loadAddon(fitAddon);
+    
+    terminal.open(document.getElementById('terminal'));
+    fitAddon.fit();
+    
+    terminal.writeln('WeBox Studio Terminal');
+    terminal.writeln('Tapez "help" pour voir les commandes disponibles\n');
+    terminal.write('$ ');
+}
+
+function clearTerminal() {
+    if (terminal) {
+        terminal.clear();
+    }
+}
+
+function toggleTerminal() {
+    const container = document.getElementById('terminalContainer');
+    container.style.display = container.style.display === 'none' ? 'flex' : 'none';
+}
+
+// ==================== FILE TREE ====================
+async function loadFileTree() {
+    console.log('Chargement arborescence pour projet:', projectId);
+    
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files`);
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Fichiers reçus:', data);
+        
+        if (data.files && data.files.length > 0) {
+            renderFileTree(data.files);
+        } else {
+            document.getElementById('fileTree').innerHTML = `
+                <div style="padding: 1rem; color: #cccccc;">
+                    📁 Aucun fichier
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur chargement arborescence:', error);
+        document.getElementById('fileTree').innerHTML = `
+            <div style="padding: 1rem; color: #f44336;">
+                ❌ Erreur: ${error.message}
+            </div>
+        `;
+    }
+}
+
+function renderFileTree(files) {
+    const tree = document.getElementById('fileTree');
+    tree.innerHTML = files.map(file => `
+        <div class="file-tree-item" onclick="openFile('${file.path}')">
+            <span>${getFileIcon(file.name)}</span>
+            <span>${file.name}</span>
+        </div>
+    `).join('');
+}
+
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+        'html': '📄',
+        'css': '🎨',
+        'js': '⚡',
+        'json': '📋',
+        'md': '📝',
+        'png': '🖼️',
+        'jpg': '🖼️',
+        'svg': '🎨'
+    };
+    return icons[ext] || '📄';
+}
+
+// ==================== FILE OPERATIONS ====================
+async function openFile(path) {
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files/${encodeURIComponent(path)}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.content !== undefined) {
+            currentFile = path;
+            fileContents[path] = data.content;
+            
+            // Mettre à jour l'éditeur
+            editor.setValue(data.content);
+            
+            // Détecter le langage
+            const language = detectLanguage(path);
+            monaco.editor.setModelLanguage(editor.getModel(), language);
+            
+            // Mettre à jour l'UI
+            updateStatusBar();
+            addTab(path);
+            
+            // Activer l'item dans l'arbre
+            document.querySelectorAll('.file-tree-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.includes(path.split('/').pop())) {
+                    item.classList.add('active');
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Erreur ouverture fichier:', error);
+        alert('Erreur lors de l\'ouverture du fichier');
+    }
+}
+
+async function saveFile() {
+    if (!currentFile) {
+        alert('Aucun fichier ouvert');
+        return;
+    }
+    
+    const content = editor.getValue();
+    
+    try {
+        const response = await fetch(`/api/projects/${projectId}/files/${encodeURIComponent(currentFile)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            fileContents[currentFile] = content;
+            document.getElementById('statusSaved').textContent = '✅ Sauvegardé';
+        } else {
+            alert('Erreur lors de la sauvegarde');
+        }
+    } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert('Erreur lors de la sauvegarde');
+    }
+}
+
+function detectLanguage(path) {
+    const ext = path.split('.').pop().toLowerCase();
+    const languages = {
+        'html': 'html',
+        'css': 'css',
+        'js': 'javascript',
+        'json': 'json',
+        'md': 'markdown',
+        'py': 'python',
+        'php': 'php'
+    };
+    return languages[ext] || 'plaintext';
+}
+
+function updateStatusBar() {
+    if (currentFile) {
+        document.getElementById('statusFile').textContent = currentFile.split('/').pop();
+        document.getElementById('statusLanguage').textContent = detectLanguage(currentFile).toUpperCase();
+        
+        // Vérifier si modifié
+        const currentContent = editor.getValue();
+        const savedContent = fileContents[currentFile] || '';
+        
+        if (currentContent !== savedContent) {
+            document.getElementById('statusSaved').textContent = '⚠️ Non sauvegardé';
+        } else {
+            document.getElementById('statusSaved').textContent = '✅ Sauvegardé';
+        }
+    }
+}
+
+// ==================== TABS ====================
+function addTab(path) {
+    const tabs = document.getElementById('editorTabs');
+    const filename = path.split('/').pop();
+    
+    // Vérifier si l'onglet existe déjà
+    const existingTab = Array.from(tabs.children).find(tab => tab.dataset.path === path);
+    if (existingTab) {
+        document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+        existingTab.classList.add('active');
+        return;
+    }
+    
+    // Créer un nouvel onglet
+    const tab = document.createElement('button');
+    tab.className = 'editor-tab active';
+    tab.dataset.path = path;
+    tab.innerHTML = `${getFileIcon(filename)} ${filename}`;
+    tab.onclick = () => openFile(path);
+    
+    // Désactiver les autres onglets
+    document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+    
+    tabs.appendChild(tab);
+}
+
+// ==================== AI CHAT ====================
+function toggleAIChat() {
+    const panel = document.getElementById('aiChatPanel');
+    aiChatVisible = !aiChatVisible;
+    
+    if (aiChatVisible) {
+        panel.classList.remove('hidden');
+    } else {
+        panel.classList.add('hidden');
+    }
+}
+
+function handleChatKeydown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendAIMessage();
+    }
+}
+
+function sendSuggestion(text) {
+    document.getElementById('aiChatInput').value = text;
+    sendAIMessage();
+}
+
+async function sendAIMessage() {
+    const input = document.getElementById('aiChatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Ajouter le message utilisateur
+    addChatMessage('user', message);
+    input.value = '';
+    
+    // Désactiver le bouton
+    const sendBtn = document.getElementById('aiChatSend');
+    sendBtn.disabled = true;
+    sendBtn.textContent = '...';
+    
+    try {
+        // Récupérer le modèle sélectionné
+        const selectedModel = document.getElementById('aiModelSelect').value;
+        
+        // Préparer le contexte
+        const context = {
+            file: currentFile,
+            code: currentFile ? editor.getValue() : null,
+            language: currentFile ? detectLanguage(currentFile) : null
+        };
+        
+        // Appeler l'API
+        const response = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                context: context,
+                project_id: projectId,
+                model: selectedModel
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.response) {
+            addChatMessage('assistant', data.response);
+        } else {
+            addChatMessage('assistant', 'Désolé, je n\'ai pas pu traiter votre demande.');
+        }
+    } catch (error) {
+        console.error('Erreur chat IA:', error);
+        addChatMessage('assistant', 'Erreur de connexion. Veuillez réessayer.');
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Envoyer';
+    }
+}
+
+function addChatMessage(role, content) {
+    const messagesContainer = document.getElementById('aiChatMessages');
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `ai-message ${role}`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'ai-message-avatar';
+    avatar.textContent = role === 'user' ? '👤' : '🤖';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'ai-message-content';
+    contentDiv.innerHTML = formatMessage(content);
+    
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(contentDiv);
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function formatMessage(text) {
+    // Format basique pour le markdown
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\n/g, '<br>');
+    return text;
+}
+
+// ==================== PREVIEW ====================
+let previewVisible = false;
+
+function togglePreview() {
+    const panel = document.getElementById('previewPanel');
+    const btn = document.getElementById('previewBtn');
+    previewVisible = !previewVisible;
+    
+    if (previewVisible) {
+        panel.classList.add('active');
+        btn.style.background = 'rgba(102, 126, 234, 0.2)';
+        refreshPreview();
+    } else {
+        panel.classList.remove('active');
+        btn.style.background = '';
+    }
+}
+
+function refreshPreview() {
+    if (!previewVisible || !currentFile) return;
+    
+    // Vérifier si c'est un fichier HTML
+    if (!currentFile.endsWith('.html')) {
+        const frame = document.getElementById('previewFrame');
+        frame.srcdoc = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-family:sans-serif;">Prévisualisation disponible uniquement pour les fichiers HTML</div>';
+        return;
+    }
+    
+    const content = editor.getValue();
+    const frame = document.getElementById('previewFrame');
+    frame.srcdoc = content;
+}
+
+// ==================== DEPLOY ====================
+function openDeployModal() {
+    alert('Fonctionnalité de déploiement à venir !\n\nProviders supportés:\n- Netlify\n- Vercel\n- GitHub Pages\n- FTP/SFTP');
+}
+
+// ==================== INITIALISATION ====================
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM chargé, initialisation...');
+    console.log('Project ID:', projectId);
+    
+    // Initialiser le terminal
+    setTimeout(() => {
+        initTerminal();
+    }, 500);
+    
+    // Charger l'arborescence
+    setTimeout(() => {
+        loadFileTree();
+    }, 1000);
+    
+    // Charger index.html par défaut si existe
+    setTimeout(() => {
+        openFile('index.html');
+    }, 2000);
+});
+</script>
+
+</body>
+</html>
