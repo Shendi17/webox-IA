@@ -18,7 +18,8 @@ import json
 
 from app.database import get_db
 from app.middleware.auth import get_current_user_from_token
-from app.models.business_db import GeneratedLogoDB, PresentationDB, EmailCampaignDB, LandingPageDB
+from app.models.business_db import GeneratedLogoDB, PresentationDB, LandingPageDB
+from app.models.marketing_db import EmailCampaign, CampaignStatus
 from fastapi.templating import Jinja2Templates
 
 templates = Jinja2Templates(directory="templates")
@@ -305,17 +306,16 @@ async def create_email_campaign(
 ):
     """Créer une campagne email"""
     try:
-        campaign = EmailCampaignDB(
-            user_id=user["id"],
+        campaign = EmailCampaign(
+            author_id=user["id"],
             name=request.name,
             subject=request.subject,
-            preview_text=request.preview_text,
-            content_html=request.content_html,
-            recipients=request.recipients,
+            preheader=request.preview_text or "",
+            html_content=request.content_html,
+            text_content=request.content_html,
             total_recipients=len(request.recipients) if request.recipients else 0,
-            scheduled_time=datetime.fromisoformat(request.scheduled_time) if request.scheduled_time else None,
-            status="draft",
-            cost=len(request.recipients) * 0.001 if request.recipients else 0  # $0.001 par email
+            scheduled_at=datetime.fromisoformat(request.scheduled_time) if request.scheduled_time else None,
+            status=CampaignStatus.DRAFT
         )
         
         db.add(campaign)
@@ -338,9 +338,9 @@ async def list_email_campaigns(
 ):
     """Liste des campagnes email"""
     try:
-        campaigns = db.query(EmailCampaignDB).filter(
-            EmailCampaignDB.user_id == user["id"]
-        ).order_by(EmailCampaignDB.created_at.desc()).limit(50).all()
+        campaigns = db.query(EmailCampaign).filter(
+            EmailCampaign.author_id == user["id"]
+        ).order_by(EmailCampaign.created_at.desc()).limit(50).all()
         
         return {
             "success": True,
@@ -359,15 +359,15 @@ async def send_email_campaign(
 ):
     """Envoyer une campagne email"""
     try:
-        campaign = db.query(EmailCampaignDB).filter(
-            EmailCampaignDB.id == campaign_id,
-            EmailCampaignDB.user_id == user["id"]
+        campaign = db.query(EmailCampaign).filter(
+            EmailCampaign.id == campaign_id,
+            EmailCampaign.author_id == user["id"]
         ).first()
         
         if not campaign:
             raise HTTPException(status_code=404, detail="Campagne non trouvée")
         
-        campaign.status = "sending"
+        campaign.status = CampaignStatus.ACTIVE
         db.commit()
         
         # Simuler envoi en arrière-plan
@@ -389,9 +389,9 @@ async def delete_email_campaign(
 ):
     """Supprimer une campagne"""
     try:
-        campaign = db.query(EmailCampaignDB).filter(
-            EmailCampaignDB.id == campaign_id,
-            EmailCampaignDB.user_id == user["id"]
+        campaign = db.query(EmailCampaign).filter(
+            EmailCampaign.id == campaign_id,
+            EmailCampaign.author_id == user["id"]
         ).first()
         
         if not campaign:

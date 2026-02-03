@@ -126,6 +126,10 @@ body {
    HERO SECTION - CONTRÔLE TOTAL !
    ======================================== */
 
+.hero-with-navbar {
+    padding-top: 90px;
+}
+
 .hero {
     background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
     min-height: 100vh;

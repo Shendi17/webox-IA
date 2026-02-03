@@ -113,60 +113,6 @@ class PresentationDB(Base):
         }
 
 
-class EmailCampaignDB(Base):
-    """
-    Modèle pour les campagnes email (DEPRECATED - Utiliser marketing_db.EmailCampaign)
-    Table: email_campaigns_old
-    """
-    __tablename__ = "email_campaigns_old"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
-    
-    # Informations
-    name = Column(String(255), nullable=False)
-    subject = Column(String(255), nullable=False)
-    preview_text = Column(String(255), nullable=True)
-    
-    # Contenu
-    content_html = Column(Text, nullable=False)
-    content_text = Column(Text, nullable=True)
-    
-    # Destinataires
-    recipients = Column(JSON, nullable=True)  # Liste d'emails ou segment
-    total_recipients = Column(Integer, default=0)
-    
-    # Programmation
-    scheduled_time = Column(DateTime, nullable=True)
-    
-    # Statistiques
-    sent_count = Column(Integer, default=0)
-    opened_count = Column(Integer, default=0)
-    clicked_count = Column(Integer, default=0)
-    bounced_count = Column(Integer, default=0)
-    
-    # Métadonnées
-    cost = Column(Float, default=0.0)
-    status = Column(String(50), default='draft')  # draft, scheduled, sent
-    
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    sent_at = Column(DateTime, nullable=True)
-    
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "name": self.name,
-            "subject": self.subject,
-            "total_recipients": self.total_recipients,
-            "sent_count": self.sent_count,
-            "opened_count": self.opened_count,
-            "clicked_count": self.clicked_count,
-            "status": self.status,
-            "created_at": self.created_at.isoformat() if self.created_at else None
-        }
-
-
 class LandingPageDB(Base):
     """
     Modèle pour les landing pages

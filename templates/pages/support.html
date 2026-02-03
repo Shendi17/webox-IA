@@ -1,0 +1,243 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Support - WeBox Multi-IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/support.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💬 Centre de Support</h1>
+    <p>Nous sommes là pour vous aider - Trouvez des réponses ou contactez notre équipe</p>
+</div>
+
+<!-- Barre de recherche -->
+<div class="support-search">
+    <input type="text" class="search-bar" id="supportSearch" placeholder="🔍 Rechercher dans l'aide...">
+</div>
+
+<!-- Catégories d'aide rapide -->
+<div class="quick-help-section">
+    <h2>🚀 Aide Rapide</h2>
+    <div class="help-categories">
+        <div class="help-category-card">
+            <div class="category-icon">🎯</div>
+            <h3>Démarrage</h3>
+            <p>Premiers pas avec WeBox Multi-IA</p>
+            <button class="btn btn-outline">Voir les guides</button>
+        </div>
+        <div class="help-category-card">
+            <div class="category-icon">🤖</div>
+            <h3>Utilisation de l'IA</h3>
+            <p>Comment utiliser les modèles IA</p>
+            <button class="btn btn-outline">En savoir plus</button>
+        </div>
+        <div class="help-category-card">
+            <div class="category-icon">💳</div>
+            <h3>Facturation</h3>
+            <p>Abonnements et paiements</p>
+            <button class="btn btn-outline">Gérer mon compte</button>
+        </div>
+        <div class="help-category-card">
+            <div class="category-icon">🔧</div>
+            <h3>Problèmes techniques</h3>
+            <p>Résoudre les erreurs courantes</p>
+            <button class="btn btn-outline">Dépannage</button>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+    <h2>❓ Questions Fréquentes</h2>
+    <div class="faq-list">
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Comment changer de modèle IA dans le chat ?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>Dans la page Chat, cliquez sur le sélecteur de modèle en haut à droite. Vous pouvez choisir parmi GPT-4, Claude, Gemini et d'autres modèles disponibles.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Quelles sont les limites de mon abonnement ?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>Les limites dépendent de votre plan. Consultez la page Paramètres > Abonnement pour voir vos quotas de tokens, générations d'images et autres ressources.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Comment configurer mes propres clés API ?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>Allez dans Paramètres > Clés API. Vous pouvez y ajouter vos clés OpenAI, Anthropic, Google pour utiliser vos propres quotas.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Mes conversations sont-elles privées ?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>Oui, toutes vos conversations sont chiffrées et privées. Nous ne partageons jamais vos données avec des tiers. Consultez notre politique de confidentialité pour plus de détails.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Comment annuler mon abonnement ?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>Rendez-vous dans Paramètres > Abonnement et cliquez sur "Annuler l'abonnement". Vous conserverez l'accès jusqu'à la fin de votre période de facturation.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Puis-je exporter mes conversations ?</span>
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                <p>Oui, dans chaque conversation, cliquez sur le menu (⋮) puis "Exporter". Vous pouvez exporter en format JSON, Markdown ou PDF.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Support -->
+<div class="contact-section">
+    <h2>📧 Contacter le Support</h2>
+    <div class="contact-options">
+        <div class="contact-card">
+            <div class="contact-icon">💬</div>
+            <h3>Chat en direct</h3>
+            <p>Réponse en quelques minutes</p>
+            <button class="btn btn-primary">Démarrer le chat</button>
+        </div>
+        <div class="contact-card">
+            <div class="contact-icon">📧</div>
+            <h3>Email</h3>
+            <p>Réponse sous 24h</p>
+            <button class="btn btn-outline">Envoyer un email</button>
+        </div>
+        <div class="contact-card">
+            <div class="contact-icon">📚</div>
+            <h3>Documentation</h3>
+            <p>Guides complets</p>
+            <button class="btn btn-outline">Voir la doc</button>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire de contact -->
+<div class="contact-form-section">
+    <h2>✉️ Envoyer un Message</h2>
+    <form class="support-form">
+        <div class="form-group">
+            <label>Sujet</label>
+            <select class="form-input">
+                <option value="">Sélectionnez un sujet</option>
+                <option value="technique">Problème technique</option>
+                <option value="facturation">Question de facturation</option>
+                <option value="feature">Demande de fonctionnalité</option>
+                <option value="autre">Autre</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Message</label>
+            <textarea class="form-input" rows="6" placeholder="Décrivez votre problème ou question..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Pièces jointes (optionnel)</label>
+            <input type="file" class="form-input" multiple>
+        </div>
+        <button type="submit" class="btn btn-primary">Envoyer le message</button>
+    </form>
+</div>
+
+<!-- Ressources utiles -->
+<div class="resources-section">
+    <h2>📖 Ressources Utiles</h2>
+    <div class="resources-grid">
+        <a href="/documentation" class="resource-link">
+            <span class="resource-icon">📘</span>
+            <span>Documentation complète</span>
+        </a>
+        <a href="#" class="resource-link">
+            <span class="resource-icon">🎥</span>
+            <span>Tutoriels vidéo</span>
+        </a>
+        <a href="#" class="resource-link">
+            <span class="resource-icon">💡</span>
+            <span>Astuces et conseils</span>
+        </a>
+        <a href="#" class="resource-link">
+            <span class="resource-icon">🔄</span>
+            <span>Mises à jour</span>
+        </a>
+        <a href="#" class="resource-link">
+            <span class="resource-icon">👥</span>
+            <span>Communauté</span>
+        </a>
+        <a href="#" class="resource-link">
+            <span class="resource-icon">🐛</span>
+            <span>Signaler un bug</span>
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', function() {
+            const isActive = item.classList.contains('active');
+            
+            // Fermer tous les autres
+            faqItems.forEach(i => i.classList.remove('active'));
+            
+            // Toggle l'item actuel
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        });
+    });
+
+    // Recherche
+    const searchInput = document.getElementById('supportSearch');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+            const answer = item.querySelector('.faq-answer p').textContent.toLowerCase();
+            
+            if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = searchTerm ? 'none' : 'block';
+            }
+        });
+    });
+
+    // Formulaire de support
+    const supportForm = document.querySelector('.support-form');
+    supportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Message envoyé ! Notre équipe vous répondra sous 24h.');
+        this.reset();
+    });
+});
+</script>
+{% endblock %}

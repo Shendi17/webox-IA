@@ -1,0 +1,343 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Panier - WeBox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/cart.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🛒 Mon Panier</h1>
+    <p>Finalisez votre commande</p>
+</div>
+
+<div class="cart-page">
+    <div class="cart-main">
+        <!-- Liste des articles -->
+        <div class="cart-items" id="cartItems">
+            <!-- Article 1 -->
+            <div class="cart-item" data-id="1">
+                <div class="item-image">
+                    <img src="/static/images/products/product1.jpg" alt="Produit 1">
+                </div>
+                <div class="item-details">
+                    <h3 class="item-name">Générateur de Contenu IA Pro</h3>
+                    <p class="item-description">Licence perpétuelle - Accès illimité</p>
+                    <div class="item-meta">
+                        <span class="item-category">🎨 Outils IA</span>
+                        <span class="item-stock">✓ En stock</span>
+                    </div>
+                </div>
+                <div class="item-quantity">
+                    <button class="qty-btn" onclick="updateQuantity(1, -1)">-</button>
+                    <input type="number" value="1" min="1" max="10" readonly>
+                    <button class="qty-btn" onclick="updateQuantity(1, 1)">+</button>
+                </div>
+                <div class="item-price">
+                    <div class="price-current">49,99 €</div>
+                    <div class="price-original">79,99 €</div>
+                </div>
+                <button class="item-remove" onclick="removeItem(1)">
+                    <span>🗑️</span>
+                </button>
+            </div>
+
+            <!-- Article 2 -->
+            <div class="cart-item" data-id="2">
+                <div class="item-image">
+                    <img src="/static/images/products/product2.jpg" alt="Produit 2">
+                </div>
+                <div class="item-details">
+                    <h3 class="item-name">Pack Templates Premium</h3>
+                    <p class="item-description">100+ templates professionnels</p>
+                    <div class="item-meta">
+                        <span class="item-category">📄 Templates</span>
+                        <span class="item-stock">✓ En stock</span>
+                    </div>
+                </div>
+                <div class="item-quantity">
+                    <button class="qty-btn" onclick="updateQuantity(2, -1)">-</button>
+                    <input type="number" value="2" min="1" max="10" readonly>
+                    <button class="qty-btn" onclick="updateQuantity(2, 1)">+</button>
+                </div>
+                <div class="item-price">
+                    <div class="price-current">29,99 €</div>
+                </div>
+                <button class="item-remove" onclick="removeItem(2)">
+                    <span>🗑️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panier vide -->
+        <div class="cart-empty" id="cartEmpty" style="display: none;">
+            <div class="empty-icon">🛒</div>
+            <h2>Votre panier est vide</h2>
+            <p>Découvrez nos produits et outils IA pour booster votre productivité</p>
+            <a href="/marketplace" class="btn-shop">Découvrir le Marketplace</a>
+        </div>
+
+        <!-- Code promo -->
+        <div class="promo-section">
+            <h3>💰 Code promo</h3>
+            <div class="promo-input">
+                <input type="text" id="promoCode" placeholder="Entrez votre code promo">
+                <button class="btn-apply" onclick="applyPromo()">Appliquer</button>
+            </div>
+            <div class="promo-message" id="promoMessage"></div>
+        </div>
+    </div>
+
+    <!-- Résumé de commande -->
+    <div class="cart-summary">
+        <h2>Résumé de la commande</h2>
+        
+        <div class="summary-details">
+            <div class="summary-row">
+                <span>Sous-total</span>
+                <span id="subtotal">109,97 €</span>
+            </div>
+            <div class="summary-row">
+                <span>Remise</span>
+                <span id="discount" class="discount-amount">-30,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>TVA (20%)</span>
+                <span id="tax">15,99 €</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">95,96 €</span>
+            </div>
+        </div>
+
+        <button class="btn-checkout" onclick="goToCheckout()">
+            ⚡ Passer la commande
+        </button>
+
+        <div class="payment-methods">
+            <p>Moyens de paiement acceptés :</p>
+            <div class="payment-icons">
+                <span>💳</span>
+                <span>🏦</span>
+                <span>📱</span>
+            </div>
+        </div>
+
+        <div class="security-badges">
+            <div class="badge">
+                <span>🔒</span>
+                <span>Paiement sécurisé</span>
+            </div>
+            <div class="badge">
+                <span>✓</span>
+                <span>Garantie satisfait ou remboursé</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Produits recommandés -->
+<div class="recommended-section">
+    <h2>Vous pourriez aussi aimer</h2>
+    <div class="recommended-grid">
+        <div class="product-card">
+            <div class="product-image">
+                <img src="/static/images/products/product3.jpg" alt="Produit 3">
+                <div class="product-badge">Populaire</div>
+            </div>
+            <div class="product-info">
+                <h3>Assistant IA Marketing</h3>
+                <p>Automatisez vos campagnes</p>
+                <div class="product-price">
+                    <span class="price">39,99 €</span>
+                    <span class="original">59,99 €</span>
+                </div>
+                <button class="btn-add-quick" onclick="addToCartQuick(3)">Ajouter</button>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <div class="product-image">
+                <img src="/static/images/products/product4.jpg" alt="Produit 4">
+                <div class="product-badge">Nouveau</div>
+            </div>
+            <div class="product-info">
+                <h3>Pack SEO Premium</h3>
+                <p>Optimisez votre référencement</p>
+                <div class="product-price">
+                    <span class="price">69,99 €</span>
+                </div>
+                <button class="btn-add-quick" onclick="addToCartQuick(4)">Ajouter</button>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <div class="product-image">
+                <img src="/static/images/products/product5.jpg" alt="Produit 5">
+                <div class="product-badge">-50%</div>
+            </div>
+            <div class="product-info">
+                <h3>Générateur de Vidéos</h3>
+                <p>Créez des vidéos en 1 clic</p>
+                <div class="product-price">
+                    <span class="price">24,99 €</span>
+                    <span class="original">49,99 €</span>
+                </div>
+                <button class="btn-add-quick" onclick="addToCartQuick(5)">Ajouter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gestion du panier
+let cart = {
+    items: [
+        { id: 1, name: 'Générateur de Contenu IA Pro', price: 49.99, quantity: 1, originalPrice: 79.99 },
+        { id: 2, name: 'Pack Templates Premium', price: 29.99, quantity: 2 }
+    ],
+    promoCode: null,
+    discount: 30.00
+};
+
+function updateQuantity(itemId, change) {
+    const item = cart.items.find(i => i.id === itemId);
+    if (item) {
+        item.quantity = Math.max(1, Math.min(10, item.quantity + change));
+        
+        const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`);
+        const input = itemElement.querySelector('input');
+        input.value = item.quantity;
+        
+        updateSummary();
+    }
+}
+
+function removeItem(itemId) {
+    if (confirm('Voulez-vous vraiment retirer cet article du panier ?')) {
+        cart.items = cart.items.filter(i => i.id !== itemId);
+        
+        const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`);
+        itemElement.style.animation = 'slideOut 0.3s ease';
+        
+        setTimeout(() => {
+            itemElement.remove();
+            
+            if (cart.items.length === 0) {
+                document.getElementById('cartItems').style.display = 'none';
+                document.getElementById('cartEmpty').style.display = 'flex';
+                document.querySelector('.cart-summary').style.display = 'none';
+            }
+            
+            updateSummary();
+            updateCartCount();
+        }, 300);
+    }
+}
+
+function updateSummary() {
+    let subtotal = 0;
+    cart.items.forEach(item => {
+        subtotal += item.price * item.quantity;
+    });
+    
+    const discount = cart.discount || 0;
+    const taxRate = 0.20;
+    const subtotalAfterDiscount = subtotal - discount;
+    const tax = subtotalAfterDiscount * taxRate;
+    const total = subtotalAfterDiscount + tax;
+    
+    document.getElementById('subtotal').textContent = subtotal.toFixed(2) + ' €';
+    document.getElementById('discount').textContent = '-' + discount.toFixed(2) + ' €';
+    document.getElementById('tax').textContent = tax.toFixed(2) + ' €';
+    document.getElementById('total').textContent = total.toFixed(2) + ' €';
+}
+
+function applyPromo() {
+    const code = document.getElementById('promoCode').value.trim().toUpperCase();
+    const messageEl = document.getElementById('promoMessage');
+    
+    const promoCodes = {
+        'WELCOME10': { discount: 10, type: 'percent' },
+        'SAVE20': { discount: 20, type: 'percent' },
+        'FIRST50': { discount: 50, type: 'fixed' }
+    };
+    
+    if (promoCodes[code]) {
+        const promo = promoCodes[code];
+        
+        if (promo.type === 'percent') {
+            const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cart.discount = (subtotal * promo.discount / 100);
+        } else {
+            cart.discount = promo.discount;
+        }
+        
+        cart.promoCode = code;
+        messageEl.textContent = `✓ Code promo appliqué : -${promo.discount}${promo.type === 'percent' ? '%' : '€'}`;
+        messageEl.className = 'promo-message success';
+        
+        updateSummary();
+    } else {
+        messageEl.textContent = '❌ Code promo invalide';
+        messageEl.className = 'promo-message error';
+    }
+}
+
+function goToCheckout() {
+    if (cart.items.length === 0) {
+        alert('Votre panier est vide');
+        return;
+    }
+    
+    window.location.href = '/checkout';
+}
+
+function addToCartQuick(productId) {
+    showNotification('✓ Produit ajouté au panier !', 'success');
+    updateCartCount();
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? '#4caf50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+function updateCartCount() {
+    const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const badge = document.querySelector('.cart-badge');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    updateSummary();
+    updateCartCount();
+});
+</script>
+{% endblock %}

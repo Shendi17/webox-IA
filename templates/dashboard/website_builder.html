@@ -1,10 +1,10 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Website Builder - WeBox{% endblock %}
 
 {% block extra_css %}
 <style>
-.hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; text-align: center; }
+.hero-section { background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; text-align: center; }
 .hero-section h1 { font-size: 2.5rem; margin-bottom: 1rem; }
 .hero-section p { font-size: 1.2rem; opacity: 0.9; }
 .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
@@ -40,21 +40,17 @@
 .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; }
 .checkbox-group { display: flex; align-items: center; gap: 0.5rem; }
 .checkbox-group input[type="checkbox"] { width: auto; }
-.btn-create { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1.1rem; }
+.btn-create { background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1.1rem; }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>🌐 Website Builder IA</h1>
+    <p>Créez un site web professionnel en quelques clics avec l'intelligence artificielle</p>
+</div>
+
 <div class="page-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div class="page-header-content">
-            <div class="page-header-text">
-                <h1>🌐 Website Builder IA</h1>
-                <p>Créez un site web professionnel en quelques clics avec l'intelligence artificielle</p>
-            </div>
-        </div>
-    </div>
 
     <!-- Templates -->
     <div class="section">

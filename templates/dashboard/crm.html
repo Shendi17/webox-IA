@@ -4,25 +4,91 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', path='/css/modals.css') }}">
+<style>
+/* ==================== MODAL CSS ==================== */
+#createLeadModal,
+#leadDetailsModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99999;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#createLeadModal.modal-open,
+#leadDetailsModal.modal-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#createLeadModal .modal-content,
+#leadDetailsModal .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+#leadDetailsModal .modal-content {
+    max-width: 800px;
+}
+
+#createLeadModal .modal-header,
+#leadDetailsModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+#createLeadModal .modal-close,
+#leadDetailsModal .modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+#createLeadModal .modal-close:hover,
+#leadDetailsModal .modal-close:hover {
+    color: #000;
+}
+</style>
 {% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>👥 CRM</h1>
+    <p>Gérez vos leads et suivez votre pipeline de ventes</p>
+</div>
+
+<div class="page-actions" style="margin-bottom: 2rem; text-align: right;">
+    <button class="btn btn-primary" onclick="openCreateLeadModal()">
+        + Ajouter un Lead
+    </button>
+</div>
+
 <div class="page-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div class="page-header-content">
-            <div class="page-header-text">
-                <h1>👥 CRM</h1>
-                <p>Gérez vos leads et suivez votre pipeline de ventes</p>
-            </div>
-            <div class="page-actions">
-                <button class="btn btn-primary" onclick="openCreateLeadModal()">
-                    + Ajouter un Lead
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Filtres et recherche -->
     <div class="section">
@@ -57,7 +123,7 @@
 </div>
 
 <!-- Modal Créer Lead -->
-<div id="createLeadModal" class="modal">
+<div id="createLeadModal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>👤 Ajouter un Lead</h2>
@@ -137,8 +203,8 @@
 </div>
 
 <!-- Modal Détails Lead -->
-<div id="leadDetailsModal" class="modal">
-    <div class="modal-content" style="max-width: 800px;">
+<div id="leadDetailsModal">
+    <div class="modal-content">
         <div class="modal-header">
             <h2 id="leadDetailsTitle">👤 Détails du Lead</h2>
             <button class="modal-close" onclick="closeLeadDetailsModal()">&times;</button>
@@ -253,7 +319,7 @@ async function viewLeadDetails(leadId) {
 
         if (data.success) {
             displayLeadDetails(data.lead);
-            document.getElementById('leadDetailsModal').classList.add('active');
+            document.getElementById('leadDetailsModal').classList.add('modal-open');
         }
     } catch (error) {
         console.error('Erreur:', error);
@@ -438,20 +504,21 @@ async function deleteLead(leadId) {
 
 // Modals
 function openCreateLeadModal() {
-    document.getElementById('createLeadModal').classList.add('active');
+    document.getElementById('createLeadModal').classList.add('modal-open');
 }
 
 function closeCreateLeadModal() {
-    document.getElementById('createLeadModal').classList.remove('active');
+    document.getElementById('createLeadModal').classList.remove('modal-open');
 }
 
 function closeLeadDetailsModal() {
-    document.getElementById('leadDetailsModal').classList.remove('active');
+    document.getElementById('leadDetailsModal').classList.remove('modal-open');
 }
 
 // Notification
 function showNotification(message, type) {
-    // Ne pas afficher d'alerte pour éviter les popups intrusifs}
+    // Ne pas afficher d'alerte pour éviter les popups intrusifs
+}
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {

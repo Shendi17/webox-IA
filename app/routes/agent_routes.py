@@ -1,21 +1,27 @@
 """
 Routes API pour les Agents IA
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user_db import UserDB
-from app.middleware.auth import get_current_user_from_token
+from app.models.ai_agent import AIAgent
+from app.middleware.auth import get_current_user_from_token, get_current_user_from_cookie
 from datetime import datetime, timedelta
+from pydantic import BaseModel
+from typing import List, Optional
 import random
 
 router = APIRouter()
 
 @router.get("/api/agents/stats")
 async def get_agent_stats(
-    current_user: UserDB = Depends(get_current_user_from_token),
+    request: Request,
     db: Session = Depends(get_db)
 ):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
     """
     Récupérer les statistiques globales des agents
     """
@@ -32,9 +38,12 @@ async def get_agent_stats(
 
 @router.get("/api/agents/conversations/recent")
 async def get_recent_conversations(
-    current_user: UserDB = Depends(get_current_user_from_token),
+    request: Request,
     db: Session = Depends(get_db)
 ):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
     """
     Récupérer l'historique des conversations récentes
     """
@@ -91,9 +100,12 @@ async def get_recent_conversations(
 
 @router.get("/api/agents/performance")
 async def get_agent_performance(
-    current_user: UserDB = Depends(get_current_user_from_token),
+    request: Request,
     db: Session = Depends(get_db)
 ):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
     """
     Récupérer les performances détaillées par agent
     """
@@ -186,3 +198,186 @@ async def get_agent_performance(
     return {
         "performances": performances
     }
+
+
+class AgentCreate(BaseModel):
+    name: str
+    category: str
+    description: str
+    instructions: str
+    model: str = "gpt-4"
+    temperature: float = 0.7
+
+
+@router.get("/api/agents/my-agents")
+async def get_my_agents(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    """
+    Récupérer les agents de l'utilisateur
+    """
+    agents = db.query(AIAgent).filter(
+        AIAgent.user_id == current_user["user_id"],
+        AIAgent.is_marketplace == False
+    ).all()
+    
+    return {"agents": [agent.to_dict() for agent in agents]}
+
+
+@router.get("/api/agents/marketplace")
+async def get_marketplace_agents(
+    category: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Récupérer les agents de la marketplace
+    """
+    query = db.query(AIAgent).filter(AIAgent.is_marketplace == True)
+    
+    if category:
+        query = query.filter(AIAgent.category == category)
+    
+    agents = query.order_by(AIAgent.downloads.desc()).all()
+    return {"agents": [agent.to_dict() for agent in agents]}
+
+
+@router.post("/api/agents/create")
+async def create_agent(
+    request: Request,
+    agent_data: AgentCreate,
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    """
+    Créer un nouvel agent
+    """
+    new_agent = AIAgent(
+        user_id=current_user["user_id"],
+        name=agent_data.name,
+        category=agent_data.category,
+        description=agent_data.description,
+        instructions=agent_data.instructions,
+        model=agent_data.model,
+        temperature=agent_data.temperature,
+        icon="🤖",
+        status="active",
+        features=[]
+    )
+    
+    db.add(new_agent)
+    db.commit()
+    db.refresh(new_agent)
+    
+    return {"success": True, "agent": new_agent.to_dict()}
+
+
+@router.post("/api/agents/install/{agent_id}")
+async def install_marketplace_agent(
+    agent_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    """
+    Installer un agent depuis la marketplace
+    """
+    marketplace_agent = db.query(AIAgent).filter(
+        AIAgent.id == agent_id,
+        AIAgent.is_marketplace == True
+    ).first()
+    
+    if not marketplace_agent:
+        raise HTTPException(status_code=404, detail="Agent non trouvé")
+    
+    # Créer une copie pour l'utilisateur
+    user_agent = AIAgent(
+        user_id=current_user["user_id"],
+        name=marketplace_agent.name,
+        icon=marketplace_agent.icon,
+        category=marketplace_agent.category,
+        description=marketplace_agent.description,
+        features=marketplace_agent.features,
+        model=marketplace_agent.model,
+        temperature=marketplace_agent.temperature,
+        instructions=marketplace_agent.instructions,
+        status="active"
+    )
+    
+    db.add(user_agent)
+    
+    # Incrémenter les téléchargements
+    marketplace_agent.downloads += 1
+    
+    db.commit()
+    db.refresh(user_agent)
+    
+    return {"success": True, "agent": user_agent.to_dict()}
+
+
+@router.put("/api/agents/{agent_id}")
+async def update_agent(
+    agent_id: int,
+    request: Request,
+    agent_data: AgentCreate,
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    """
+    Mettre à jour un agent
+    """
+    agent = db.query(AIAgent).filter(
+        AIAgent.id == agent_id,
+        AIAgent.user_id == current_user["user_id"]
+    ).first()
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent non trouvé")
+    
+    # Mettre à jour les champs
+    agent.name = agent_data.name
+    agent.category = agent_data.category
+    agent.description = agent_data.description
+    agent.instructions = agent_data.instructions
+    agent.model = agent_data.model
+    agent.temperature = agent_data.temperature
+    
+    db.commit()
+    db.refresh(agent)
+    
+    return {"success": True, "agent": agent.to_dict()}
+
+
+@router.delete("/api/agents/{agent_id}")
+async def delete_agent(
+    agent_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    current_user = get_current_user_from_cookie(request)
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    """
+    Supprimer un agent
+    """
+    agent = db.query(AIAgent).filter(
+        AIAgent.id == agent_id,
+        AIAgent.user_id == current_user["user_id"]
+    ).first()
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent non trouvé")
+    
+    db.delete(agent)
+    db.commit()
+    
+    return {"success": True, "message": "Agent supprimé"}

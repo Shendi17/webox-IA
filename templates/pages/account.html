@@ -1,0 +1,500 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Mon Compte - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+    .account-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .subscription-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .subscription-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .subscription-info {
+        flex: 1;
+    }
+
+    .subscription-plan {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+    }
+
+    .subscription-status {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-trial {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-expired {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .subscription-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-upgrade {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #1a1a2e;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-upgrade:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    }
+
+    .btn-manage {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #1a1a2e;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-manage:hover {
+        border-color: #1a1a2e;
+    }
+
+    .subscription-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-item {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .features-list li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .features-list li:last-child {
+        border-bottom: none;
+    }
+
+    .feature-icon {
+        font-size: 1.2rem;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .plan-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+        border: 3px solid transparent;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        border-color: #ffd700;
+    }
+
+    .plan-card.recommended {
+        border-color: #ffd700;
+        position: relative;
+    }
+
+    .plan-card.recommended::before {
+        content: "⭐ RECOMMANDÉ";
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ffd700;
+        color: #1a1a2e;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1a1a2e;
+    }
+
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price span {
+        font-size: 1rem;
+        color: #666;
+    }
+
+    .plan-description {
+        color: #666;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+
+    .plan-features li {
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #333;
+    }
+
+    .btn-select-plan {
+        width: 100%;
+        padding: 1rem;
+        background: #1a1a2e;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-select-plan:hover {
+        background: #0f3460;
+        transform: translateY(-2px);
+    }
+
+    .plan-card.recommended .btn-select-plan {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #1a1a2e;
+    }
+
+    .billing-history {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .billing-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1.5rem;
+    }
+
+    .billing-table th {
+        text-align: left;
+        padding: 1rem;
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #666;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .billing-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .billing-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .invoice-link {
+        color: #4169e1;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .invoice-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💳 Mon Compte</h1>
+    <p>Gérez votre abonnement et vos informations de facturation</p>
+</div>
+
+<div class="account-page">
+    <!-- Abonnement actuel -->
+    <div class="subscription-card">
+        <div class="subscription-header">
+            <div class="subscription-info">
+                <div class="subscription-plan">Plan Pro</div>
+                <span class="subscription-status status-active">✓ Actif</span>
+            </div>
+            <div class="subscription-actions">
+                <a href="/orders" class="btn-manage">📦 Mes Commandes</a>
+                <a href="/pricing" class="btn-upgrade">Améliorer</a>
+                <button class="btn-manage" onclick="openManageModal()">Gérer</button>
+            </div>
+        </div>
+
+        <div class="subscription-details">
+            <div class="detail-item">
+                <div class="detail-label">Prix mensuel</div>
+                <div class="detail-value">29,99 €</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Prochaine facturation</div>
+                <div class="detail-value">15 Fév 2026</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Crédits IA restants</div>
+                <div class="detail-value">8,450</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Stockage utilisé</div>
+                <div class="detail-value">45 / 100 GB</div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 1rem;">✨ Fonctionnalités incluses</h3>
+        <ul class="features-list">
+            <li><span class="feature-icon">✓</span> Accès illimité à tous les outils IA</li>
+            <li><span class="feature-icon">✓</span> 10,000 crédits IA par mois</li>
+            <li><span class="feature-icon">✓</span> 100 GB de stockage cloud</li>
+            <li><span class="feature-icon">✓</span> Support prioritaire 24/7</li>
+            <li><span class="feature-icon">✓</span> Collaboration en équipe (5 membres)</li>
+            <li><span class="feature-icon">✓</span> API access avec 10,000 requêtes/mois</li>
+        </ul>
+    </div>
+
+    <!-- Plans disponibles -->
+    <div class="subscription-card" id="plans">
+        <h2 style="margin-bottom: 1rem;">📦 Plans disponibles</h2>
+        <p style="color: #666; margin-bottom: 2rem;">Choisissez le plan qui correspond à vos besoins</p>
+
+        <div class="plans-grid">
+            <!-- Plan Gratuit -->
+            <div class="plan-card">
+                <div class="plan-name">🆓 Gratuit</div>
+                <div class="plan-price">0 €<span>/mois</span></div>
+                <div class="plan-description">Parfait pour découvrir WeBox et tester les fonctionnalités de base</div>
+                <ul class="plan-features">
+                    <li>✓ 500 crédits IA/mois</li>
+                    <li>✓ 5 GB de stockage</li>
+                    <li>✓ Outils IA de base</li>
+                    <li>✓ Support communautaire</li>
+                </ul>
+                <button class="btn-select-plan" disabled style="opacity: 0.5; cursor: not-allowed;">Plan actuel</button>
+            </div>
+
+            <!-- Plan Pro -->
+            <div class="plan-card recommended">
+                <div class="plan-name">⚡ Pro</div>
+                <div class="plan-price">29,99 €<span>/mois</span></div>
+                <div class="plan-description">Idéal pour les professionnels et créateurs de contenu</div>
+                <ul class="plan-features">
+                    <li>✓ 10,000 crédits IA/mois</li>
+                    <li>✓ 100 GB de stockage</li>
+                    <li>✓ Tous les outils IA</li>
+                    <li>✓ Support prioritaire 24/7</li>
+                    <li>✓ Collaboration (5 membres)</li>
+                    <li>✓ API access</li>
+                </ul>
+                <button class="btn-select-plan" disabled style="opacity: 0.5; cursor: not-allowed;">✓ Abonnement actif</button>
+            </div>
+
+            <!-- Plan Enterprise -->
+            <div class="plan-card">
+                <div class="plan-name">🏢 Enterprise</div>
+                <div class="plan-price">99,99 €<span>/mois</span></div>
+                <div class="plan-description">Pour les équipes et entreprises avec besoins avancés</div>
+                <ul class="plan-features">
+                    <li>✓ Crédits IA illimités</li>
+                    <li>✓ 1 TB de stockage</li>
+                    <li>✓ Tous les outils IA</li>
+                    <li>✓ Support dédié 24/7</li>
+                    <li>✓ Collaboration illimitée</li>
+                    <li>✓ API illimitée</li>
+                    <li>✓ SLA garanti 99.9%</li>
+                    <li>✓ Formation personnalisée</li>
+                </ul>
+                <button class="btn-select-plan" onclick="upgradePlan('enterprise')">Passer à Enterprise</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historique de facturation -->
+    <div class="billing-history">
+        <h2 style="margin-bottom: 1rem;">📄 Historique de facturation</h2>
+        <table class="billing-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                    <th>Facture</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>15 Jan 2026</td>
+                    <td>Abonnement Pro - Janvier 2026</td>
+                    <td>29,99 €</td>
+                    <td><span class="subscription-status status-active">Payé</span></td>
+                    <td><a href="#" class="invoice-link">📥 Télécharger</a></td>
+                </tr>
+                <tr>
+                    <td>15 Déc 2025</td>
+                    <td>Abonnement Pro - Décembre 2025</td>
+                    <td>29,99 €</td>
+                    <td><span class="subscription-status status-active">Payé</span></td>
+                    <td><a href="#" class="invoice-link">📥 Télécharger</a></td>
+                </tr>
+                <tr>
+                    <td>15 Nov 2025</td>
+                    <td>Abonnement Pro - Novembre 2025</td>
+                    <td>29,99 €</td>
+                    <td><span class="subscription-status status-active">Payé</span></td>
+                    <td><a href="#" class="invoice-link">📥 Télécharger</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function upgradePlan(plan) {
+    if (confirm(`Voulez-vous passer au plan ${plan.toUpperCase()} ?`)) {
+        // Rediriger vers la page de paiement
+        window.location.href = `/checkout?plan=${plan}&billing=monthly`;
+    }
+}
+
+function openManageModal() {
+    // Afficher les options de gestion
+    const options = [
+        '1. Modifier le mode de paiement',
+        '2. Mettre à jour les informations de facturation',
+        '3. Voir l\'historique complet',
+        '4. Annuler l\'abonnement'
+    ].join('\n');
+    
+    const choice = prompt('🔧 Gestion de l\'abonnement\n\n' + options + '\n\nEntrez le numéro de votre choix (1-4):');
+    
+    switch(choice) {
+        case '1':
+            window.location.href = '/checkout?action=update-payment';
+            break;
+        case '2':
+            window.location.href = '/checkout?action=update-billing';
+            break;
+        case '3':
+            document.querySelector('.billing-history').scrollIntoView({ behavior: 'smooth' });
+            break;
+        case '4':
+            if (confirm('⚠️ Êtes-vous sûr de vouloir annuler votre abonnement ?')) {
+                alert('Votre demande d\'annulation a été prise en compte. Vous recevrez un email de confirmation.');
+            }
+            break;
+        default:
+            if (choice !== null) {
+                alert('Option invalide');
+            }
+    }
+}
+
+// Ajouter un lien "Voir tous les plans" qui redirige vers pricing
+document.addEventListener('DOMContentLoaded', function() {
+    // Rendre les cartes de plans cliquables (sauf celle active)
+    document.querySelectorAll('.plan-card:not(.recommended)').forEach(card => {
+        const button = card.querySelector('.btn-select-plan:not([disabled])');
+        if (button) {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'BUTTON') {
+                    button.click();
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Mon Profil - WeBox Studio Créatif{% endblock %}
 
@@ -6,7 +6,7 @@
 <style>
 /* Page Header */
 .profile-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     padding: 2rem;
     border-radius: 20px;
     margin-bottom: 2rem;
@@ -52,8 +52,7 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    background: white;
-    color: #667eea;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #1a1a2e; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -99,8 +98,7 @@
 }
 
 .btn-primary {
-    background: white;
-    color: #667eea;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #1a1a2e; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 10px;
@@ -568,7 +566,7 @@
 
 .btn-save {
     padding: 0.75rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -1022,19 +1020,33 @@ function uploadAvatar() {
 }
 
 // ==================== PROFILE ====================
-function saveProfile() {
+async function saveProfile() {
     const profile = {
         name: document.getElementById('userName').value,
-        email: document.getElementById('userEmail').value,
-        phone: document.getElementById('userPhone').value,
-        company: document.getElementById('userCompany').value,
-        position: document.getElementById('userPosition').value,
-        website: document.getElementById('userWebsite').value,
-        bio: document.getElementById('userBio').value
+        email: document.getElementById('userEmail').value
     };
     
-    console.log('Profil sauvegardé:', profile);
-    alert('Profil mis à jour avec succès ! ✅');
+    try {
+        const response = await fetch('/api/profile/update', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profile)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            alert('✅ Profil mis à jour avec succès !');
+            location.reload();
+        } else {
+            alert('❌ Erreur: ' + (data.detail || 'Impossible de mettre à jour le profil'));
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur de connexion au serveur');
+    }
 }
 
 function cancelChanges() {
@@ -1059,8 +1071,35 @@ function toggleSwitch(element) {
     element.classList.toggle('active');
 }
 
-function savePreferences() {
-    alert('Préférences sauvegardées avec succès ! ✅');
+async function savePreferences() {
+    const selectedModel = document.querySelector('.model-option.selected');
+    const notifications = document.querySelector('.switch.active') !== null;
+    
+    const preferences = {
+        default_ai: selectedModel ? selectedModel.dataset.model : 'gpt-4',
+        notifications: notifications
+    };
+    
+    try {
+        const response = await fetch('/api/profile/preferences', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(preferences)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            alert('✅ Préférences sauvegardées avec succès !');
+        } else {
+            alert('❌ Erreur: ' + (data.detail || 'Impossible de sauvegarder'));
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur de connexion au serveur');
+    }
 }
 
 // ==================== API KEYS ====================

@@ -100,3 +100,19 @@ def get_current_user_from_token(request: Request):
         "role": payload.get("role", "user"),
         "id": payload.get("user_id", 1)  # ID utilisateur
     }
+
+
+def require_admin(request: Request):
+    """
+    Vérifie que l'utilisateur est admin
+    Retourne les infos utilisateur si admin, sinon lève une exception
+    """
+    user = get_current_user_from_token(request)
+    
+    if user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé aux administrateurs"
+        )
+    
+    return user

@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Bibliothèque de Prompts - WeBox Multi-IA{% endblock %}
 
@@ -49,7 +49,7 @@
     </div>
     <button 
         id="newPromptBtn"
-        style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;"
+        style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;"
     >
         ➕ Nouveau Prompt
     </button>
@@ -63,7 +63,7 @@
 </div>
 
 <!-- Prompts prédéfinis populaires -->
-<div class="dashboard-card" style="margin-top: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+<div class="dashboard-card" style="margin-top: 2rem; background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white;">
     <h2 style="margin-bottom: 1.5rem;">🔥 Prompts Populaires Prédéfinis</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
         <div class="prompt-template-card" data-prompt="Rédige un article de blog de 1000 mots sur [SUJET]. Structure : intro accrocheuse, 3 parties avec sous-titres, conclusion avec CTA. Ton professionnel mais accessible." style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
@@ -256,7 +256,7 @@
                 </button>
                 <button 
                     type="submit"
-                    style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"
+                    style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"
                 >
                     Enregistrer
                 </button>
@@ -279,9 +279,14 @@ async function loadPrompts() {
         if (currentFilters.favorites) params.append('is_favorite', 'true');
         
         const response = await fetch(`/api/prompts/?${params}`);
-        if (!response.ok) throw new Error('Erreur de chargement');
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Erreur API:', errorText);
+            throw new Error('Erreur de chargement');
+        }
         
-        prompts = await response.json();
+        const data = await response.json();
+        prompts = Array.isArray(data) ? data : [];
         displayPrompts();
         loadCategories();
     } catch (error) {

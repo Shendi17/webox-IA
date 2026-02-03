@@ -3,32 +3,11 @@
 {% block title %}{{ title_webox }} {{ title_multi_ia }} - L'Interface IA la Plus Complète{% endblock %}
 
 {% block content %}
-<!-- HEADER NAVIGATION -->
-<header class="main-header">
-    <div class="header-container">
-        <div class="header-logo">
-            <a href="/">
-                <span class="emoji">{{ title_emoji }}</span>
-                <span class="webox">{{ title_webox }}</span>
-                <span class="multi-ia">{{ title_multi_ia }}</span>
-            </a>
-        </div>
-        
-        <nav class="header-nav">
-            {% if user %}
-                <span class="user-welcome">Bonjour, {{ user.name }} 👋</span>
-                <a href="/dashboard" class="btn btn-dashboard">📊 Dashboard</a>
-                <a href="/logout" class="btn btn-logout">🚪 Déconnexion</a>
-            {% else %}
-                <a href="/login" class="btn btn-login">🔐 Connexion</a>
-                <a href="/register" class="btn btn-register">📝 Inscription</a>
-            {% endif %}
-        </nav>
-    </div>
-</header>
+<!-- NAVBAR PRINCIPALE MODERNE -->
+{% include "components/navbar.html" %}
 
 <!-- HERO SECTION - CONTRÔLE TOTAL -->
-<section class="hero">
+<section class="hero hero-with-navbar">
     <div class="hero-container">
         <!-- Titre -->
         <h1 class="hero-title">

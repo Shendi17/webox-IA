@@ -1,0 +1,693 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Paiement - WeBox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/checkout.css">
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💳 Finaliser votre commande</h1>
+    <p>Paiement sécurisé</p>
+</div>
+
+<div class="checkout-page">
+    <!-- Étapes de progression -->
+    <div class="progress-steps">
+        <div class="step active">
+            <div class="step-number">1</div>
+            <div class="step-label">Informations</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-label">Paiement</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-label">Confirmation</div>
+        </div>
+    </div>
+
+    <div class="checkout-main">
+        <!-- Formulaire de paiement -->
+        <div class="checkout-form">
+            <!-- Étape 1: Informations -->
+            <div class="form-section active" id="step1">
+                <h2>📋 Informations de facturation</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">Prénom *</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Nom *</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Téléphone</label>
+                    <input type="tel" id="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Entreprise (optionnel)</label>
+                    <input type="text" id="company">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Adresse *</label>
+                    <input type="text" id="address" required>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="city">Ville *</label>
+                        <input type="text" id="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postalCode">Code postal *</label>
+                        <input type="text" id="postalCode" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Pays *</label>
+                    <select id="country" required>
+                        <option value="">Sélectionnez un pays</option>
+                        <option value="FR" selected>France</option>
+                        <option value="BE">Belgique</option>
+                        <option value="CH">Suisse</option>
+                        <option value="CA">Canada</option>
+                        <option value="US">États-Unis</option>
+                    </select>
+                </div>
+
+                <button class="btn-next" onclick="goToStep(2)">
+                    Continuer vers le paiement →
+                </button>
+            </div>
+
+            <!-- Étape 2: Paiement -->
+            <div class="form-section" id="step2">
+                <h2>💳 Méthode de paiement</h2>
+
+                <div class="payment-methods-selector">
+                    <div class="payment-method active" data-method="card">
+                        <input type="radio" name="payment" id="card" checked>
+                        <label for="card">
+                            <span class="icon">💳</span>
+                            <span>Carte bancaire</span>
+                        </label>
+                    </div>
+                    <div class="payment-method" data-method="paypal">
+                        <input type="radio" name="payment" id="paypal">
+                        <label for="paypal">
+                            <span class="icon">🅿️</span>
+                            <span>PayPal</span>
+                        </label>
+                    </div>
+                    <div class="payment-method" data-method="bank">
+                        <input type="radio" name="payment" id="bank">
+                        <label for="bank">
+                            <span class="icon">🏦</span>
+                            <span>Virement bancaire</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Formulaire carte bancaire avec Stripe -->
+                <div class="payment-form active" id="cardForm">
+                    <div class="form-group">
+                        <label>Informations de carte *</label>
+                        <div id="card-element" style="padding: 1rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white;"></div>
+                        <div id="card-errors" role="alert" style="color: #ff6b6b; margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                    </div>
+
+                    <div class="security-info">
+                        <span class="icon">🔒</span>
+                        <span>Paiement 100% sécurisé avec Stripe - Cryptage SSL</span>
+                    </div>
+                    
+                    <div class="payment-logos" style="display: flex; gap: 1rem; margin-top: 1rem; opacity: 0.6;">
+                        <span>💳 Visa</span>
+                        <span>💳 Mastercard</span>
+                        <span>💳 Amex</span>
+                    </div>
+                </div>
+
+                <!-- PayPal -->
+                <div class="payment-form" id="paypalForm">
+                    <div class="paypal-info">
+                        <p>Cliquez sur le bouton ci-dessous pour payer avec PayPal en toute sécurité.</p>
+                        <div id="paypal-button-container" style="margin-top: 1.5rem;"></div>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                            <strong>Avantages PayPal :</strong><br>
+                            ✓ Protection des achats<br>
+                            ✓ Paiement sécurisé<br>
+                            ✓ Pas besoin de saisir vos coordonnées bancaires
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Virement bancaire -->
+                <div class="payment-form" id="bankForm">
+                    <div class="bank-info">
+                        <h3 style="margin-bottom: 1rem;">📋 Coordonnées bancaires</h3>
+                        <div class="bank-details" style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;">
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Bénéficiaire :</strong> WeBox SAS
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <strong>IBAN :</strong> FR76 XXXX XXXX XXXX XXXX XXXX XXX
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <strong>BIC :</strong> WBOXFRPP
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Banque :</strong> Banque WeBox
+                            </div>
+                            <div style="padding: 1rem; background: #fff3cd; border-radius: 8px; margin-top: 1rem;">
+                                <strong>⚠️ Référence à indiquer :</strong><br>
+                                <span id="bankReference" style="font-size: 1.2rem; font-weight: 700; color: #856404;">WB-ORDER-XXXXX</span>
+                            </div>
+                        </div>
+                        <p style="color: #666; font-size: 0.9rem;">
+                            <strong>Délai de traitement :</strong> 2-3 jours ouvrés après réception du virement.<br>
+                            <strong>Important :</strong> N'oubliez pas d'indiquer la référence lors de votre virement.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-back" onclick="goToStep(1)">
+                        ← Retour
+                    </button>
+                    <button class="btn-next" id="submitPayment" onclick="processPayment()">
+                        Valider le paiement
+                    </button>
+                </div>
+            </div>
+
+            <!-- Étape 3: Confirmation -->
+            <div class="form-section" id="step3">
+                <div class="confirmation-content">
+                    <div class="success-icon">✓</div>
+                    <h2>Commande confirmée !</h2>
+                    <p>Merci pour votre achat. Votre commande a été traitée avec succès.</p>
+                    
+                    <div class="order-number">
+                        <span>Numéro de commande :</span>
+                        <strong>#WB-2026-001234</strong>
+                    </div>
+
+                    <div class="confirmation-details">
+                        <p>Un email de confirmation a été envoyé à votre adresse.</p>
+                        <p>Vous pouvez accéder immédiatement à vos produits depuis votre tableau de bord.</p>
+                    </div>
+
+                    <div class="confirmation-actions">
+                        <a href="/dashboard" class="btn-dashboard">
+                            Aller au tableau de bord
+                        </a>
+                        <a href="/orders" class="btn-orders">
+                            Voir mes commandes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résumé de commande (chargé dynamiquement) -->
+        <div class="order-summary">
+            <h2>Résumé de la commande</h2>
+
+            <div class="summary-items" id="checkoutItems">
+                <div class="loading">Chargement...</div>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-totals">
+                <div class="total-row">
+                    <span>Sous-total</span>
+                    <span id="checkoutSubtotal">0,00 €</span>
+                </div>
+                <div class="total-row discount">
+                    <span>Remise</span>
+                    <span id="checkoutDiscount">0,00 €</span>
+                </div>
+                <div class="total-row">
+                    <span>TVA (20%)</span>
+                    <span id="checkoutTax">0,00 €</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="total-row final">
+                    <span>Total</span>
+                    <span id="checkoutTotal">0,00 €</span>
+                </div>
+            </div>
+
+            <div class="trust-badges">
+                <div class="badge">
+                    <span>🔒</span>
+                    <span>Paiement sécurisé</span>
+                </div>
+                <div class="badge">
+                    <span>✓</span>
+                    <span>Garantie 30 jours</span>
+                </div>
+                <div class="badge">
+                    <span>⚡</span>
+                    <span>Accès immédiat</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR"></script>
+<script>
+// ==================== CONFIGURATION ====================
+const STRIPE_PUBLIC_KEY = 'pk_test_...'; // À remplacer par votre clé publique Stripe
+let currentStep = 1;
+let stripe, cardElement, paymentIntentClientSecret;
+
+// ==================== INITIALISATION ====================
+document.addEventListener('DOMContentLoaded', function() {
+    loadCheckoutCart();
+    updateCartBadgeFromAPI(); // Synchroniser le badge panier
+    initializeStripe();
+    initializePayPal();
+    initializePaymentMethods();
+    generateBankReference();
+});
+
+// ==================== CHARGEMENT PANIER ====================
+async function loadCheckoutCart() {
+    try {
+        const response = await fetch('/api/cart');
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            throw new Error('Erreur chargement panier');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.cart) {
+            renderCheckoutItems(data.cart);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('checkoutItems').innerHTML = 
+            '<div class="error">❌ Erreur de chargement</div>';
+    }
+}
+
+function renderCheckoutItems(cart) {
+    const itemsContainer = document.getElementById('checkoutItems');
+    
+    if (!cart.items || cart.items.length === 0) {
+        itemsContainer.innerHTML = '<div class="empty">Panier vide</div>';
+        return;
+    }
+    
+    itemsContainer.innerHTML = cart.items.map(item => `
+        <div class="summary-item">
+            <div class="item-info">
+                <div class="item-image">
+                    <div class="placeholder-image">🎨</div>
+                </div>
+                <div class="item-details">
+                    <h4>${item.product_name || 'Produit #' + item.product_id}</h4>
+                    <p>Quantité: ${item.quantity}</p>
+                </div>
+            </div>
+            <div class="item-price">${(item.price_at_addition * item.quantity).toFixed(2)} €</div>
+        </div>
+    `).join('');
+    
+    // Mettre à jour les totaux
+    document.getElementById('checkoutSubtotal').textContent = cart.subtotal.toFixed(2) + ' €';
+    document.getElementById('checkoutDiscount').textContent = '0,00 €';
+    document.getElementById('checkoutTax').textContent = cart.tax.toFixed(2) + ' €';
+    document.getElementById('checkoutTotal').textContent = cart.total.toFixed(2) + ' €';
+    
+    // Mettre à jour le badge panier
+    updateCartBadgeFromAPI();
+}
+
+// Mettre à jour le badge du panier depuis l'API
+async function updateCartBadgeFromAPI() {
+    try {
+        const response = await fetch('/api/cart');
+        if (response.ok) {
+            const data = await response.json();
+            const badge = document.getElementById('cartBadge');
+            if (badge && data.success) {
+                const totalItems = data.cart.total_items || 0;
+                badge.textContent = totalItems;
+                badge.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Erreur mise à jour badge:', error);
+    }
+}
+
+// ==================== STRIPE ====================
+function initializeStripe() {
+    // Initialiser Stripe
+    stripe = Stripe(STRIPE_PUBLIC_KEY);
+    const elements = stripe.elements();
+    
+    // Créer l'élément carte
+    cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#1a1a2e',
+                '::placeholder': {
+                    color: '#aab7c4',
+                },
+            },
+            invalid: {
+                color: '#ff6b6b',
+            },
+        },
+    });
+    
+    // Monter l'élément dans le DOM
+    cardElement.mount('#card-element');
+    
+    // Gérer les erreurs
+    cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+}
+
+async function processStripePayment() {
+    showNotification('⏳ Traitement du paiement Stripe...', 'info');
+    
+    try {
+        // Créer l'intention de paiement
+        const response = await fetch('/api/payment/stripe/create-intent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount: 95.96,
+                currency: 'eur',
+                metadata: {
+                    order_id: 'ORDER-' + Date.now()
+                }
+            })
+        });
+        
+        const data = await response.json();
+        paymentIntentClientSecret = data.client_secret;
+        
+        // Confirmer le paiement
+        const result = await stripe.confirmCardPayment(paymentIntentClientSecret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    address: {
+                        line1: document.getElementById('address').value,
+                        city: document.getElementById('city').value,
+                        postal_code: document.getElementById('postalCode').value,
+                        country: document.getElementById('country').value,
+                    }
+                }
+            }
+        });
+        
+        if (result.error) {
+            showNotification('❌ ' + result.error.message, 'error');
+            return false;
+        } else {
+            if (result.paymentIntent.status === 'succeeded') {
+                showNotification('✓ Paiement réussi !', 'success');
+                goToStep(3);
+                return true;
+            }
+        }
+    } catch (error) {
+        showNotification('❌ Erreur: ' + error.message, 'error');
+        return false;
+    }
+}
+
+// ==================== PAYPAL ====================
+function initializePayPal() {
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return fetch('/api/payment/paypal/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: 95.96,
+                    currency: 'EUR',
+                    description: 'Commande WeBox'
+                })
+            })
+            .then(response => response.json())
+            .then(data => data.order_id);
+        },
+        onApprove: function(data, actions) {
+            showNotification('⏳ Finalisation du paiement PayPal...', 'info');
+            
+            return fetch(`/api/payment/paypal/success?paymentId=${data.orderID}&PayerID=${data.payerID}`)
+                .then(response => {
+                    if (response.ok) {
+                        showNotification('✓ Paiement PayPal réussi !', 'success');
+                        setTimeout(() => goToStep(3), 1000);
+                    } else {
+                        showNotification('❌ Erreur lors du paiement PayPal', 'error');
+                    }
+                });
+        },
+        onError: function(err) {
+            showNotification('❌ Erreur PayPal: ' + err, 'error');
+        },
+        style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'rect',
+            label: 'paypal'
+        }
+    }).render('#paypal-button-container');
+}
+
+// ==================== VIREMENT BANCAIRE ====================
+function generateBankReference() {
+    const orderId = 'ORDER-' + Date.now();
+    const reference = 'WB-' + orderId.substring(6);
+    document.getElementById('bankReference').textContent = reference;
+}
+
+async function processBankTransfer() {
+    showNotification('⏳ Génération des informations de virement...', 'info');
+    
+    try {
+        const response = await fetch('/api/payment/bank-transfer/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id: 'ORDER-' + Date.now()
+            })
+        });
+        
+        const data = await response.json();
+        
+        showNotification('✓ Informations de virement générées !', 'success');
+        setTimeout(() => goToStep(3), 1000);
+        return true;
+    } catch (error) {
+        showNotification('❌ Erreur: ' + error.message, 'error');
+        return false;
+    }
+}
+
+// ==================== NAVIGATION ====================
+function goToStep(step) {
+    // Validation avant de passer à l'étape suivante
+    if (step > currentStep) {
+        if (!validateStep(currentStep)) {
+            return;
+        }
+    }
+
+    // Cacher toutes les sections
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Afficher la section demandée
+    document.getElementById(`step${step}`).classList.add('active');
+
+    // Mettre à jour les étapes de progression
+    document.querySelectorAll('.step').forEach((stepEl, index) => {
+        if (index < step) {
+            stepEl.classList.add('active');
+        } else {
+            stepEl.classList.remove('active');
+        }
+    });
+
+    currentStep = step;
+
+    // Scroll vers le haut
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep(step) {
+    if (step === 1) {
+        const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'postalCode', 'country'];
+        for (const field of requiredFields) {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                showNotification(`❌ Veuillez remplir le champ: ${input.previousElementSibling.textContent}`, 'error');
+                input.focus();
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// ==================== TRAITEMENT DU PAIEMENT ====================
+async function processPayment() {
+    const paymentMethod = document.querySelector('input[name="payment"]:checked').id;
+    const submitBtn = document.getElementById('submitPayment');
+    
+    // Désactiver le bouton
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Traitement en cours...';
+    
+    let success = false;
+    
+    try {
+        switch(paymentMethod) {
+            case 'card':
+                success = await processStripePayment();
+                break;
+            case 'paypal':
+                showNotification('ℹ️ Veuillez cliquer sur le bouton PayPal ci-dessus', 'info');
+                success = false;
+                break;
+            case 'bank':
+                success = await processBankTransfer();
+                break;
+            default:
+                showNotification('❌ Méthode de paiement non valide', 'error');
+        }
+    } catch (error) {
+        showNotification('❌ Erreur: ' + error.message, 'error');
+    } finally {
+        // Réactiver le bouton
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Valider le paiement';
+    }
+}
+
+// ==================== GESTION DES MÉTHODES DE PAIEMENT ====================
+function initializePaymentMethods() {
+    // Fonction pour changer de méthode de paiement
+    function switchPaymentMethod(methodType) {
+        // Activer la méthode sélectionnée
+        document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+        const selectedMethod = document.querySelector(`.payment-method[data-method="${methodType}"]`);
+        if (selectedMethod) {
+            selectedMethod.classList.add('active');
+            selectedMethod.querySelector('input').checked = true;
+        }
+        
+        // Afficher le formulaire correspondant
+        document.querySelectorAll('.payment-form').forEach(form => form.classList.remove('active'));
+        const targetForm = document.getElementById(`${methodType}Form`);
+        if (targetForm) {
+            targetForm.classList.add('active');
+        }
+        
+        console.log('Méthode de paiement sélectionnée:', methodType);
+    }
+    
+    // Ajouter des événements sur les conteneurs de méthode
+    document.querySelectorAll('.payment-method').forEach(method => {
+        method.addEventListener('click', function(e) {
+            const methodType = this.dataset.method;
+            switchPaymentMethod(methodType);
+        });
+    });
+    
+    // Ajouter également des événements sur les inputs radio
+    document.querySelectorAll('input[name="payment"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const methodType = this.closest('.payment-method').dataset.method;
+            switchPaymentMethod(methodType);
+        });
+    });
+    
+    // Ajouter des événements sur les labels
+    document.querySelectorAll('.payment-method label').forEach(label => {
+        label.addEventListener('click', function(e) {
+            const methodType = this.closest('.payment-method').dataset.method;
+            switchPaymentMethod(methodType);
+        });
+    });
+}
+
+// ==================== NOTIFICATIONS ====================
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? '#4caf50' : type === 'info' ? '#2196f3' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

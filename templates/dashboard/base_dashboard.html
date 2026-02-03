@@ -4,16 +4,423 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard - WeBox Multi-IA{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/theme.css?v={{ cache_version }}">
     <link rel="stylesheet" href="/static/css/dashboard.css?v={{ cache_version }}">
     <link rel="stylesheet" href="/static/css/modals.css?v={{ cache_version }}">
     <link rel="stylesheet" href="/static/css/pages.css?v={{ cache_version }}">
     <link rel="stylesheet" href="/static/css/voice-automation.css">
     <link rel="stylesheet" href="/static/css/ai-agent-widget.css?v={{ cache_version }}">
     {% block extra_css %}{% endblock %}
+    <style>
+    /* ==================== RIGHT SIDEBAR USER MENU ==================== */
+    .right-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 100vh;
+        background: linear-gradient(180deg, #1a1a2e 0%, #0f3460 100%);
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+        transition: width 0.3s ease;
+        overflow: hidden;
+    }
+
+    .right-sidebar:hover {
+        width: 280px;
+        z-index: 10001;
+    }
+
+    .right-sidebar-content {
+        width: 280px;
+        height: 100%;
+        padding: 1.5rem 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .right-sidebar-header {
+        padding: 0 1.5rem;
+        margin-bottom: 2rem;
+        white-space: nowrap;
+    }
+
+    .right-sidebar-header h3 {
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .right-sidebar-header .user-info {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .right-sidebar-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .right-sidebar-section h4 {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0 1.5rem;
+        margin-bottom: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .right-sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .right-sidebar-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .right-sidebar-item.active {
+        background: rgba(65, 105, 225, 0.3);
+        color: white;
+        border-left: 3px solid #4169e1;
+    }
+
+    .right-sidebar-item .icon {
+        font-size: 1.5rem;
+        min-width: 28px;
+        text-align: center;
+    }
+
+    .right-sidebar-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 1rem 1.5rem;
+    }
+
+    .right-sidebar-toggle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.5rem;
+        color: white;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .right-sidebar:hover .right-sidebar-toggle {
+        opacity: 0;
+    }
+
+    /* Ajuster le main-content pour éviter le chevauchement */
+    .main-content {
+        margin-right: 60px;
+    }
+
+    /* Scrollbar personnalisée pour la sidebar droite */
+    .right-sidebar-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .right-sidebar-content::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .right-sidebar-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    .right-sidebar-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Masquer le bouton voice-automation original (intégré dans la sidebar) */
+    .voice-automation-button {
+        display: none !important;
+    }
+
+    /* ==================== SIDEBAR GAUCHE - MENUS DÉROULANTS (STYLE EXPANDER) ==================== */
+    .sidebar-section.collapsible {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+
+    .sidebar-section.collapsible .section-header {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        padding: 0.8rem 1rem;
+        margin: 0;
+        border-radius: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #ffffff;
+    }
+
+    .sidebar-section.collapsible .section-header:hover {
+        background: rgba(255, 215, 0, 0.1);
+    }
+
+    .sidebar-section.collapsible:not(.collapsed) .section-header {
+        background: rgba(255, 215, 0, 0.15);
+        color: #ffd700;
+    }
+
+    .sidebar-section.collapsible .section-header .arrow {
+        display: inline-block;
+        transition: transform 0.3s ease;
+        font-size: 0.7rem;
+        opacity: 1;
+        min-width: 12px;
+    }
+
+    .sidebar-section.collapsible.collapsed .section-header .arrow {
+        transform: rotate(-90deg);
+    }
+
+    .sidebar-section.collapsible .sidebar-nav {
+        max-height: 1000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        opacity: 1;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-section.collapsible.collapsed .sidebar-nav {
+        max-height: 0;
+        opacity: 0;
+        padding: 0;
+    }
+
+    /* État actif de la section parente */
+    .sidebar-section.collapsible.has-active {
+        border-color: #ffd700;
+    }
+
+    .sidebar-section.collapsible.has-active .section-header {
+        color: #ffd700;
+        font-weight: 600;
+    }
+
+    /* ==================== MODE COMPACT SIDEBAR GAUCHE ==================== */
+    .sidebar-toggle-btn {
+        position: absolute;
+        top: 1rem;
+        right: -15px;
+        width: 30px;
+        height: 30px;
+        background: #4169e1;
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10002;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-toggle-btn:hover {
+        background: #3557c9;
+        transform: scale(1.1);
+    }
+
+    .sidebar.compact {
+        width: 70px;
+    }
+
+    .sidebar.compact .sidebar-header h2 .webox,
+    .sidebar.compact .sidebar-header h2 .multi-ia,
+    .sidebar.compact .user-name,
+    .sidebar.compact .nav-item span:not(:first-child),
+    .sidebar.compact .sidebar-btn span:not(:first-child),
+    .sidebar.compact .sidebar-footer p:last-child {
+        display: none;
+    }
+
+    .sidebar.compact .sidebar-header h2 {
+        font-size: 1.8rem;
+        text-align: center;
+        padding: 0;
+        margin: 0.5rem 0;
+    }
+
+    .sidebar.compact .sidebar-header {
+        padding: 0.5rem 0;
+    }
+
+    .sidebar.compact .sidebar-header hr {
+        display: none;
+    }
+
+    .sidebar.compact .section-header {
+        justify-content: center;
+        font-size: 1.3rem;
+        padding: 0.6rem 0;
+        margin: 0;
+        cursor: default;
+    }
+
+    .sidebar.compact .section-header .arrow {
+        display: none;
+    }
+
+    .sidebar.compact .section-header span:not(.arrow) {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .sidebar.compact .nav-item {
+        justify-content: center;
+        padding: 0.6rem 0;
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .sidebar.compact .nav-item span:first-child {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .sidebar.compact .sidebar-btn {
+        padding: 0.6rem 0;
+        font-size: 1.4rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    .sidebar.compact .sidebar-btn span:first-child {
+        display: block;
+        text-align: center;
+    }
+
+    .sidebar.compact hr {
+        margin: 0.3rem 0.5rem;
+        opacity: 0.3;
+    }
+
+    .sidebar.compact .sidebar-footer {
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+
+    .sidebar.compact .sidebar-footer p:first-child {
+        font-size: 0.6rem;
+        margin: 0;
+        opacity: 0.7;
+    }
+
+    .sidebar.compact .sidebar-content {
+        padding: 0.3rem 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar.compact .sidebar-section {
+        margin: 0;
+    }
+
+    .sidebar.compact .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    /* Tooltip pour mode compact */
+    .sidebar.compact .nav-item,
+    .sidebar.compact .section-header {
+        position: relative;
+    }
+
+    .sidebar.compact .nav-item::after,
+    .sidebar.compact .section-header::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #1a1a2e;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        margin-left: 1rem;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar.compact .nav-item:hover::after,
+    .sidebar.compact .section-header:hover::after {
+        opacity: 1;
+    }
+
+    /* Ajuster le main-content quand sidebar est compacte */
+    .sidebar.compact ~ .main-content {
+        margin-left: 70px;
+    }
+
+    /* Ajuster le main-content */
+    .main-content {
+        margin-right: 0;
+        margin-top: 70px; /* Hauteur de la navbar */
+        transition: margin-left 0.3s ease;
+    }
+    
+    /* Ajuster la sidebar pour qu'elle commence sous la navbar */
+    .sidebar {
+        top: 70px;
+        height: calc(100vh - 70px);
+    }
+
+    .sidebar-toggle-btn .icon {
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.compact .sidebar-toggle-btn .icon {
+        transform: rotate(180deg);
+    }
+
+    </style>
 </head>
-<body>
+<body class="has-sidebar">
+    <!-- NAVBAR PRINCIPALE -->
+    {% include "components/navbar.html" %}
+    
     <!-- SIDEBAR -->
     <aside class="sidebar">
+        <button class="sidebar-toggle-btn" id="sidebarToggle">
+            <span class="icon">◀</span>
+        </button>
         <div class="sidebar-content">
             <!-- Logo et titre -->
             <div class="sidebar-header">
@@ -22,21 +429,24 @@
                 <hr>
             </div>
             
-            <!-- Navigation -->
-            <div class="sidebar-section">
-                <h3>📍 NAVIGATION</h3>
+            <!-- Navigation et Chat IA -->
+            <div class="sidebar-section collapsible">
+                <h3 class="section-header" data-tooltip="📍 NAVIGATION ET CHAT IA">
+                    <span class="arrow">▼</span>
+                    📍 NAVIGATION ET CHAT IA
+                </h3>
                 <nav class="sidebar-nav">
-                    <a href="/dashboard" class="nav-item {% if request.url.path == '/dashboard' %}active{% endif %}">
-                        🏠 Accueil
+                    <a href="/dashboard" class="nav-item {% if request.url.path == '/dashboard' %}active{% endif %}" data-tooltip="Accueil">
+                        <span>🏠</span> <span>Accueil</span>
                     </a>
-                    <a href="/chat" class="nav-item {% if request.url.path == '/chat' %}active{% endif %}">
-                        💬 Chat Multi-IA
+                    <a href="/prompts" class="nav-item {% if request.url.path == '/prompts' %}active{% endif %}" data-tooltip="Bibliothèque de Prompts">
+                        <span>📚</span> <span>Bibliothèque de Prompts</span>
                     </a>
-                    <a href="/agents" class="nav-item {% if request.url.path == '/agents' %}active{% endif %}">
-                        🤖 Agents IA Spécialisés
+                    <a href="/chat" class="nav-item {% if request.url.path == '/chat' %}active{% endif %}" data-tooltip="Chat Multi-IA">
+                        <span>💬</span> <span>Chat Multi-IA</span>
                     </a>
-                    <a href="/prompts" class="nav-item {% if request.url.path == '/prompts' %}active{% endif %}">
-                        📚 Bibliothèque de Prompts
+                    <a href="/agents" class="nav-item {% if request.url.path == '/agents' %}active{% endif %}" data-tooltip="Agents IA Spécialisés">
+                        <span>🤖</span> <span>Agents IA Spécialisés</span>
                     </a>
                 </nav>
             </div>
@@ -44,221 +454,108 @@
             <hr>
             
             <!-- Studio Créatif -->
-            <div class="sidebar-section">
-                <h3>✨ STUDIO CRÉATIF</h3>
+            <div class="sidebar-section collapsible">
+                <h3 class="section-header" data-tooltip="✨ STUDIO CRÉATIF">
+                    <span class="arrow">▼</span>
+                    ✨ STUDIO CRÉATIF
+                </h3>
                 <nav class="sidebar-nav">
-                    <a href="/podcasts" class="nav-item {% if request.url.path == '/podcasts' or request.url.path == '/podcast/create' %}active{% endif %}">
-                        🎙️ Podcasts IA
+                    <a href="/generation" class="nav-item {% if request.url.path == '/generation' %}active{% endif %}" data-tooltip="Génération Multi-Média">
+                        <span>🎨</span> <span>Génération Multi-Média</span>
                     </a>
-                    <a href="/avatars" class="nav-item {% if request.url.path == '/avatars' or request.url.path == '/avatar/create' %}active{% endif %}">
-                        👤 Avatars IA
+                    <a href="/podcasts" class="nav-item {% if request.url.path == '/podcasts' or request.url.path == '/podcast/create' %}active{% endif %}" data-tooltip="Podcasts IA">
+                        <span>🎙️</span> <span>Podcasts IA</span>
                     </a>
-                    <a href="/series" class="nav-item {% if request.url.path == '/series' or request.url.path == '/series/create' %}active{% endif %}">
-                        📺 Séries IA
+                    <a href="/avatars" class="nav-item {% if request.url.path == '/avatars' or request.url.path == '/avatar/create' %}active{% endif %}" data-tooltip="Avatars IA">
+                        <span>👤</span> <span>Avatars IA</span>
                     </a>
-                    <a href="/pwa" class="nav-item {% if request.url.path == '/pwa' or request.url.path == '/pwa/create' %}active{% endif %}">
-                        📱 PWA Generator
+                    <a href="/series" class="nav-item {% if request.url.path == '/series' or request.url.path == '/series/create' %}active{% endif %}" data-tooltip="Séries IA">
+                        <span>📺</span> <span>Séries IA</span>
                     </a>
-                    <a href="/documents" class="nav-item {% if request.url.path == '/documents' %}active{% endif %}">
-                        📄 Documents IA
+                    <a href="/documents" class="nav-item {% if request.url.path == '/documents' %}active{% endif %}" data-tooltip="Documents IA">
+                        <span>📄</span> <span>Documents IA</span>
+                    </a>
+                    <a href="/presentations" class="nav-item {% if request.url.path == '/presentations' %}active{% endif %}" data-tooltip="Présentations IA">
+                        <span>📊</span> <span>Présentations IA</span>
+                    </a>
+                    <a href="/lms" class="nav-item {% if request.url.path == '/lms' %}active{% endif %}" data-tooltip="Formations LMS">
+                        <span>📚</span> <span>Formations LMS</span>
+                    </a>
+                    <a href="/content" class="nav-item {% if request.url.path == '/content' %}active{% endif %}" data-tooltip="Content Engine">
+                        <span>📝</span> <span>Content Engine</span>
                     </a>
                 </nav>
             </div>
             
             <hr>
             
-            <!-- Génération -->
-            <div class="sidebar-section">
-                <h3>🎨 GÉNÉRATION</h3>
+            <!-- Marketing -->
+            <div class="sidebar-section collapsible">
+                <h3 class="section-header" data-tooltip="📊 MARKETING">
+                    <span class="arrow">▼</span>
+                    📊 MARKETING
+                </h3>
                 <nav class="sidebar-nav">
-                    <a href="/generation" class="nav-item {% if request.url.path == '/generation' %}active{% endif %}">
-                        🎨 Génération Multi-Média
+                    <a href="/social" class="nav-item {% if request.url.path == '/social' %}active{% endif %}" data-tooltip="Réseaux Sociaux">
+                        <span>📱</span> <span>Réseaux Sociaux</span>
                     </a>
-                    <a href="/combinations" class="nav-item {% if request.url.path == '/combinations' %}active{% endif %}">
-                        🔄 Combinaisons IA
+                    <a href="/crm" class="nav-item {% if request.url.path == '/crm' %}active{% endif %}" data-tooltip="CRM">
+                        <span>👥</span> <span>CRM</span>
                     </a>
-                    <a href="/voice" class="nav-item {% if request.url.path == '/voice' %}active{% endif %}">
-                        📞 Assistant Vocal
+                    <a href="/email-marketing" class="nav-item {% if request.url.path == '/email-marketing' %}active{% endif %}" data-tooltip="Email Marketing">
+                        <span>📧</span> <span>Email Marketing</span>
                     </a>
-                    <a href="/social" class="nav-item {% if request.url.path == '/social' %}active{% endif %}">
-                        📱 Réseaux Sociaux
-                    </a>
-                    <a href="/influencers" class="nav-item {% if request.url.path == '/influencers' %}active{% endif %}">
-                        👤 Influenceurs IA
+                    <a href="/influencers" class="nav-item {% if request.url.path == '/influencers' %}active{% endif %}" data-tooltip="Influenceurs IA">
+                        <span>👤</span> <span>Influenceurs IA</span>
                     </a>
                 </nav>
             </div>
             
             <hr>
             
-            <!-- Marketing & Business -->
-            <div class="sidebar-section">
-                <h3>📊 MARKETING</h3>
+            <!-- Studio Web et Applis -->
+            <div class="sidebar-section collapsible">
+                <h3 class="section-header" data-tooltip="🌐 STUDIO WEB ET APPLIS">
+                    <span class="arrow">▼</span>
+                    🌐 STUDIO WEB ET APPLIS
+                </h3>
                 <nav class="sidebar-nav">
-                    <a href="/marketing-dashboard" class="nav-item {% if request.url.path == '/marketing-dashboard' %}active{% endif %}">
-                        📊 Dashboard Marketing
+                    <a href="/projects" class="nav-item {% if request.url.path == '/projects' %}active{% endif %}" data-tooltip="Studio Web IA">
+                        <span>🏗️</span> <span>Studio Web IA</span>
                     </a>
-                    <a href="/crm" class="nav-item {% if request.url.path == '/crm' %}active{% endif %}">
-                        👥 CRM
+                    <a href="/website-builder" class="nav-item {% if request.url.path == '/website-builder' %}active{% endif %}" data-tooltip="Website Builder">
+                        <span>🌐</span> <span>Website Builder</span>
                     </a>
-                    <a href="/funnels" class="nav-item {% if request.url.path == '/funnels' %}active{% endif %}">
-                        🎯 Tunnels de Vente
+                    <a href="/landing-pages" class="nav-item {% if request.url.path == '/landing-pages' %}active{% endif %}" data-tooltip="Landing Pages">
+                        <span>📄</span> <span>Landing Pages</span>
                     </a>
-                    <a href="/email-marketing" class="nav-item {% if request.url.path == '/email-marketing' %}active{% endif %}">
-                        📧 Email Marketing
+                    <a href="/pwa" class="nav-item {% if request.url.path == '/pwa' or request.url.path == '/pwa/create' %}active{% endif %}" data-tooltip="PWA Generator">
+                        <span>📱</span> <span>PWA Generator</span>
                     </a>
                 </nav>
             </div>
             
             <hr>
             
-            <!-- Création Web -->
-            <div class="sidebar-section">
-                <h3>🌐 CRÉATION WEB</h3>
+            <!-- Automatisation et Workflow -->
+            <div class="sidebar-section collapsible">
+                <h3 class="section-header" data-tooltip="🔧 AUTOMATISATION ET WORKFLOW">
+                    <span class="arrow">▼</span>
+                    🔧 AUTOMATISATION ET WORKFLOW
+                </h3>
                 <nav class="sidebar-nav">
-                    <a href="/projects" class="nav-item {% if request.url.path == '/projects' %}active{% endif %}">
-                        🏗️ Studio Web IA
+                    <a href="/combinations" class="nav-item {% if request.url.path == '/combinations' %}active{% endif %}" data-tooltip="Combinaisons IA">
+                        <span>🔄</span> <span>Combinaisons IA</span>
                     </a>
-                    <a href="/website-builder" class="nav-item {% if request.url.path == '/website-builder' %}active{% endif %}">
-                        🌐 Website Builder
+                    <a href="/voice" class="nav-item {% if request.url.path == '/voice' %}active{% endif %}" data-tooltip="Assistant Vocal">
+                        <span>📞</span> <span>Assistant Vocal</span>
                     </a>
-                    <a href="/landing-pages" class="nav-item {% if request.url.path == '/landing-pages' %}active{% endif %}">
-                        📄 Landing Pages
-                    </a>
-                    <a href="/presentations" class="nav-item {% if request.url.path == '/presentations' %}active{% endif %}">
-                        📊 Présentations IA
-                    </a>
-                    <a href="/lms" class="nav-item {% if request.url.path == '/lms' %}active{% endif %}">
-                        📚 Formations LMS
-                    </a>
-                    <a href="/content" class="nav-item {% if request.url.path == '/content' %}active{% endif %}">
-                        📝 Content Engine
+                    <a href="/automation" class="nav-item {% if request.url.path == '/automation' %}active{% endif %}" data-tooltip="Automatisation (Pipedream)">
+                        <span>⚡</span> <span>Automatisation (Pipedream)</span>
                     </a>
                 </nav>
             </div>
             
-            <hr>
-            
-            <!-- Outils -->
-            <div class="sidebar-section">
-                <h3>🔧 OUTILS</h3>
-                <nav class="sidebar-nav">
-                    <a href="/catalog" class="nav-item {% if request.url.path == '/catalog' %}active{% endif %}">
-                        🔧 Catalogue d'Outils IA
-                    </a>
-                    <a href="/automation" class="nav-item {% if request.url.path == '/automation' %}active{% endif %}">
-                        ⚡ Automatisation (Pipedream)
-                    </a>
-                    <a href="/collaboration" class="nav-item {% if request.url.path == '/collaboration' %}active{% endif %}">
-                        👥 Collaboration
-                    </a>
-                </nav>
-            </div>
-            
-            <hr>
-            
-            <!-- Ressources -->
-            <div class="sidebar-section">
-                <h3>📚 RESSOURCES</h3>
-                <nav class="sidebar-nav">
-                    <a href="/analytics" class="nav-item {% if request.url.path == '/analytics' %}active{% endif %}">
-                        📊 Analytics
-                    </a>
-                    <a href="/blog" class="nav-item {% if request.url.path == '/blog' %}active{% endif %}">
-                        📝 Blog IA
-                    </a>
-                    <a href="/documentation" class="nav-item {% if request.url.path == '/documentation' %}active{% endif %}">
-                        📖 Documentation
-                    </a>
-                    <a href="/media" class="nav-item {% if request.url.path == '/media' %}active{% endif %}">
-                        📁 Gestionnaire Média
-                    </a>
-                </nav>
-            </div>
-            
-            <hr>
-            
-            <!-- Paramètres -->
-            <div class="sidebar-section">
-                <h3>⚙️ PARAMÈTRES</h3>
-                <nav class="sidebar-nav">
-                    <a href="/profile" class="nav-item {% if request.url.path == '/profile' %}active{% endif %}">
-                        👤 Mon Profil
-                    </a>
-                </nav>
-            </div>
-            
-            <hr>
-            
-            <!-- Sélection des IA (pour le chat) -->
-            {% if request.url.path == '/chat' %}
-            <div class="sidebar-section">
-                <h3>🤖 Sélection des IA</h3>
-                <div class="ai-selection">
-                    <details class="expander">
-                        <summary>💬 Texte & Conversation</summary>
-                        <div class="expander-content">
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="gpt4" checked>
-                                <span>GPT-4 (OpenAI)</span>
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="claude">
-                                <span>Claude 3 (Anthropic)</span>
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="gemini">
-                                <span>Gemini Pro (Google)</span>
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="mistral">
-                                <span>Mistral AI</span>
-                            </label>
-                        </div>
-                    </details>
-                    
-                    <details class="expander">
-                        <summary>🎨 Génération d'Images</summary>
-                        <div class="expander-content">
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="dalle">
-                                <span>DALL-E 3</span>
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="midjourney">
-                                <span>Midjourney</span>
-                            </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="ai" value="stable-diffusion">
-                                <span>Stable Diffusion</span>
-                            </label>
-                        </div>
-                    </details>
-                    
-                    <details class="expander">
-                        <summary>⚙️ Paramètres</summary>
-                        <div class="expander-content">
-                            <label>Température</label>
-                            <input type="range" min="0" max="100" value="70" class="slider">
-                            <label>Max Tokens</label>
-                            <input type="number" value="2000" class="input-field">
-                        </div>
-                    </details>
-                </div>
-            </div>
-            
-            <hr>
-            {% endif %}
-            
-            <!-- Actions rapides -->
-            <div class="sidebar-section">
-                <button class="sidebar-btn primary" onclick="window.location.href='/chat'">
-                    ➕ Nouvelle conversation
-                </button>
-                <button class="sidebar-btn secondary" onclick="window.location.href='/logout'">
-                    🚪 Déconnexion
-                </button>
-            </div>
             
             <!-- Footer -->
             <div class="sidebar-footer">
@@ -276,9 +573,113 @@
     <script src="/static/js/ui-system.js?v=1.0"></script>
     <script src="/static/js/dashboard.js?v=4.0"></script>
     <script src="/static/js/fonctionnalites.js?v=3.0"></script>
-    <script src="/static/js/test-ui.js?v=2.0"></script>
     <script src="/static/js/voice-automation.js"></script>
     <script src="/static/js/ai-agent-widget.js?v={{ cache_version }}"></script>
+    <script>
+    // Connecter les boutons de la sidebar aux fonctions des widgets
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fonction pour toggle les sections de la sidebar
+        function toggleSection(section) {
+            section.classList.toggle('collapsed');
+            
+            // Sauvegarder l'état dans localStorage
+            const header = section.querySelector('.section-header');
+            if (header) {
+                const sectionTitle = header.textContent.trim();
+                const isCollapsed = section.classList.contains('collapsed');
+                localStorage.setItem('sidebar_' + sectionTitle, isCollapsed ? 'collapsed' : 'expanded');
+            }
+        }
+
+        // Gestion du mode compact
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        // Restaurer l'état compact depuis localStorage
+        const isCompact = localStorage.getItem('sidebar_compact') === 'true';
+        if (isCompact) {
+            sidebar.classList.add('compact');
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('compact');
+                const isNowCompact = sidebar.classList.contains('compact');
+                localStorage.setItem('sidebar_compact', isNowCompact);
+            });
+        }
+
+        // Restaurer l'état des sections depuis localStorage et attacher les événements
+        document.querySelectorAll('.sidebar-section.collapsible').forEach(section => {
+            const header = section.querySelector('.section-header');
+            if (header) {
+                // Attacher l'événement click
+                header.addEventListener('click', function() {
+                    // Ne pas toggle si en mode compact
+                    if (!sidebar.classList.contains('compact')) {
+                        toggleSection(section);
+                    }
+                });
+
+                // Restaurer l'état sauvegardé
+                const sectionTitle = header.textContent.trim();
+                const savedState = localStorage.getItem('sidebar_' + sectionTitle);
+                
+                if (savedState === 'collapsed') {
+                    section.classList.add('collapsed');
+                }
+            }
+            
+            // Vérifier si la section contient un élément actif
+            const activeItem = section.querySelector('.nav-item.active');
+            if (activeItem) {
+                section.classList.add('has-active');
+                // S'assurer que la section est ouverte si elle contient un élément actif
+                section.classList.remove('collapsed');
+            }
+        });
+
+        // Bouton Commande Vocale
+        const voiceBtn = document.getElementById('voiceCommandTrigger');
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', function() {
+                // Simuler le clic sur le bouton flottant original s'il existe
+                const originalVoiceBtn = document.querySelector('.voice-automation-button');
+                if (originalVoiceBtn) {
+                    originalVoiceBtn.click();
+                } else if (typeof openVoiceModal === 'function') {
+                    openVoiceModal();
+                } else {
+                    // Fallback: ouvrir le modal vocal directement
+                    const voiceModal = document.querySelector('.voice-automation-modal');
+                    if (voiceModal) {
+                        voiceModal.style.display = 'flex';
+                    }
+                }
+            });
+        }
+
+        // Bouton Assistant IA
+        const aiBtn = document.getElementById('aiAssistantTrigger');
+        if (aiBtn) {
+            aiBtn.addEventListener('click', function() {
+                // Simuler le clic sur le bouton flottant original s'il existe
+                const originalAiBtn = document.querySelector('.ai-agent-button');
+                if (originalAiBtn) {
+                    originalAiBtn.click();
+                } else if (typeof toggleAIAgent === 'function') {
+                    toggleAIAgent();
+                } else {
+                    // Fallback: ouvrir le panel IA directement
+                    const aiPanel = document.querySelector('.ai-agent-panel');
+                    if (aiPanel) {
+                        aiPanel.classList.toggle('open');
+                    }
+                }
+            });
+        }
+    });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

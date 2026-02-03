@@ -1,475 +1,482 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Dashboard - WeBox Studio Créatif{% endblock %}
 
 {% block extra_css %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* Page Header */
-.page-header {
-    margin-bottom: 2rem;
-}
-
-.page-header h1 {
-    font-size: 2.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-}
-
-/* Studio Créatif Section */
-.studio-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 3rem;
-    border-radius: 20px;
-    margin-bottom: 3rem;
-    color: white;
-    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
-}
-
-.studio-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.studio-header h2 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.studio-grid {
+/* ==================== DASHBOARD LAYOUT 3 COLONNES ==================== */
+.dashboard-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-}
-
-.studio-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    text-align: center;
-    transition: all 0.3s;
-    cursor: pointer;
-    border: 3px solid transparent;
-    text-decoration: none;
-    color: #1a1a2e;
-}
-
-.studio-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-    border-color: #ffd93d;
-}
-
-.studio-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-}
-
-.studio-name {
-    font-weight: 700;
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    color: #1a1a2e;
-}
-
-.studio-desc {
-    font-size: 0.9rem;
-    color: #666;
-}
-
-/* Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.stat-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    transition: all 0.3s;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.stat-icon {
-    font-size: 3.5rem;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 15px;
-    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
-}
-
-.stat-content {
-    flex: 1;
-}
-
-.stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a1a2e;
-}
-
-.stat-label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* Actions rapides */
-.quick-actions {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 3rem;
-}
-
-.quick-actions h2 {
-    margin-bottom: 1.5rem;
-}
-
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-}
-
-.action-btn {
+    grid-template-columns: 280px 1fr 280px;
+    gap: 2rem;
+    height: calc(100vh - 100px);
     padding: 1.5rem;
-    background: #f8f9fa;
-    border: 2px solid #e0e0e0;
-    border-radius: 15px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-decoration: none;
-    color: inherit;
+}
+
+/* ==================== COLONNE GAUCHE ==================== */
+.left-column {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow-y: auto;
+}
+
+.left-column h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #1a1a2e;
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
 }
 
-.action-btn:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.nav-link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    text-decoration: none;
+    color: #1a1a2e;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.nav-link-item:hover {
+    background: linear-gradient(135deg, #4169e1 0%, #0f3460 100%);
     color: white;
-    border-color: transparent;
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    transform: translateX(5px);
+    border-color: #4169e1;
 }
 
-.action-icon {
-    font-size: 2.5rem;
+.nav-link-item .icon {
+    font-size: 1.5rem;
 }
 
-.action-label {
+.nav-link-item.primary {
+    background: linear-gradient(135deg, #4169e1 0%, #0f3460 100%);
+    color: white;
     font-weight: 600;
 }
 
-/* Activité récente */
-.recent-activity {
+.nav-link-item.primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(65, 105, 225, 0.3);
+}
+
+/* ==================== ZONE CENTRALE ==================== */
+.center-zone {
     background: white;
-    padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.recent-activity h2 {
-    margin-bottom: 1.5rem;
-}
-
-.activity-item {
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow-y: auto;
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-    margin-bottom: 0.75rem;
-    transition: all 0.3s;
+    flex-direction: column;
 }
 
-.activity-item:hover {
-    background: #e9ecef;
+.center-header {
+    margin-bottom: 2rem;
 }
 
-.activity-icon {
+.center-header h1 {
     font-size: 2rem;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 10px;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
 }
 
-.activity-content {
+.center-header p {
+    color: #666;
+    font-size: 1rem;
+}
+
+/* Sélecteurs de catégories */
+.category-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.category-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: white;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.category-btn:hover {
+    border-color: #4169e1;
+    color: #4169e1;
+}
+
+.category-btn.active {
+    background: linear-gradient(135deg, #4169e1 0%, #0f3460 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* Sélecteur d'IA */
+.ai-selector {
+    margin-bottom: 2rem;
+}
+
+.ai-selector label {
+    display: block;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.ai-selector select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ai-selector select:focus {
+    outline: none;
+    border-color: #4169e1;
+    box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.1);
+}
+
+/* Grille de fonctionnalités */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
     flex: 1;
 }
 
-.activity-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
+.feature-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #e0e0e0;
+    text-decoration: none;
+    color: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-.activity-desc {
-    font-size: 0.875rem;
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(65, 105, 225, 0.2);
+    border-color: #4169e1;
+}
+
+.feature-card .icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-card .name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1a1a2e;
+}
+
+.feature-card .desc {
+    font-size: 0.85rem;
     color: #666;
 }
 
-.activity-time {
-    font-size: 0.875rem;
+/* ==================== COLONNE DROITE ==================== */
+.right-column {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow-y: auto;
+}
+
+.right-column h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Message vide */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
     color: #999;
 }
 
-@media (max-width: 768px) {
-    .studio-grid {
-        grid-template-columns: repeat(2, 1fr);
+.empty-state .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 1rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1400px) {
+    .dashboard-container {
+        grid-template-columns: 250px 1fr 250px;
     }
-    
-    .stats-grid {
+}
+
+@media (max-width: 1200px) {
+    .dashboard-container {
         grid-template-columns: 1fr;
+        height: auto;
     }
     
-    .actions-grid {
+    .left-column,
+    .right-column {
+        max-height: 400px;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .features-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-selector {
+        flex-direction: column;
+    }
+    
+    .category-btn {
+        width: 100%;
     }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="page-header">
-    <h1>🏠 Dashboard</h1>
-    <p>Bienvenue {{ user.name }} ! Voici un aperçu de votre Studio Créatif</p>
-</div>
-
-<!-- Studio Créatif Section -->
-<div class="studio-section">
-    <div class="studio-header">
-        <h2>🎨 Studio Créatif</h2>
-        <p>7 outils IA puissants pour créer du contenu exceptionnel</p>
+<div class="dashboard-container">
+    <!-- ==================== COLONNE GAUCHE ==================== -->
+    <div class="left-column">
+        <h3>🧭 Navigation & Chat IA</h3>
+        
+        <a href="/prompts" class="nav-link-item">
+            <span class="icon">📚</span>
+            <span>Bibliothèque de Prompts</span>
+        </a>
+        
+        <a href="/chat" class="nav-link-item">
+            <span class="icon">💬</span>
+            <span>Chat Multi-IA</span>
+        </a>
+        
+        <a href="/agents" class="nav-link-item">
+            <span class="icon">🤖</span>
+            <span>Agents IA Spécialisés</span>
+        </a>
     </div>
     
-    <div class="studio-grid">
-        <a href="/podcasts" class="studio-card">
-            <div class="studio-icon">🎙️</div>
-            <div class="studio-name">Podcasts IA</div>
-            <div class="studio-desc">Scripts + Audio + Cover</div>
-        </a>
+    <!-- ==================== ZONE CENTRALE ==================== -->
+    <div class="center-zone">
+        <div class="center-header">
+            <h1>🏠 Tableau de bord WeBox</h1>
+            <p>Bienvenue {{ user.name }} ! Sélectionnez une catégorie pour explorer toutes les fonctionnalités</p>
+        </div>
         
-        <a href="/avatars" class="studio-card">
-            <div class="studio-icon">👤</div>
-            <div class="studio-name">Avatars IA</div>
-            <div class="studio-desc">7 styles personnalisables</div>
-        </a>
+        <!-- Sélecteur de catégories -->
+        <div class="category-selector">
+            <button class="category-btn active" data-category="all">Toutes</button>
+            <button class="category-btn" data-category="studio">✨ Studio Créatif</button>
+            <button class="category-btn" data-category="marketing">📊 Marketing</button>
+            <button class="category-btn" data-category="web">🌐 Studio Web & Applis</button>
+        </div>
         
-        <a href="/series" class="studio-card">
-            <div class="studio-icon">📺</div>
-            <div class="studio-name">Séries IA</div>
-            <div class="studio-desc">Scripts + Scènes + Images</div>
-        </a>
+        <!-- Sélecteur d'IA -->
+        <div class="ai-selector">
+            <label for="aiSelect">🤖 Sélectionner une IA :</label>
+            <select id="aiSelect">
+                <option value="all">Toutes les IA disponibles</option>
+                <option value="gpt4">GPT-4 (OpenAI)</option>
+                <option value="claude">Claude 3.5 Sonnet (Anthropic)</option>
+                <option value="gemini">Gemini 2.0 Flash (Google)</option>
+                <option value="mistral">Mistral Large</option>
+                <option value="llama">Llama 3.1</option>
+                <option value="dalle">DALL-E 3 (Images)</option>
+                <option value="midjourney">Midjourney (Images)</option>
+                <option value="elevenlabs">ElevenLabs (Voix)</option>
+            </select>
+        </div>
         
-        <a href="/pwa" class="studio-card">
-            <div class="studio-icon">📱</div>
-            <div class="studio-name">PWA Generator</div>
-            <div class="studio-desc">6 templates + Offline</div>
-        </a>
-        
-        <a href="/documents" class="studio-card">
-            <div class="studio-icon">📄</div>
-            <div class="studio-name">Documents IA</div>
-            <div class="studio-desc">Analyse + Extraction</div>
-        </a>
-        
-        <a href="/chat" class="studio-card">
-            <div class="studio-icon">🤖</div>
-            <div class="studio-name">Agent IA 24/7</div>
-            <div class="studio-desc">Chat intelligent</div>
-        </a>
-        
-        <a href="/generation" class="studio-card">
-            <div class="studio-icon">✨</div>
-            <div class="studio-name">Génération IA</div>
-            <div class="studio-desc">Contenu multi-format</div>
-        </a>
-    </div>
-</div>
-
-<!-- Statistiques -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon">🎙️</div>
-        <div class="stat-content">
-            <div class="stat-value" id="totalPodcasts">0</div>
-            <div class="stat-label">Podcasts créés</div>
+        <!-- Grille de fonctionnalités -->
+        <div class="features-grid" id="featuresGrid">
+            <!-- Studio Créatif -->
+            <a href="/generation" class="feature-card" data-category="studio">
+                <div class="icon">🎨</div>
+                <div class="name">Génération Multi-Média</div>
+                <div class="desc">Images, Audio, Vidéo</div>
+            </a>
+            
+            <a href="/podcasts" class="feature-card" data-category="studio">
+                <div class="icon">🎙️</div>
+                <div class="name">Podcasts IA</div>
+                <div class="desc">Scripts + Audio + Cover</div>
+            </a>
+            
+            <a href="/avatars" class="feature-card" data-category="studio">
+                <div class="icon">👤</div>
+                <div class="name">Avatars IA</div>
+                <div class="desc">7 styles personnalisables</div>
+            </a>
+            
+            <a href="/series" class="feature-card" data-category="studio">
+                <div class="icon">📺</div>
+                <div class="name">Séries IA</div>
+                <div class="desc">Scripts + Scènes + Images</div>
+            </a>
+            
+            <a href="/documents" class="feature-card" data-category="studio">
+                <div class="icon">📄</div>
+                <div class="name">Documents IA</div>
+                <div class="desc">Analyse + Extraction</div>
+            </a>
+            
+            <a href="/presentations" class="feature-card" data-category="studio">
+                <div class="icon">📊</div>
+                <div class="name">Présentations IA</div>
+                <div class="desc">Slides automatiques</div>
+            </a>
+            
+            <a href="/lms" class="feature-card" data-category="studio">
+                <div class="icon">📚</div>
+                <div class="name">Formations LMS</div>
+                <div class="desc">Cours + Quiz + Certificats</div>
+            </a>
+            
+            <a href="/content" class="feature-card" data-category="studio">
+                <div class="icon">📝</div>
+                <div class="name">Content Engine</div>
+                <div class="desc">Articles + SEO</div>
+            </a>
+            
+            <!-- Marketing -->
+            <a href="/social" class="feature-card" data-category="marketing">
+                <div class="icon">📱</div>
+                <div class="name">Réseaux Sociaux</div>
+                <div class="desc">Posts multi-plateformes</div>
+            </a>
+            
+            <a href="/crm" class="feature-card" data-category="marketing">
+                <div class="icon">👥</div>
+                <div class="name">CRM</div>
+                <div class="desc">Gestion clients</div>
+            </a>
+            
+            <a href="/email-marketing" class="feature-card" data-category="marketing">
+                <div class="icon">📧</div>
+                <div class="name">Email Marketing</div>
+                <div class="desc">Campagnes automatisées</div>
+            </a>
+            
+            <a href="/influencers" class="feature-card" data-category="marketing">
+                <div class="icon">🌟</div>
+                <div class="name">Influenceurs IA</div>
+                <div class="desc">Avatars virtuels</div>
+            </a>
+            
+            <!-- Studio Web & Applis -->
+            <a href="/projects" class="feature-card" data-category="web">
+                <div class="icon">🏗️</div>
+                <div class="name">Studio Web IA</div>
+                <div class="desc">Projets web complets</div>
+            </a>
+            
+            <a href="/website-builder" class="feature-card" data-category="web">
+                <div class="icon">🌐</div>
+                <div class="name">Website Builder</div>
+                <div class="desc">Sites en quelques clics</div>
+            </a>
+            
+            <a href="/landing-pages" class="feature-card" data-category="web">
+                <div class="icon">📄</div>
+                <div class="name">Landing Pages</div>
+                <div class="desc">Pages de conversion</div>
+            </a>
+            
+            <a href="/pwa" class="feature-card" data-category="web">
+                <div class="icon">📱</div>
+                <div class="name">PWA Generator</div>
+                <div class="desc">6 templates + Offline</div>
+            </a>
         </div>
     </div>
     
-    <div class="stat-card">
-        <div class="stat-icon">👤</div>
-        <div class="stat-content">
-            <div class="stat-value" id="totalAvatars">0</div>
-            <div class="stat-label">Avatars générés</div>
-        </div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-icon">📺</div>
-        <div class="stat-content">
-            <div class="stat-value" id="totalSeries">0</div>
-            <div class="stat-label">Séries créées</div>
-        </div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-icon">📄</div>
-        <div class="stat-content">
-            <div class="stat-value" id="totalDocuments">0</div>
-            <div class="stat-label">Documents analysés</div>
-        </div>
-    </div>
-</div>
-
-<!-- Actions rapides -->
-<div class="quick-actions">
-    <h2>⚡ Actions rapides</h2>
-    <div class="actions-grid">
-        <a href="/podcast/create" class="action-btn">
-            <div class="action-icon">🎙️</div>
-            <div class="action-label">Créer Podcast</div>
+    <!-- ==================== COLONNE DROITE ==================== -->
+    <div class="right-column">
+        <h3>⚡ Automatisation & Workflow</h3>
+        
+        <a href="/combinations" class="nav-link-item">
+            <span class="icon">🔄</span>
+            <span>Combinaisons IA</span>
         </a>
         
-        <a href="/avatar/create" class="action-btn">
-            <div class="action-icon">👤</div>
-            <div class="action-label">Générer Avatar</div>
+        <a href="/voice" class="nav-link-item">
+            <span class="icon">📞</span>
+            <span>Assistant Vocal</span>
         </a>
         
-        <a href="/series/create" class="action-btn">
-            <div class="action-icon">📺</div>
-            <div class="action-label">Créer Série</div>
+        <a href="/automation" class="nav-link-item">
+            <span class="icon">⚡</span>
+            <span>Automatisation (Pipedream)</span>
         </a>
-        
-        <a href="/pwa/create" class="action-btn">
-            <div class="action-icon">📱</div>
-            <div class="action-label">Créer PWA</div>
-        </a>
-        
-        <a href="/documents" class="action-btn">
-            <div class="action-icon">📄</div>
-            <div class="action-label">Analyser Document</div>
-        </a>
-        
-        <a href="/chat" class="action-btn">
-            <div class="action-icon">💬</div>
-            <div class="action-label">Chat IA</div>
-        </a>
-        
-        <a href="/generation" class="action-btn">
-            <div class="action-icon">✨</div>
-            <div class="action-label">Génération</div>
-        </a>
-        
-        <a href="/admin/analytics" class="action-btn">
-            <div class="action-icon">📊</div>
-            <div class="action-label">Analytics</div>
-        </a>
-        
-        <a href="/projects" class="action-btn">
-            <div class="action-icon">📁</div>
-            <div class="action-label">Projets</div>
-        </a>
-        
-        <a href="/agents" class="action-btn">
-            <div class="action-icon">🤖</div>
-            <div class="action-label">Agents IA</div>
-        </a>
-        
-        <a href="/blog" class="action-btn">
-            <div class="action-icon">📝</div>
-            <div class="action-label">Blog</div>
-        </a>
-        
-        <a href="/profile" class="action-btn">
-            <div class="action-icon">⚙️</div>
-            <div class="action-label">Paramètres</div>
-        </a>
-    </div>
-</div>
-
-<!-- Activité récente -->
-<div class="recent-activity">
-    <h2>📋 Activité récente</h2>
-    <div id="recentActivity">
-        <div class="activity-item">
-            <div class="activity-icon">🎙️</div>
-            <div class="activity-content">
-                <div class="activity-title">Podcast créé</div>
-                <div class="activity-desc">Mon premier podcast IA</div>
-            </div>
-            <div class="activity-time">Il y a 2h</div>
-        </div>
     </div>
 </div>
 
 <script>
-// Charger les stats
-async function loadStats() {
-    try {
-        // Podcasts
-        const podcastsRes = await fetch('/api/podcasts/stats/summary');
-        const podcastsData = await podcastsRes.json();
-        if (podcastsData.success) {
-            document.getElementById('totalPodcasts').textContent = podcastsData.stats.total_podcasts;
-        }
-        
-        // Avatars
-        const avatarsRes = await fetch('/api/avatars/stats/summary');
-        const avatarsData = await avatarsRes.json();
-        if (avatarsData.success) {
-            document.getElementById('totalAvatars').textContent = avatarsData.stats.total_avatars;
-        }
-        
-        // Séries
-        const seriesRes = await fetch('/api/series/stats/summary');
-        const seriesData = await seriesRes.json();
-        if (seriesData.success) {
-            document.getElementById('totalSeries').textContent = seriesData.stats.total_series;
-        }
-        
-        // Documents
-        const docsRes = await fetch('/api/documents/stats/summary');
-        const docsData = await docsRes.json();
-        if (docsData.success) {
-            document.getElementById('totalDocuments').textContent = docsData.stats.total_documents;
-        }
-    } catch (error) {
-        console.error('Erreur chargement stats:', error);
-    }
-}
-
-// Charger au démarrage
+// Gestion de la sélection des catégories
 document.addEventListener('DOMContentLoaded', () => {
-    loadStats();
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const featureCards = document.querySelectorAll('.feature-card');
+    
+    categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Retirer la classe active de tous les boutons
+            categoryBtns.forEach(b => b.classList.remove('active'));
+            // Ajouter la classe active au bouton cliqué
+            btn.classList.add('active');
+            
+            const category = btn.dataset.category;
+            
+            // Filtrer les cartes
+            featureCards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
 });
 </script>
 {% endblock %}

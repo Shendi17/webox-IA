@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Centré</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f7fa;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            color: #1a1a2e;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .info-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .info-box h3 {
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .info-box code {
+            background: #f5f7fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* MODAL VERSION 1 - Avec div wrapper */
+        #testModal1 {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+        }
+
+        #testModal1.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #testModal1 .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+        }
+
+        /* MODAL VERSION 2 - Avec padding */
+        #testModal2 {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            padding: 2rem;
+        }
+
+        #testModal2.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #testModal2 .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        /* MODAL VERSION 3 - Avec transform */
+        #testModal3 {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+        }
+
+        #testModal3.active {
+            display: block;
+        }
+
+        #testModal3 .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Centrage des Modals</h1>
+
+    <div class="info-box">
+        <h3>Instructions</h3>
+        <p>Testez les 3 versions de modal ci-dessous pour voir laquelle se centre correctement.</p>
+    </div>
+
+    <div class="test-buttons">
+        <button class="btn" onclick="openModal('testModal1')">Version 1 - Flexbox Simple</button>
+        <button class="btn" onclick="openModal('testModal2')">Version 2 - Flexbox + Padding</button>
+        <button class="btn" onclick="openModal('testModal3')">Version 3 - Transform</button>
+    </div>
+
+    <div class="info-box">
+        <h3>Version 1 - Flexbox Simple</h3>
+        <p>Utilise <code>display: flex</code> avec <code>align-items: center</code> et <code>justify-content: center</code></p>
+    </div>
+
+    <div class="info-box">
+        <h3>Version 2 - Flexbox + Padding</h3>
+        <p>Comme Version 1 mais avec <code>padding: 2rem</code> sur le modal</p>
+    </div>
+
+    <div class="info-box">
+        <h3>Version 3 - Transform</h3>
+        <p>Utilise <code>position: absolute</code> avec <code>transform: translate(-50%, -50%)</code></p>
+    </div>
+
+    <div id="status" class="status" style="display: none;"></div>
+
+    <!-- Modal Version 1 -->
+    <div id="testModal1">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">✅ Version 1 - Flexbox Simple</h2>
+                <button class="modal-close" onclick="closeModal('testModal1')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Ce modal utilise <code>display: flex</code> directement sur le conteneur.</p>
+                <p style="margin-top: 1rem;">Si vous voyez ce modal centré au milieu de l'écran, cette méthode fonctionne !</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('testModal1')">Fermer</button>
+                <button class="btn" onclick="reportSuccess('Version 1')">✅ Ça marche !</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Version 2 -->
+    <div id="testModal2">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">✅ Version 2 - Flexbox + Padding</h2>
+                <button class="modal-close" onclick="closeModal('testModal2')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Ce modal utilise <code>display: flex</code> avec <code>padding: 2rem</code>.</p>
+                <p style="margin-top: 1rem;">Si vous voyez ce modal centré au milieu de l'écran, cette méthode fonctionne !</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('testModal2')">Fermer</button>
+                <button class="btn" onclick="reportSuccess('Version 2')">✅ Ça marche !</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Version 3 -->
+    <div id="testModal3">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">✅ Version 3 - Transform</h2>
+                <button class="modal-close" onclick="closeModal('testModal3')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Ce modal utilise <code>position: absolute</code> avec <code>transform: translate(-50%, -50%)</code>.</p>
+                <p style="margin-top: 1rem;">Si vous voyez ce modal centré au milieu de l'écran, cette méthode fonctionne !</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('testModal3')">Fermer</button>
+                <button class="btn" onclick="reportSuccess('Version 3')">✅ Ça marche !</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('active');
+            console.log(`Modal ${modalId} ouvert avec classe active`);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+            console.log(`Modal ${modalId} fermé`);
+        }
+
+        function reportSuccess(version) {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.innerHTML = `<strong>✅ ${version} fonctionne correctement !</strong><br>Cette version centre bien le modal au milieu de l'écran.`;
+            
+            // Fermer tous les modals
+            closeModal('testModal1');
+            closeModal('testModal2');
+            closeModal('testModal3');
+
+            // Scroll vers le status
+            status.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Fermer le modal en cliquant sur le fond
+        document.addEventListener('click', function(e) {
+            if (e.target.id && e.target.id.startsWith('testModal')) {
+                closeModal(e.target.id);
+            }
+        });
+    </script>
+</body>
+</html>

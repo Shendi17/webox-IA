@@ -7,6 +7,10 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.user_db import UserDB
 
 
 class ConversationDB(Base):
@@ -34,7 +38,7 @@ class ConversationDB(Base):
     meta_data = Column(JSON, default={})  # Tags, catégories, etc.
     
     # Relations
-    user = relationship("UserDB", back_populates="conversations")
+    # user = relationship("UserDB", back_populates="conversations")  # Commenté temporairement
     messages = relationship("MessageDB", back_populates="conversation", cascade="all, delete-orphan")
     
     def __repr__(self):

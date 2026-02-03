@@ -43,7 +43,7 @@ class OpenAIProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "gpt-4-turbo",
+        model: str = "gpt-4o",
         temperature: float = 0.7,
         max_tokens: int = 2000
     ) -> str:
@@ -78,7 +78,7 @@ class AnthropicProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "claude-3-sonnet-20240229",
+        model: str = "claude-3-haiku-20240307",
         temperature: float = 0.7,
         max_tokens: int = 2000
     ) -> str:
@@ -88,35 +88,60 @@ class AnthropicProvider(AIProvider):
         
         try:
             # Séparer le system message des autres messages
-            system_message = ""
+            system_messages = []
             user_messages = []
             
             for msg in messages:
                 if msg["role"] == "system":
-                    system_message = msg["content"]
+                    system_messages.append({
+                        "type": "text",
+                        "text": msg["content"]
+                    })
                 else:
                     user_messages.append(msg)
             
-            response = await self.client.messages.create(
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                system=system_message if system_message else None,
-                messages=user_messages
-            )
+            # Créer les paramètres de la requête
+            request_params = {
+                "model": model,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "messages": user_messages
+            }
+            
+            # Ajouter system seulement s'il y a des messages système
+            if system_messages:
+                request_params["system"] = system_messages
+            
+            response = await self.client.messages.create(**request_params)
             return response.content[0].text
         except Exception as e:
             return f"❌ Erreur Anthropic: {str(e)}"
 
 
 class GoogleProvider(AIProvider):
-    """Fournisseur Google (Gemini)"""
+    """Fournisseur Google (Gemini via Vertex AI ou Google AI)"""
     
     def __init__(self):
-        if config.GOOGLE_API_KEY:
+        # Priorité à Vertex AI si configuré
+        if config.VERTEX_AI_PROJECT_ID:
+            self.use_vertex = True
+            self.configured = True
+            # Configurer les credentials pour Vertex AI si fournis
+            if config.GOOGLE_APPLICATION_CREDENTIALS:
+                import os
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config.GOOGLE_APPLICATION_CREDENTIALS
+            else:
+                # S'assurer que GOOGLE_APPLICATION_CREDENTIALS n'est pas défini à une chaîne vide
+                import os
+                if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+                    if not os.environ["GOOGLE_APPLICATION_CREDENTIALS"]:
+                        del os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+        elif config.GOOGLE_API_KEY:
+            self.use_vertex = False
             genai.configure(api_key=config.GOOGLE_API_KEY)
             self.configured = True
         else:
+            self.use_vertex = False
             self.configured = False
     
     def is_configured(self) -> bool:
@@ -125,42 +150,98 @@ class GoogleProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "gemini-pro",
+        model: str = "gemini-2.0-flash-exp",
         temperature: float = 0.7,
         max_tokens: int = 2000
     ) -> str:
-        """Génère une réponse avec Gemini"""
+        """Génère une réponse avec Gemini (Vertex AI ou Google AI)"""
         if not self.is_configured():
-            return "❌ Google AI n'est pas configuré. Veuillez ajouter votre clé API dans le fichier .env"
+            return "❌ Google AI/Vertex AI n'est pas configuré. Veuillez ajouter vos credentials dans le fichier .env"
         
         try:
-            model_instance = genai.GenerativeModel(model)
-            
-            # Convertir les messages au format Gemini
-            prompt = ""
-            for msg in messages:
-                if msg["role"] == "system":
-                    prompt += f"Instructions: {msg['content']}\n\n"
-                elif msg["role"] == "user":
-                    prompt += f"User: {msg['content']}\n"
-                elif msg["role"] == "assistant":
-                    prompt += f"Assistant: {msg['content']}\n"
-            
-            # Exécuter dans un thread pour éviter les problèmes d'async
-            loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(
-                None,
-                lambda: model_instance.generate_content(
-                    prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=temperature,
-                        max_output_tokens=max_tokens
+            if self.use_vertex:
+                # Utiliser Vertex AI
+                import vertexai
+                from vertexai.generative_models import GenerativeModel
+                
+                # Initialiser Vertex AI
+                vertexai.init(
+                    project=config.VERTEX_AI_PROJECT_ID,
+                    location=config.VERTEX_AI_LOCATION
+                )
+                
+                # Utiliser le bon nom de modèle pour Vertex AI
+                # Mapping des modèles frontend vers Vertex AI (modèles réels disponibles)
+                vertex_model_map = {
+                    # Gemini 2.5 (Generally Available)
+                    "gemini-2.5-pro": "gemini-2.5-pro",
+                    "gemini-2.5-flash": "gemini-2.5-flash",
+                    "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
+                    "gemini-2.5-flash-image": "gemini-2.5-flash-image",
+                    # Gemini 2.0 (Generally Available)
+                    "gemini-2.0-flash-001": "gemini-2.0-flash-001",
+                    "gemini-2.0-flash-lite-001": "gemini-2.0-flash-lite-001",
+                    # Gemini 3 (Preview)
+                    "gemini-3-pro": "gemini-3-pro",
+                    "gemini-3-flash": "gemini-3-flash",
+                    "gemini-3-pro-image": "gemini-3-pro-image",
+                }
+                vertex_model_name = vertex_model_map.get(model, model)
+                
+                model_instance = GenerativeModel(vertex_model_name)
+                
+                # Convertir les messages au format Gemini
+                prompt = ""
+                for msg in messages:
+                    if msg["role"] == "system":
+                        prompt += f"Instructions: {msg['content']}\n\n"
+                    elif msg["role"] == "user":
+                        prompt += f"User: {msg['content']}\n"
+                    elif msg["role"] == "assistant":
+                        prompt += f"Assistant: {msg['content']}\n"
+                
+                # Générer avec Vertex AI
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(
+                    None,
+                    lambda: model_instance.generate_content(
+                        prompt,
+                        generation_config={
+                            "temperature": temperature,
+                            "max_output_tokens": max_tokens
+                        }
                     )
                 )
-            )
-            return response.text
+                return response.text
+            else:
+                # Utiliser Google AI Studio (méthode originale)
+                model_instance = genai.GenerativeModel(model)
+                
+                # Convertir les messages au format Gemini
+                prompt = ""
+                for msg in messages:
+                    if msg["role"] == "system":
+                        prompt += f"Instructions: {msg['content']}\n\n"
+                    elif msg["role"] == "user":
+                        prompt += f"User: {msg['content']}\n"
+                    elif msg["role"] == "assistant":
+                        prompt += f"Assistant: {msg['content']}\n"
+                
+                # Exécuter dans un thread pour éviter les problèmes d'async
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(
+                    None,
+                    lambda: model_instance.generate_content(
+                        prompt,
+                        generation_config=genai.types.GenerationConfig(
+                            temperature=temperature,
+                            max_output_tokens=max_tokens
+                        )
+                    )
+                )
+                return response.text
         except Exception as e:
-            return f"❌ Erreur Google AI: {str(e)}"
+            return f"❌ Erreur Google AI/Vertex AI: {str(e)}"
 
 
 class MistralProvider(AIProvider):

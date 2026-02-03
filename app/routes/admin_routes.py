@@ -3,7 +3,9 @@ Routes API pour l'administration (réservées aux admins)
 Date : 2 Novembre 2025
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, Dict
@@ -16,7 +18,8 @@ from app.models.user_db import UserDB
 from app.models.settings_db import SettingsDB
 from app.routes.auth_routes import get_current_user
 
-router = APIRouter(prefix="/api/admin", tags=["Admin"])
+router = APIRouter(tags=["Admin"])
+templates = Jinja2Templates(directory="templates")
 
 # Clé de chiffrement
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key())
@@ -80,7 +83,7 @@ def check_admin(current_user: UserDB):
 
 # ========== ROUTES API ==========
 
-@router.get("/api-keys/global")
+@router.get("/api/admin/api-keys/global")
 async def get_global_api_keys(
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -122,7 +125,7 @@ async def get_global_api_keys(
     }
 
 
-@router.put("/api-keys/global")
+@router.put("/api/admin/api-keys/global")
 async def update_global_api_keys(
     keys_data: GlobalAPIKeysUpdate,
     current_user: UserDB = Depends(get_current_user),
@@ -181,7 +184,7 @@ async def update_global_api_keys(
         )
 
 
-@router.get("/stats")
+@router.get("/api/admin/stats")
 async def get_admin_stats(
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -205,3 +208,64 @@ async def get_admin_stats(
             "free_users": total_users - premium_users
         }
     }
+
+
+# ========== API ADMIN ANALYTICS ==========
+
+@router.get("/api/admin/analytics")
+async def get_admin_analytics(
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """API Admin Analytics - Statistiques pour administrateurs"""
+    # Vérifier que l'utilisateur est admin
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé aux administrateurs"
+        )
+    
+    # Récupérer statistiques basiques
+    total_users = db.query(UserDB).count()
+    active_users = db.query(UserDB).filter(UserDB.is_active == True).count()
+    admin_users = db.query(UserDB).filter(UserDB.is_admin == True).count()
+    premium_users = db.query(UserDB).filter(UserDB.is_premium == True).count()
+    
+    return {
+        "success": True,
+        "analytics": {
+            "users": {
+                "total": total_users,
+                "active": active_users,
+                "admin": admin_users,
+                "premium": premium_users
+            }
+        }
+    }
+
+
+# ========== PAGE ADMIN ANALYTICS ==========
+
+@router.get("/admin/analytics", response_class=HTMLResponse, include_in_schema=False)
+async def admin_analytics_page(
+    request: Request,
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Page Admin Analytics - Statistiques avancées pour administrateurs"""
+    # Vérifier que l'utilisateur est admin
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé aux administrateurs"
+        )
+    
+    return templates.TemplateResponse(
+        "pages/admin_analytics.html",
+        {
+            "request": request,
+            "user": current_user,
+            "title": "Admin Analytics - WeBox Multi-IA",
+            "page": "admin_analytics"
+        }
+    )

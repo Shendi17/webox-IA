@@ -1,0 +1,782 @@
+﻿{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Blog - WeBox{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero Section */
+.blog-hero {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    padding: 3rem 2rem;
+    border-radius: 15px;
+    margin-bottom: 3rem;
+    color: white;
+}
+
+.blog-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.blog-hero p {
+    font-size: 1rem;
+    opacity: 0.9;
+    max-width: 600px;
+}
+
+/* Filtres de catégories */
+.category-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.category-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.category-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+.category-btn.active {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* Barre de recherche */
+.search-bar {
+    max-width: 600px;
+    margin: 0 auto 3rem auto;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1.5rem 1rem 3.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #999;
+}
+
+/* Article Featured */
+.featured-article {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.featured-image {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    overflow: hidden;
+}
+
+.featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.featured-content {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.featured-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    width: fit-content;
+}
+
+.featured-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.featured-excerpt {
+    font-size: 1.1rem;
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.featured-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    color: #999;
+    font-size: 0.95rem;
+}
+
+.featured-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-read-more {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: fit-content;
+}
+
+.btn-read-more:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Grille d'articles */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.article-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.article-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.article-image {
+    width: 100%;
+    height: 220px;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.article-category-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.article-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.article-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.article-excerpt {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex: 1;
+}
+
+.article-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.article-meta {
+    display: flex;
+    gap: 1rem;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.article-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.article-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.tag {
+    padding: 0.25rem 0.75rem;
+    background: #f8f9fa;
+    color: #667eea;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* État vide */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #1a1a2e;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 3rem;
+}
+
+.pagination-btn {
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+}
+
+.pagination-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.pagination-btn.active {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .featured-article {
+        grid-template-columns: 1fr;
+    }
+    
+    .featured-image {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .blog-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .blog-hero p {
+        font-size: 1rem;
+    }
+    
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .featured-title {
+        font-size: 1.8rem;
+    }
+    
+    .featured-content {
+        padding: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="blog-hero">
+    <h1>📚 Blog WeBox</h1>
+    <p>Découvrez nos derniers articles, tutoriels et actualités sur l'intelligence artificielle</p>
+</div>
+
+<!-- Barre de recherche -->
+<div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un article...">
+</div>
+
+<!-- Filtres de catégories -->
+<div class="category-filters">
+    <button class="category-btn active" onclick="filterByCategory('all')">Tous</button>
+    <button class="category-btn" onclick="filterByCategory('Tutoriels')">📖 Tutoriels</button>
+    <button class="category-btn" onclick="filterByCategory('Actualités')">📰 Actualités</button>
+    <button class="category-btn" onclick="filterByCategory('Marketing')">📊 Marketing</button>
+    <button class="category-btn" onclick="filterByCategory('Technologie')">💻 Technologie</button>
+    <button class="category-btn" onclick="filterByCategory('Business')">💼 Business</button>
+    <button class="category-btn" onclick="filterByCategory('IA')">🤖 IA</button>
+</div>
+
+<!-- Article Featured -->
+<div id="featuredArticle">
+    <!-- Chargé dynamiquement -->
+</div>
+
+<!-- Grille d'articles -->
+<div class="articles-grid" id="articlesGrid">
+    <!-- Chargés dynamiquement -->
+</div>
+
+<!-- État vide -->
+<div class="empty-state" id="emptyState" style="display: none;">
+    <div class="empty-state-icon">📭</div>
+    <h3>Aucun article trouvé</h3>
+    <p>Essayez de modifier vos filtres ou votre recherche</p>
+</div>
+
+<!-- Pagination -->
+<div class="pagination" id="pagination">
+    <!-- Chargée dynamiquement -->
+</div>
+
+<script>
+let allArticles = [];
+let filteredArticles = [];
+let currentCategory = 'all';
+let currentPage = 1;
+const articlesPerPage = 9;
+
+// ==================== CHARGEMENT DES ARTICLES ====================
+async function loadArticles() {
+    try {
+        const response = await fetch('/api/blog/articles?limit=100');
+        const data = await response.json();
+        
+        if (data.success) {
+            allArticles = data.articles;
+            filteredArticles = allArticles;
+            displayFeaturedArticle();
+            displayArticles();
+        } else {
+            // Données de démo si pas d'articles en BDD
+            loadDemoArticles();
+        }
+    } catch (error) {
+        console.error('Erreur chargement articles:', error);
+        loadDemoArticles();
+    }
+}
+
+function loadDemoArticles() {
+    allArticles = [
+        {
+            id: 1,
+            title: "10 Stratégies Marketing IA pour Booster votre Business en 2024",
+            excerpt: "Découvrez comment l'intelligence artificielle révolutionne le marketing digital et comment vous pouvez l'utiliser pour augmenter vos conversions de 300%.",
+            category: "Marketing",
+            icon: "📊",
+            image_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop",
+            tags: ["IA", "Marketing", "Stratégie"],
+            author: "WeBox Team",
+            published_at: "2024-12-10",
+            reading_time: 8,
+            views: 1234,
+            is_featured: true
+        },
+        {
+            id: 2,
+            title: "Guide Complet : Automatiser son Business avec l'IA",
+            excerpt: "Un guide pratique étape par étape pour automatiser vos processus métier et gagner 20 heures par semaine grâce à l'intelligence artificielle.",
+            category: "Tutoriels",
+            icon: "🤖",
+            image_url: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop",
+            tags: ["Automation", "Productivité", "IA"],
+            author: "WeBox Team",
+            published_at: "2024-12-08",
+            reading_time: 12,
+            views: 2156
+        },
+        {
+            id: 3,
+            title: "ChatGPT vs Claude vs Gemini : Comparaison Complète 2024",
+            excerpt: "Comparaison détaillée des trois modèles d'IA les plus populaires. Lequel choisir pour votre projet ? Analyse approfondie des forces et faiblesses.",
+            category: "Technologie",
+            icon: "💬",
+            image_url: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop",
+            tags: ["ChatGPT", "Claude", "Gemini"],
+            author: "WeBox Team",
+            published_at: "2024-12-05",
+            reading_time: 10,
+            views: 3421
+        },
+        {
+            id: 4,
+            title: "Comment Créer un Assistant Vocal IA pour votre Entreprise",
+            excerpt: "Tutoriel complet pour créer votre propre assistant vocal intelligent capable de gérer les appels clients 24/7.",
+            category: "Tutoriels",
+            icon: "📞",
+            image_url: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=800&h=400&fit=crop",
+            tags: ["Assistant Vocal", "IA", "Entreprise"],
+            author: "WeBox Team",
+            published_at: "2024-12-03",
+            reading_time: 15,
+            views: 1876
+        },
+        {
+            id: 5,
+            title: "Les Tendances IA à Suivre Absolument en 2024",
+            excerpt: "Découvrez les 7 tendances majeures de l'intelligence artificielle qui vont transformer votre industrie cette année.",
+            category: "Actualités",
+            icon: "🚀",
+            image_url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=400&fit=crop",
+            tags: ["Tendances", "IA", "Innovation"],
+            author: "WeBox Team",
+            published_at: "2024-12-01",
+            reading_time: 6,
+            views: 2987
+        },
+        {
+            id: 6,
+            title: "Générer du Contenu Viral avec l'IA : Notre Méthode",
+            excerpt: "La méthode complète pour créer du contenu engageant qui génère des milliers de vues grâce à l'intelligence artificielle.",
+            category: "Marketing",
+            icon: "✨",
+            image_url: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=400&fit=crop",
+            tags: ["Contenu", "Viral", "IA"],
+            author: "WeBox Team",
+            published_at: "2024-11-28",
+            reading_time: 9,
+            views: 4521
+        },
+        {
+            id: 7,
+            title: "Créer une Application Mobile avec l'IA en 24h",
+            excerpt: "Découvrez comment nous avons créé une application mobile complète en moins de 24 heures grâce aux outils IA.",
+            category: "Tutoriels",
+            icon: "📱",
+            image_url: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=400&fit=crop",
+            tags: ["App Mobile", "IA", "Développement"],
+            author: "WeBox Team",
+            published_at: "2024-11-25",
+            reading_time: 11,
+            views: 1654
+        },
+        {
+            id: 8,
+            title: "L'IA va-t-elle Remplacer les Développeurs ?",
+            excerpt: "Analyse approfondie de l'impact de l'IA sur le métier de développeur et les compétences à acquérir pour rester pertinent.",
+            category: "Business",
+            icon: "💼",
+            image_url: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop",
+            tags: ["Carrière", "IA", "Développement"],
+            author: "WeBox Team",
+            published_at: "2024-11-22",
+            reading_time: 7,
+            views: 3210
+        },
+        {
+            id: 9,
+            title: "Optimiser son SEO avec l'Intelligence Artificielle",
+            excerpt: "Les meilleures techniques pour utiliser l'IA afin d'améliorer votre référencement naturel et atteindre la première page Google.",
+            category: "Marketing",
+            icon: "🔍",
+            image_url: "https://images.unsplash.com/photo-1562577309-4932fdd64cd1?w=800&h=400&fit=crop",
+            tags: ["SEO", "IA", "Google"],
+            author: "WeBox Team",
+            published_at: "2024-11-20",
+            reading_time: 8,
+            views: 2765
+        }
+    ];
+    
+    filteredArticles = allArticles;
+    displayFeaturedArticle();
+    displayArticles();
+}
+
+// ==================== AFFICHAGE ====================
+function displayFeaturedArticle() {
+    const featured = allArticles.find(a => a.is_featured) || allArticles[0];
+    if (!featured) return;
+    
+    const container = document.getElementById('featuredArticle');
+    container.innerHTML = `
+        <div class="featured-article" onclick="openArticle(${featured.id})">
+            <div class="featured-image">
+                ${featured.image_url ? `<img src="${featured.image_url}" alt="${featured.title}">` : featured.icon || '📝'}
+            </div>
+            <div class="featured-content">
+                <span class="featured-badge">⭐ Article à la Une</span>
+                <h2 class="featured-title">${featured.title}</h2>
+                <p class="featured-excerpt">${featured.excerpt}</p>
+                <div class="featured-meta">
+                    <span>👤 ${featured.author || 'WeBox Team'}</span>
+                    <span>📅 ${formatDate(featured.published_at)}</span>
+                    <span>⏱️ ${featured.reading_time || 5} min</span>
+                    <span>👁️ ${featured.views || 0} vues</span>
+                </div>
+                <button class="btn-read-more">Lire l'article →</button>
+            </div>
+        </div>
+    `;
+}
+
+function displayArticles() {
+    const grid = document.getElementById('articlesGrid');
+    const emptyState = document.getElementById('emptyState');
+    
+    // Exclure l'article featured
+    const articlesToDisplay = filteredArticles.filter(a => !a.is_featured);
+    
+    // Pagination
+    const startIndex = (currentPage - 1) * articlesPerPage;
+    const endIndex = startIndex + articlesPerPage;
+    const paginatedArticles = articlesToDisplay.slice(startIndex, endIndex);
+    
+    if (paginatedArticles.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        document.getElementById('pagination').style.display = 'none';
+        return;
+    }
+    
+    grid.style.display = 'grid';
+    emptyState.style.display = 'none';
+    
+    grid.innerHTML = paginatedArticles.map(article => `
+        <div class="article-card" onclick="openArticle(${article.id})">
+            <div class="article-image">
+                ${article.image_url ? `<img src="${article.image_url}" alt="${article.title}">` : article.icon || '📝'}
+                <span class="article-category-badge">${article.category}</span>
+            </div>
+            <div class="article-content">
+                <h3 class="article-title">${article.title}</h3>
+                <p class="article-excerpt">${article.excerpt}</p>
+                ${article.tags ? `
+                    <div class="article-tags">
+                        ${article.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+                <div class="article-footer">
+                    <div class="article-meta">
+                        <span>📅 ${formatDate(article.published_at)}</span>
+                        <span>⏱️ ${article.reading_time || 5} min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    displayPagination(articlesToDisplay.length);
+}
+
+function displayPagination(totalArticles) {
+    const totalPages = Math.ceil(totalArticles / articlesPerPage);
+    const pagination = document.getElementById('pagination');
+    
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+    
+    pagination.style.display = 'flex';
+    
+    let html = `
+        <button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+            ← Précédent
+        </button>
+    `;
+    
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            html += `
+                <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                    ${i}
+                </button>
+            `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            html += `<span style="padding: 0.75rem;">...</span>`;
+        }
+    }
+    
+    html += `
+        <button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+            Suivant →
+        </button>
+    `;
+    
+    pagination.innerHTML = html;
+}
+
+// ==================== FILTRES ====================
+function filterByCategory(category) {
+    currentCategory = category;
+    currentPage = 1;
+    
+    // Mettre à jour les boutons
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Filtrer
+    if (category === 'all') {
+        filteredArticles = allArticles;
+    } else {
+        filteredArticles = allArticles.filter(a => a.category === category);
+    }
+    
+    applySearch();
+}
+
+function applySearch() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    if (searchTerm) {
+        filteredArticles = filteredArticles.filter(article => 
+            article.title.toLowerCase().includes(searchTerm) ||
+            article.excerpt.toLowerCase().includes(searchTerm) ||
+            (article.tags && article.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+        );
+    }
+    
+    displayArticles();
+}
+
+// ==================== PAGINATION ====================
+function changePage(page) {
+    const totalPages = Math.ceil(filteredArticles.filter(a => !a.is_featured).length / articlesPerPage);
+    if (page < 1 || page > totalPages) return;
+    
+    currentPage = page;
+    displayArticles();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==================== ACTIONS ====================
+function openArticle(id) {
+    // Rediriger vers la page de l'article
+    window.location.href = `/blog/article/${id}`;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return "Aujourd'hui";
+    if (diffDays === 1) return "Hier";
+    if (diffDays < 7) return `Il y a ${diffDays} jours`;
+    if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaines`;
+    
+    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', () => {
+    currentPage = 1;
+    if (currentCategory === 'all') {
+        filteredArticles = allArticles;
+    } else {
+        filteredArticles = allArticles.filter(a => a.category === currentCategory);
+    }
+    applySearch();
+});
+
+// Charger au démarrage
+document.addEventListener('DOMContentLoaded', loadArticles);
+</script>
+{% endblock %}

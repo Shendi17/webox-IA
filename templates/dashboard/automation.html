@@ -4,25 +4,65 @@
 
 {% block extra_css %}
 <style>
-/* Désactiver les scripts parasites */
-* {
-    pointer-events: auto !important;
+/* ==================== MODAL CSS ==================== */
+#createWorkflowModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99999;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#createWorkflowModal.modal-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#createWorkflowModal .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+#createWorkflowModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+#createWorkflowModal .modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+#createWorkflowModal .modal-close:hover {
+    color: #000;
 }
 </style>
-<script>
-(function() {
-    window.creerWorkflow = function() {        alert('➕ Créer un Workflow\n\nLancez Pipedream et créez votre workflow personnalisé :\n\n1. Choisissez un trigger (webhook, email, cron...)\n2. Ajoutez des actions (IA, API, base de données...)\n3. Configurez les paramètres\n4. Activez le workflow\n\n(Fonctionnalité en développement)');
-        return false;
-    };
-    
-    window.ouvrirPipedream = function() {        window.open('https://pipedream.com', '_blank');
-        return false;
-    };
-    
-    window.voirWorkflow = function(nom) {        alert('👁️ Workflow: ' + nom + '\n\nDétails du workflow...\n\n- Statut: Actif\n- Dernière exécution: Il y a 2h\n- Taux de succès: 98%\n\n(Fonctionnalité en développement)');
-        return false;
-    };})();
-</script>
 {% endblock %}
 
 {% block content %}
@@ -41,8 +81,8 @@
                 Connectez WeBox à plus de 1000 applications et automatisez vos tâches répétitives sans code.
             </p>
             <div style="display: flex; gap: 1rem;">
-                <button class="sidebar-btn primary" onclick="creerWorkflow()">➕ Créer un workflow</button>
-                <button class="sidebar-btn" style="background: white; color: #1a1a2e; border: none;" onclick="ouvrirPipedream()">🔗 Ouvrir Pipedream</button>
+                <button class="sidebar-btn primary" onclick="openCreateWorkflowModal()">➕ Créer un workflow</button>
+                <button class="sidebar-btn" style="background: white; color: #1a1a2e; border: none;" onclick="window.open('https://pipedream.com', '_blank')">🔗 Ouvrir Pipedream</button>
             </div>
         </div>
         <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 10px; text-align: center;">
@@ -312,5 +352,82 @@
     </ol>
 </div>
 
-<script></script>
+<!-- Modal Créer Workflow -->
+<div id="createWorkflowModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚡ Créer un Workflow</h2>
+            <button class="modal-close" onclick="closeCreateWorkflowModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createWorkflowForm" onsubmit="createWorkflow(event)">
+                <div class="form-group">
+                    <label>Nom du workflow *</label>
+                    <input type="text" name="name" required placeholder="Mon workflow automatisé">
+                </div>
+                <div class="form-group">
+                    <label>Type de trigger *</label>
+                    <select name="trigger_type" required>
+                        <option value="webhook">🌐 Webhook (HTTP)</option>
+                        <option value="cron">⏰ Cron / Schedule</option>
+                        <option value="email">📧 Email</option>
+                        <option value="form">📝 Form Submit</option>
+                        <option value="database">📊 Database Change</option>
+                        <option value="app">📱 App Event</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Description de votre workflow..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Actions à effectuer</label>
+                    <textarea name="actions" rows="4" placeholder="Ex: Envoyer un email, créer une tâche, poster sur les réseaux sociaux..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateWorkflowModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">⚡ Créer le Workflow</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Modals
+function openCreateWorkflowModal() {
+    document.getElementById('createWorkflowModal').classList.add('modal-open');
+}
+
+function closeCreateWorkflowModal() {
+    document.getElementById('createWorkflowModal').classList.remove('modal-open');
+    document.getElementById('createWorkflowForm').reset();
+}
+
+// Créer workflow
+async function createWorkflow(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    const workflowData = {
+        name: formData.get('name'),
+        trigger_type: formData.get('trigger_type'),
+        description: formData.get('description'),
+        actions: formData.get('actions')
+    };
+    
+    console.log('Création du workflow:', workflowData);
+    
+    // Simulation de création
+    alert('✅ Workflow créé avec succès!\n\nPour le moment, cette fonctionnalité est en développement.\nVous pouvez créer vos workflows directement sur Pipedream.com');
+    
+    closeCreateWorkflowModal();
+}
+
+// Voir workflow
+function voirWorkflow(nom) {
+    alert('👁️ Workflow: ' + nom + '\n\nDétails du workflow...\n\n- Statut: Actif\n- Dernière exécution: Il y a 2h\n- Taux de succès: 98%\n\n(Fonctionnalité en développement)');
+}
+</script>
 {% endblock %}

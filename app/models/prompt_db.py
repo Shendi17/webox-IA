@@ -6,8 +6,12 @@ Date : 1er Novembre 2025
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.user_db import UserDB
 
 
 class PromptDB(Base):
@@ -27,7 +31,7 @@ class PromptDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relations
-    user = relationship("UserDB", back_populates="prompts")
+    # user = relationship("UserDB", back_populates="prompts")  # Commenté temporairement
     
     def to_dict(self):
         """Convertir en dictionnaire"""

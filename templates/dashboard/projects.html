@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Mes Projets - WeBox Studio Créatif{% endblock %}
 
@@ -6,9 +6,9 @@
 <style>
 /* Page Header */
 .page-header-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2rem;
-    border-radius: 20px;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    padding: 3rem 2rem;
+    border-radius: 15px;
     margin-bottom: 2rem;
     color: white;
 }
@@ -62,8 +62,8 @@
 }
 
 .btn-primary {
-    background: white;
-    color: #667eea;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1a2e;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 10px;
@@ -73,11 +73,12 @@
     align-items: center;
     gap: 0.5rem;
     transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 .btn-secondary {
@@ -96,7 +97,7 @@
 
 .btn-secondary:hover {
     background: white;
-    color: #667eea;
+    color: #1a1a2e;
 }
 
 /* Toolbar */
@@ -177,7 +178,7 @@
 }
 
 .view-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: white;
 }
 
@@ -251,7 +252,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     border-radius: 15px;
     flex-shrink: 0;
 }

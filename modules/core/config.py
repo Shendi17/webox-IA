@@ -11,6 +11,12 @@ class Config:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+    
+    # Vertex AI (Google Cloud)
+    VERTEX_AI_PROJECT_ID = os.getenv("VERTEX_AI_PROJECT_ID", "")
+    VERTEX_AI_LOCATION = os.getenv("VERTEX_AI_LOCATION", "us-central1")
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+    
     MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
     COHERE_API_KEY = os.getenv("COHERE_API_KEY", "")
     PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY", "")

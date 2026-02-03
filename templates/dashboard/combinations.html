@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Combinaisons IA - WeBox{% endblock %}
 
@@ -31,7 +31,7 @@
     position: absolute;
     top: -12px;
     left: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: white;
     width: 32px;
     height: 32px;
@@ -86,7 +86,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: white;
     border-radius: 16px 16px 0 0;
 }
@@ -397,14 +397,14 @@
 </div>
 
 <!-- Templates prédéfinis -->
-<div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 2rem;">
+<div class="dashboard-card" style="background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; margin-bottom: 2rem;">
     <h2 style="margin-bottom: 1.5rem;">🎯 Templates de Combinaisons Populaires</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
         <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; cursor: pointer;" onclick="loadTemplate('content-creation')">
             <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
             <strong style="font-size: 1.1rem;">Création de Contenu</strong>
             <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 0.9rem;">
-                GPT-4 (texte) → DALL-E (image) → ElevenLabs (voix)
+                GPT-4 (texte) → Imagen 4 (image) → ElevenLabs (voix)
             </p>
             <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 0.85rem;">
                 Parfait pour : Articles de blog avec visuels et narration
@@ -471,8 +471,10 @@
                     <option value="gemini">Gemini Pro (Google)</option>
                 </optgroup>
                 <optgroup label="🎨 Image">
+                    <option value="imagen-4-ultra">Imagen 4 Ultra (Vertex AI)</option>
+                    <option value="imagen-4">Imagen 4 (Vertex AI)</option>
+                    <option value="imagen-3">Imagen 3 (Vertex AI)</option>
                     <option value="dalle">DALL-E 3</option>
-                    <option value="midjourney">Midjourney</option>
                     <option value="stable-diffusion">Stable Diffusion</option>
                 </optgroup>
                 <optgroup label="🎙️ Audio">
@@ -497,8 +499,10 @@
                     <option value="gemini">Gemini Pro (Google)</option>
                 </optgroup>
                 <optgroup label="🎨 Image">
+                    <option value="imagen-4-ultra">Imagen 4 Ultra (Vertex AI)</option>
+                    <option value="imagen-4">Imagen 4 (Vertex AI)</option>
+                    <option value="imagen-3">Imagen 3 (Vertex AI)</option>
                     <option value="dalle">DALL-E 3</option>
-                    <option value="midjourney">Midjourney</option>
                     <option value="stable-diffusion">Stable Diffusion</option>
                 </optgroup>
                 <optgroup label="🎙️ Audio">
@@ -523,8 +527,10 @@
                     <option value="gemini">Gemini Pro (Google)</option>
                 </optgroup>
                 <optgroup label="🎨 Image">
+                    <option value="imagen-4-ultra">Imagen 4 Ultra (Vertex AI)</option>
+                    <option value="imagen-4">Imagen 4 (Vertex AI)</option>
+                    <option value="imagen-3">Imagen 3 (Vertex AI)</option>
                     <option value="dalle">DALL-E 3</option>
-                    <option value="midjourney">Midjourney</option>
                     <option value="stable-diffusion">Stable Diffusion</option>
                 </optgroup>
                 <optgroup label="🎙️ Audio">
@@ -560,7 +566,7 @@
         <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
             <strong>Workflow :</strong><br>
             1. GPT-4 : Rédaction du texte<br>
-            2. DALL-E : Création des visuels<br>
+            2. Imagen 4 : Création des visuels<br>
             3. ElevenLabs : Génération voix-off
         </div>
     </div>
@@ -871,7 +877,7 @@ function showExecutionResults(data) {
     // Ajouter un bouton de téléchargement
     resultsHTML += `
         <div style="margin-top: 2rem; text-align: center;">
-            <button onclick="downloadResults()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: 600;">
+            <button onclick="downloadResults()" style="background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; font-size: 1rem; cursor: pointer; font-weight: 600;">
                 📥 Télécharger les Résultats
             </button>
         </div>
@@ -898,8 +904,10 @@ function getProviderName(provider) {
         'gpt4': 'GPT-4',
         'claude': 'Claude 3',
         'gemini': 'Gemini Pro',
+        'imagen-4-ultra': 'Imagen 4 Ultra',
+        'imagen-4': 'Imagen 4',
+        'imagen-3': 'Imagen 3',
         'dalle': 'DALL-E 3',
-        'midjourney': 'Midjourney',
         'stable-diffusion': 'Stable Diffusion',
         'elevenlabs': 'ElevenLabs',
         'openai-tts': 'OpenAI TTS',

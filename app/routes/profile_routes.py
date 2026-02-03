@@ -3,7 +3,7 @@ Routes API pour la gestion du profil utilisateur
 Date : 2 Novembre 2025
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, validator
@@ -98,12 +98,14 @@ def decrypt_api_key(encrypted_key: str) -> str:
 
 @router.get("/me")
 async def get_profile(
-    current_user: UserDB = Depends(get_current_user),
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """
     Récupère le profil de l'utilisateur connecté
     """
+    current_user = await get_current_user(request, db)
+    current_user = await get_current_user(request, db)
     # Déchiffrer les clés API pour l'affichage (masquées)
     api_keys = current_user.api_keys or {}
     masked_keys = {}
@@ -145,13 +147,16 @@ async def get_profile(
 
 @router.put("/update")
 async def update_profile(
+    request: Request,
     profile_data: ProfileUpdate,
-    current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Met à jour le profil de l'utilisateur
     """
+    current_user = await get_current_user(request, db)
+    current_user = await get_current_user(request, db)
+    
     try:
         # Vérifier le mot de passe actuel si changement de mot de passe
         if profile_data.new_password:
@@ -209,13 +214,15 @@ async def update_profile(
 
 @router.put("/api-keys")
 async def update_api_keys(
+    request: Request,
     keys_data: APIKeysUpdate,
-    current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Met à jour les clés API de l'utilisateur (chiffrées)
     """
+    current_user = await get_current_user(request, db)
+    
     try:
         # Récupérer les clés actuelles
         api_keys = current_user.api_keys or {}
@@ -264,13 +271,15 @@ async def update_api_keys(
 
 @router.put("/preferences")
 async def update_preferences(
+    request: Request,
     prefs_data: PreferencesUpdate,
-    current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Met à jour les préférences de l'utilisateur
     """
+    current_user = await get_current_user(request, db)
+    
     try:
         # Récupérer les préférences actuelles
         preferences = current_user.preferences or {}
@@ -313,12 +322,14 @@ async def update_preferences(
 
 @router.get("/stats")
 async def get_user_stats(
-    current_user: UserDB = Depends(get_current_user),
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """
     Récupère les statistiques de l'utilisateur
     """
+    current_user = await get_current_user(request, db)
+    current_user = await get_current_user(request, db)
     # Compter les conversations
     conversations_count = len(current_user.conversations) if current_user.conversations else 0
     

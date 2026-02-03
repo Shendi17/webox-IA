@@ -7,7 +7,6 @@
     .analyzer-page {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 2rem;
     }
 
     .upload-zone {
@@ -163,14 +162,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="analyzer-page">
-    <h1>📄 Analyseur de Documents IA</h1>
-    <p style="color: #666; margin-bottom: 2rem;">Upload un document et laisse l'IA l'analyser</p>
+<div class="page-header">
+    <h1>📄 Analyseur de Documents</h1>
+    <p>Analysez vos documents avec l'IA - PDF, Word, Excel et plus</p>
+</div>
 
-    <!-- Zone d'upload -->
+<div class="analyzer-page">
     <div class="upload-zone">
         <div class="drop-area" id="dropArea">
-            <div class="upload-icon">📄</div>
+            <div class="upload-icon">📤</div>
             <h2>Glisse ton document ici</h2>
             <p>ou clique pour sélectionner</p>
             <input type="file" id="fileInput" style="display: none;" 
@@ -185,16 +185,12 @@
         </div>
     </div>
 
-    <!-- Analyses récentes -->
     <div class="recent-analyses">
         <h2>📋 Analyses récentes</h2>
-        <div id="analysesList">
-            <!-- Les analyses seront chargées ici -->
-        </div>
+        <div id="analysesList"></div>
     </div>
 </div>
 
-<!-- Overlay d'analyse -->
 <div class="analyzing-overlay" id="analyzingOverlay">
     <div class="analyzing-content">
         <div class="analyzing-spinner"></div>
@@ -208,12 +204,10 @@
     const fileInput = document.getElementById('fileInput');
     const analyzingOverlay = document.getElementById('analyzingOverlay');
 
-    // Click pour sélectionner
     dropArea.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // Drag & Drop
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
     });
@@ -254,7 +248,6 @@
 
         const file = files[0];
         
-        // Vérifier la taille (max 10MB)
         if (file.size > 10 * 1024 * 1024) {
             alert('❌ Fichier trop volumineux (max 10MB)');
             return;
@@ -274,7 +267,6 @@
             const data = await response.json();
 
             if (data.success) {
-                // Attendre un peu puis rediriger
                 setTimeout(() => {
                     window.location.href = '/documents/' + data.document.id;
                 }, 2000);
@@ -289,7 +281,6 @@
         }
     }
 
-    // Charger les analyses récentes
     async function loadRecentAnalyses() {
         try {
             const response = await fetch('/api/documents/list?limit=10');
@@ -344,7 +335,6 @@
         }).join('');
     }
 
-    // Charger au démarrage
     document.addEventListener('DOMContentLoaded', () => {
         loadRecentAnalyses();
     });

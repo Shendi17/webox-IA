@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Génération - WeBox Studio Créatif{% endblock %}
 
@@ -6,9 +6,9 @@
 <style>
 /* Studio Créatif Section */
 .studio-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2rem;
-    border-radius: 20px;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    padding: 3rem 2rem;
+    border-radius: 15px;
     margin-bottom: 2rem;
     color: white;
 }
@@ -170,7 +170,7 @@
 
 .tab-btn.active {
     border-color: #667eea;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: white;
 }
 
@@ -239,7 +239,7 @@
 .btn-generate {
     width: 100%;
     padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -355,73 +355,6 @@
     <p>Créez du contenu avec le Studio Créatif et les outils de génération IA</p>
 </div>
 
-<!-- Studio Créatif Section -->
-<div class="studio-section">
-    <h2 class="studio-section-title">🎨 Studio Créatif - Accès Rapide</h2>
-    <p class="studio-section-subtitle">7 outils professionnels pour créer du contenu exceptionnel</p>
-    
-    <div class="studio-grid">
-        <a href="/podcast/create" class="studio-card">
-            <div class="studio-icon">🎙️</div>
-            <div class="studio-name">Podcast Creator</div>
-            <div class="studio-desc">Scripts + Audio</div>
-        </a>
-        
-        <a href="/avatar/create" class="studio-card">
-            <div class="studio-icon">👤</div>
-            <div class="studio-name">Avatar Generator</div>
-            <div class="studio-desc">7 styles</div>
-        </a>
-        
-        <a href="/series/create" class="studio-card">
-            <div class="studio-icon">📺</div>
-            <div class="studio-name">Séries IA</div>
-            <div class="studio-desc">Scripts + Images</div>
-        </a>
-        
-        <a href="/pwa/create" class="studio-card">
-            <div class="studio-icon">📱</div>
-            <div class="studio-name">PWA Generator</div>
-            <div class="studio-desc">6 templates</div>
-        </a>
-        
-        <a href="/documents" class="studio-card">
-            <div class="studio-icon">📄</div>
-            <div class="studio-name">Documents IA</div>
-            <div class="studio-desc">Analyse</div>
-        </a>
-        
-        <a href="/chat" class="studio-card">
-            <div class="studio-icon">🤖</div>
-            <div class="studio-name">Agent IA 24/7</div>
-            <div class="studio-desc">Chat</div>
-        </a>
-        
-        <a href="/generation" class="studio-card active">
-            <div class="studio-icon">✨</div>
-            <div class="studio-name">Génération</div>
-            <div class="studio-desc">Actuel</div>
-        </a>
-    </div>
-</div>
-
-<!-- Historique des Générations -->
-<div class="history-section">
-    <div class="history-header">
-        <h2>📋 Historique des Générations</h2>
-        <button onclick="loadHistory()" class="history-refresh-btn">
-            🔄 Actualiser
-        </button>
-    </div>
-    
-    <div class="history-grid" id="historyGrid">
-        <!-- L'historique sera chargé ici -->
-        <div class="history-empty">
-            Aucune génération récente
-        </div>
-    </div>
-</div>
-
 <!-- Tabs -->
 <div class="tabs-container">
     <button class="tab-btn active" onclick="switchTab('images')">🖼️ Images</button>
@@ -444,9 +377,18 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="imageModel">
-                    <option value="dall-e-3">DALL-E 3 (OpenAI) - Qualité premium</option>
-                    <option value="dall-e-2">DALL-E 2 (OpenAI) - Économique</option>
-                    <option value="stable-diffusion">Stable Diffusion - Open source</option>
+                    <optgroup label="Imagen (Google Vertex AI)">
+                        <option value="imagen-4.0-ultra-generate-001">Imagen 4 Ultra 🌟 - Meilleure qualité</option>
+                        <option value="imagen-4.0-generate-001" selected>Imagen 4 Standard - Recommandé</option>
+                        <option value="imagen-4.0-fast-generate-001">Imagen 4 Fast ⚡ - Rapide</option>
+                        <option value="imagen-3.0-generate-002">Imagen 3 v2 - Stable</option>
+                        <option value="imagen-3.0-generate-001">Imagen 3 v1</option>
+                        <option value="imagen-3.0-fast-generate-001">Imagen 3 Fast</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="dall-e-3">DALL-E 3 (OpenAI) - Qualité premium</option>
+                        <option value="stable-diffusion">Stable Diffusion - Open source</option>
+                    </optgroup>
                 </select>
             </div>
             
@@ -489,13 +431,28 @@
                 <h3>📊 Modèles disponibles</h3>
                 <div class="info-card-content">
                     <div class="model-item">
+                        <strong>Imagen 4 Ultra</strong>
+                        <div class="model-desc">🌟 Meilleure qualité (Vertex AI)</div>
+                        <div class="model-price premium">Premium</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>Imagen 4 Standard</strong>
+                        <div class="model-desc">✅ Recommandé (Vertex AI)</div>
+                        <div class="model-price premium">Standard</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>Imagen 4 Fast</strong>
+                        <div class="model-desc">⚡ Rapide (Vertex AI)</div>
+                        <div class="model-price premium">Économique</div>
+                    </div>
+                    <div class="model-item">
                         <strong>DALL-E 3</strong>
-                        <div class="model-desc">✅ Meilleure qualité</div>
+                        <div class="model-desc">OpenAI</div>
                         <div class="model-price premium">$0.04 - $0.12</div>
                     </div>
                     <div class="model-item">
                         <strong>Stable Diffusion</strong>
-                        <div class="model-desc">✅ Open source</div>
+                        <div class="model-desc">Open source</div>
                         <div class="model-price free">GRATUIT</div>
                     </div>
                 </div>
@@ -521,42 +478,91 @@
             <h2 class="section-title">🎬 Génération de Vidéos IA</h2>
             
             <div class="form-group">
-                <label class="form-label">Description de la vidéo *</label>
-                <textarea class="form-textarea" placeholder="Ex: A cinematic shot of a robot walking through a futuristic city"></textarea>
-                <span class="form-hint">🎬 Décrivez l'action, le style, l'ambiance</span>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Durée</label>
-                <select class="form-select">
-                    <option value="3">3 secondes</option>
-                    <option value="5">5 secondes</option>
-                    <option value="10">10 secondes</option>
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="videoModel">
+                    <optgroup label="Veo (Google Vertex AI)">
+                        <option value="veo-3.1-generate-001" selected>Veo 3.1 Generate 🌟 - Meilleure qualité</option>
+                        <option value="veo-3.1-fast-generate-001">Veo 3.1 Fast ⚡ - Rapide</option>
+                        <option value="veo-3.0-generate-001">Veo 3.0 Generate - Stable</option>
+                        <option value="veo-3.0-fast-generate-001">Veo 3.0 Fast</option>
+                        <option value="veo-2.0-generate-001">Veo 2.0 Generate</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="runway">Runway Gen-2 - Cinématique</option>
+                        <option value="pika">Pika Labs - Créatif</option>
+                    </optgroup>
                 </select>
             </div>
             
-            <button class="btn-generate">
+            <div class="form-group">
+                <label class="form-label">Description de la vidéo *</label>
+                <textarea class="form-textarea" id="videoPrompt" placeholder="Ex: A cinematic shot of a robot walking through a futuristic city"></textarea>
+                <span class="form-hint">🎬 Décrivez l'action, le style, l'ambiance</span>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Durée</label>
+                    <select class="form-select" id="videoDuration">
+                        <option value="3">3 secondes</option>
+                        <option value="5" selected>5 secondes</option>
+                        <option value="10">10 secondes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ratio d'aspect</label>
+                    <select class="form-select" id="videoAspectRatio">
+                        <option value="16:9" selected>16:9 (Paysage)</option>
+                        <option value="9:16">9:16 (Portrait/Shorts)</option>
+                        <option value="1:1">1:1 (Carré)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn-generate" onclick="generateVideo()">
                 🎬 Générer la vidéo
             </button>
             
             <div class="cost-info">
-                <strong>💰 Coût estimé :</strong> $0.50 - $2.00 par vidéo
+                <strong>💰 Coût estimé :</strong> Selon modèle et durée
             </div>
         </div>
         
         <div>
             <div class="info-card">
-                <h3>🎬 Modèles vidéo</h3>
+                <h3>🎬 Modèles vidéo disponibles</h3>
                 <div class="info-card-content">
+                    <div class="model-item">
+                        <strong>Veo 3.1 Generate</strong>
+                        <div class="model-desc">🌟 Dernière version (Vertex AI)</div>
+                        <div class="model-price premium">Premium</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>Veo 3.1 Fast</strong>
+                        <div class="model-desc">⚡ Génération rapide (Vertex AI)</div>
+                        <div class="model-price premium">Économique</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>Veo 3.0</strong>
+                        <div class="model-desc">✅ Stable et fiable (Vertex AI)</div>
+                        <div class="model-price premium">Standard</div>
+                    </div>
                     <div class="model-item">
                         <strong>Runway Gen-2</strong>
                         <div class="model-desc">Haute qualité cinématique</div>
-                    </div>
-                    <div class="model-item">
-                        <strong>Pika Labs</strong>
-                        <div class="model-desc">Animations créatives</div>
+                        <div class="model-price premium">Premium</div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>💡 Conseils</h3>
+                <ul class="info-card-list">
+                    <li>Décrivez l'action principale clairement</li>
+                    <li>Mentionnez le style visuel (cinématique, cartoon, etc.)</li>
+                    <li>Précisez l'ambiance et l'éclairage</li>
+                    <li>Veo 3.1 offre la meilleure qualité</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -569,13 +575,21 @@
             <h2 class="section-title">🎙️ Génération Audio & Voix IA</h2>
             
             <div class="form-group">
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="audioModel">
+                    <option value="openai-tts" selected>OpenAI TTS - 6 voix</option>
+                    <option value="elevenlabs">ElevenLabs - Voix premium</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label class="form-label">Texte à convertir *</label>
-                <textarea class="form-textarea" placeholder="Entrez le texte que vous souhaitez convertir en audio"></textarea>
+                <textarea class="form-textarea" id="audioText" placeholder="Entrez le texte que vous souhaitez convertir en audio"></textarea>
             </div>
             
             <div class="form-group">
                 <label class="form-label">Voix</label>
-                <select class="form-select">
+                <select class="form-select" id="audioVoice">
                     <option value="alloy">Alloy (Neutre)</option>
                     <option value="echo">Echo (Masculine)</option>
                     <option value="fable">Fable (Britannique)</option>
@@ -589,16 +603,25 @@
             </button>
             
             <div class="cost-info">
-                <strong>💰 Coût estimé :</strong> $0.015 par 1000 caractères
+                <strong>💰 Coût estimé :</strong> Selon modèle sélectionné
             </div>
         </div>
         
         <div>
             <div class="info-card">
-                <h3>🎙️ Voix disponibles</h3>
-                <p class="info-card-text">
-                    6 voix professionnelles avec OpenAI TTS pour créer des narrations, podcasts, et contenus audio de qualité.
-                </p>
+                <h3>🎙️ Modèles disponibles</h3>
+                <div class="info-card-content">
+                    <div class="model-item">
+                        <strong>OpenAI TTS</strong>
+                        <div class="model-desc">6 voix professionnelles</div>
+                        <div class="model-price premium">$0.015/1000 chars</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>ElevenLabs</strong>
+                        <div class="model-desc">Voix ultra-réalistes</div>
+                        <div class="model-price premium">Premium</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -609,6 +632,20 @@
     <div class="generation-container">
         <div>
             <h2 class="section-title">📚 Création d'eBooks complets</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="ebookModel">
+                    <optgroup label="Gemini (Google Vertex AI)">
+                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Haute qualité</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
+                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    </optgroup>
+                </select>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">Sujet / Thème *</label>
@@ -650,7 +687,7 @@
             </button>
 
             <div class="cost-info">
-                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.0 Flash (texte)
+                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.5 Flash (Vertex AI)
             </div>
         </div>
 
@@ -680,6 +717,20 @@
     <div class="generation-container">
         <div>
             <h2 class="section-title">📱 Vidéos Shorts (TikTok, Reels, YouTube Shorts)</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Modèle IA (Script)</label>
+                <select class="form-select" id="shortModel">
+                    <optgroup label="Gemini (Google Vertex AI)">
+                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Meilleur script</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
+                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    </optgroup>
+                </select>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">Objectif *</label>
@@ -722,7 +773,7 @@
             </button>
 
             <div class="cost-info">
-                <strong>💰 Coût :</strong> GRATUIT pour script + plan (Gemini 2.0 Flash). Vidéo = selon fournisseur.
+                <strong>💰 Coût :</strong> GRATUIT pour script + plan (Gemini 2.5 Flash). Vidéo = selon fournisseur.
             </div>
         </div>
 
@@ -752,6 +803,20 @@
     <div class="generation-container">
         <div>
             <h2 class="section-title">📺 Publicités vidéo</h2>
+
+            <div class="form-group">
+                <label class="form-label">Modèle IA (Script)</label>
+                <select class="form-select" id="adModel">
+                    <optgroup label="Gemini (Google Vertex AI)">
+                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Meilleur script</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
+                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    </optgroup>
+                </select>
+            </div>
 
             <div class="form-group">
                 <label class="form-label">Produit / Service *</label>
@@ -798,7 +863,7 @@
             </button>
 
             <div class="cost-info">
-                <strong>💰 Coût :</strong> GRATUIT pour script + storyboard (Gemini 2.0 Flash). Vidéo = selon fournisseur.
+                <strong>💰 Coût :</strong> GRATUIT pour script + storyboard (Gemini 2.5 Flash). Vidéo = selon fournisseur.
             </div>
         </div>
 
@@ -870,8 +935,23 @@
                 🎨 Générer le logo
             </button>
 
+            <div class="form-group">
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="logoModel">
+                    <optgroup label="Imagen (Google Vertex AI)">
+                        <option value="imagen-4.0-generate-001" selected>Imagen 4 Standard - Recommandé</option>
+                        <option value="imagen-4.0-ultra-generate-001">Imagen 4 Ultra 🌟</option>
+                        <option value="imagen-4.0-fast-generate-001">Imagen 4 Fast ⚡</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="dall-e-3">DALL-E 3 (OpenAI)</option>
+                        <option value="stable-diffusion">Stable Diffusion</option>
+                    </optgroup>
+                </select>
+            </div>
+
             <div class="cost-info">
-                <strong>💰 Coût :</strong> Selon modèle image (DALL-E / Stable Diffusion)
+                <strong>💰 Coût :</strong> Selon modèle sélectionné
             </div>
         </div>
 
@@ -902,8 +982,23 @@
             <h2 class="section-title">📝 Génération de Texte IA</h2>
             
             <div class="form-group">
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="textModel">
+                    <optgroup label="Gemini (Google Vertex AI)">
+                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Haute qualité</option>
+                        <option value="gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
+                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label class="form-label">Type de contenu</label>
-                <select class="form-select">
+                <select class="form-select" id="textType">
                     <option value="article">Article de blog</option>
                     <option value="description">Description produit</option>
                     <option value="email">Email marketing</option>
@@ -931,15 +1026,15 @@
             </button>
             
             <div class="cost-info">
-                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.0 Flash
+                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.5 Flash
             </div>
         </div>
         
         <div>
             <div class="info-card">
-                <h3>✨ Gemini 2.0 Flash</h3>
+                <h3>✨ Gemini 2.5 Flash (Vertex AI)</h3>
                 <p class="info-card-text">
-                    Génération de texte illimitée et gratuite avec le modèle Gemini 2.0 Flash de Google.
+                    Génération de texte illimitée et gratuite avec le modèle Gemini 2.5 Flash de Google Vertex AI.
                 </p>
                 <div class="free-badge">
                     🎉 GRATUIT
@@ -956,8 +1051,25 @@
             <h2 class="section-title">💻 Génération de Code IA</h2>
             
             <div class="form-group">
+                <label class="form-label">Modèle IA</label>
+                <select class="form-select" id="codeModel">
+                    <optgroup label="Gemini (Google Vertex AI)">
+                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Meilleur pour code</option>
+                    </optgroup>
+                    <optgroup label="Gemma (Open Source)">
+                        <option value="codegemma">CodeGemma - Spécialisé code</option>
+                    </optgroup>
+                    <optgroup label="Autres fournisseurs">
+                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
+                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="form-group">
                 <label class="form-label">Langage</label>
-                <select class="form-select">
+                <select class="form-select" id="codeLanguage">
                     <option value="python">Python</option>
                     <option value="javascript">JavaScript</option>
                     <option value="html">HTML/CSS</option>
@@ -976,11 +1088,25 @@
             </button>
             
             <div class="cost-info">
-                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.0 Flash
+                <strong>💰 Coût :</strong> GRATUIT avec Gemini 2.5 Flash
             </div>
         </div>
         
         <div>
+            <div class="info-card">
+                <h3>💻 Modèles disponibles</h3>
+                <div class="info-card-content">
+                    <div class="model-item">
+                        <strong>Gemini 2.5 Pro</strong>
+                        <div class="model-desc">✅ Meilleur pour code complexe</div>
+                    </div>
+                    <div class="model-item">
+                        <strong>CodeGemma</strong>
+                        <div class="model-desc">🧬 Spécialisé code (Open Source)</div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="info-card">
                 <h3>💻 Langages supportés</h3>
                 <ul class="info-card-list">
@@ -992,6 +1118,23 @@
                     <li>Et bien plus...</li>
                 </ul>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historique des Générations -->
+<div class="history-section">
+    <div class="history-header">
+        <h2>📋 Historique des Générations</h2>
+        <button onclick="loadHistory()" class="history-refresh-btn">
+            🔄 Actualiser
+        </button>
+    </div>
+    
+    <div class="history-grid" id="historyGrid">
+        <!-- L'historique sera chargé ici -->
+        <div class="history-empty">
+            Aucune génération récente
         </div>
     </div>
 </div>

@@ -1,0 +1,293 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Abonnements - WeBox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/pricing.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>💎 Abonnements WeBox</h1>
+    <p>Choisissez le plan qui correspond à vos besoins</p>
+</div>
+
+<div class="pricing-page">
+    <!-- Toggle annuel/mensuel -->
+    <div class="billing-toggle">
+        <span class="toggle-label">Mensuel</span>
+        <label class="switch">
+            <input type="checkbox" id="billingToggle" onchange="toggleBilling()">
+            <span class="slider"></span>
+        </label>
+        <span class="toggle-label">Annuel <span class="save-badge">Économisez 20%</span></span>
+    </div>
+
+    <!-- Grille des plans -->
+    <div class="plans-grid">
+        <!-- Plan Gratuit -->
+        <div class="plan-card">
+            <div class="plan-header">
+                <div class="plan-icon">🆓</div>
+                <h3 class="plan-name">Gratuit</h3>
+                <div class="plan-price">
+                    <span class="price" data-monthly="0" data-yearly="0">0 €</span>
+                    <span class="period">/mois</span>
+                </div>
+                <p class="plan-description">Parfait pour découvrir WeBox</p>
+            </div>
+
+            <div class="plan-features">
+                <h4>Fonctionnalités incluses :</h4>
+                <ul>
+                    <li><span class="icon">✓</span> 500 crédits IA/mois</li>
+                    <li><span class="icon">✓</span> 5 GB de stockage</li>
+                    <li><span class="icon">✓</span> Outils IA de base</li>
+                    <li><span class="icon">✓</span> Support communautaire</li>
+                    <li><span class="icon">✓</span> 3 projets actifs</li>
+                    <li><span class="icon">✗</span> API access</li>
+                    <li><span class="icon">✗</span> Collaboration</li>
+                    <li><span class="icon">✗</span> Support prioritaire</li>
+                </ul>
+            </div>
+
+            <button class="btn-select" onclick="selectPlan('free')">
+                Commencer gratuitement
+            </button>
+        </div>
+
+        <!-- Plan Pro -->
+        <div class="plan-card recommended">
+            <div class="recommended-badge">⭐ RECOMMANDÉ</div>
+            <div class="plan-header">
+                <div class="plan-icon">⚡</div>
+                <h3 class="plan-name">Pro</h3>
+                <div class="plan-price">
+                    <span class="price" data-monthly="29.99" data-yearly="23.99">29,99 €</span>
+                    <span class="period">/mois</span>
+                </div>
+                <p class="plan-description">Idéal pour les professionnels</p>
+            </div>
+
+            <div class="plan-features">
+                <h4>Tout du plan Gratuit, plus :</h4>
+                <ul>
+                    <li><span class="icon">✓</span> 10,000 crédits IA/mois</li>
+                    <li><span class="icon">✓</span> 100 GB de stockage</li>
+                    <li><span class="icon">✓</span> Tous les outils IA</li>
+                    <li><span class="icon">✓</span> Support prioritaire 24/7</li>
+                    <li><span class="icon">✓</span> Projets illimités</li>
+                    <li><span class="icon">✓</span> API access (10k req/mois)</li>
+                    <li><span class="icon">✓</span> Collaboration (5 membres)</li>
+                    <li><span class="icon">✓</span> Exports HD</li>
+                </ul>
+            </div>
+
+            <button class="btn-select primary" onclick="selectPlan('pro')">
+                Choisir Pro
+            </button>
+        </div>
+
+        <!-- Plan Enterprise -->
+        <div class="plan-card">
+            <div class="plan-header">
+                <div class="plan-icon">🏢</div>
+                <h3 class="plan-name">Enterprise</h3>
+                <div class="plan-price">
+                    <span class="price" data-monthly="99.99" data-yearly="79.99">99,99 €</span>
+                    <span class="period">/mois</span>
+                </div>
+                <p class="plan-description">Pour les équipes et entreprises</p>
+            </div>
+
+            <div class="plan-features">
+                <h4>Tout du plan Pro, plus :</h4>
+                <ul>
+                    <li><span class="icon">✓</span> Crédits IA illimités</li>
+                    <li><span class="icon">✓</span> 1 TB de stockage</li>
+                    <li><span class="icon">✓</span> Support dédié 24/7</li>
+                    <li><span class="icon">✓</span> Collaboration illimitée</li>
+                    <li><span class="icon">✓</span> API illimitée</li>
+                    <li><span class="icon">✓</span> SLA garanti 99.9%</li>
+                    <li><span class="icon">✓</span> Formation personnalisée</li>
+                    <li><span class="icon">✓</span> Intégrations sur mesure</li>
+                </ul>
+            </div>
+
+            <button class="btn-select" onclick="selectPlan('enterprise')">
+                Choisir Enterprise
+            </button>
+        </div>
+    </div>
+
+    <!-- Comparaison détaillée -->
+    <div class="comparison-section">
+        <h2>Comparaison détaillée des plans</h2>
+        
+        <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Fonctionnalités</th>
+                        <th>Gratuit</th>
+                        <th class="highlighted">Pro</th>
+                        <th>Enterprise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-name">Crédits IA mensuels</td>
+                        <td>500</td>
+                        <td class="highlighted">10,000</td>
+                        <td>Illimité</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Stockage cloud</td>
+                        <td>5 GB</td>
+                        <td class="highlighted">100 GB</td>
+                        <td>1 TB</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Projets actifs</td>
+                        <td>3</td>
+                        <td class="highlighted">Illimité</td>
+                        <td>Illimité</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Membres d'équipe</td>
+                        <td>1</td>
+                        <td class="highlighted">5</td>
+                        <td>Illimité</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">API requests/mois</td>
+                        <td>-</td>
+                        <td class="highlighted">10,000</td>
+                        <td>Illimité</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Support</td>
+                        <td>Communautaire</td>
+                        <td class="highlighted">Prioritaire 24/7</td>
+                        <td>Dédié 24/7</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">SLA</td>
+                        <td>-</td>
+                        <td class="highlighted">99%</td>
+                        <td>99.9%</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Formation</td>
+                        <td>Documentation</td>
+                        <td class="highlighted">Webinaires</td>
+                        <td>Personnalisée</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+        <h2>Questions fréquentes</h2>
+        
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h3>💳 Quels moyens de paiement acceptez-vous ?</h3>
+                <p>Nous acceptons les cartes bancaires (Visa, Mastercard, Amex), PayPal, et les virements bancaires pour les plans Enterprise.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>🔄 Puis-je changer de plan à tout moment ?</h3>
+                <p>Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements sont effectifs immédiatement.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>💰 Offrez-vous des remboursements ?</h3>
+                <p>Oui, nous offrons une garantie satisfait ou remboursé de 30 jours sur tous nos plans payants.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>📊 Que se passe-t-il si je dépasse mes crédits ?</h3>
+                <p>Vous pouvez acheter des crédits supplémentaires ou upgrader votre plan. Vos services ne seront pas interrompus.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>🔒 Mes données sont-elles sécurisées ?</h3>
+                <p>Absolument. Nous utilisons un chiffrement de niveau bancaire et respectons le RGPD. Vos données vous appartiennent.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>👥 Comment fonctionne la collaboration ?</h3>
+                <p>Invitez des membres à vos projets, partagez des ressources, et collaborez en temps réel avec votre équipe.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA final -->
+    <div class="final-cta">
+        <h2>Prêt à booster votre productivité ?</h2>
+        <p>Rejoignez plus de 10,000 professionnels qui utilisent WeBox</p>
+        <div class="cta-buttons">
+            <button class="btn-cta primary" onclick="selectPlan('pro')">
+                Commencer avec Pro
+            </button>
+            <button class="btn-cta secondary" onclick="selectPlan('free')">
+                Essayer gratuitement
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let isYearly = false;
+
+function toggleBilling() {
+    isYearly = document.getElementById('billingToggle').checked;
+    
+    document.querySelectorAll('.price').forEach(priceEl => {
+        const monthly = parseFloat(priceEl.dataset.monthly);
+        const yearly = parseFloat(priceEl.dataset.yearly);
+        const price = isYearly ? yearly : monthly;
+        
+        if (price === 0) {
+            priceEl.textContent = '0 €';
+        } else {
+            priceEl.textContent = price.toFixed(2).replace('.', ',') + ' €';
+        }
+    });
+    
+    document.querySelectorAll('.period').forEach(periodEl => {
+        periodEl.textContent = isYearly ? '/mois (facturé annuellement)' : '/mois';
+    });
+}
+
+function selectPlan(plan) {
+    const billing = isYearly ? 'yearly' : 'monthly';
+    
+    if (plan === 'free') {
+        if (confirm('Voulez-vous créer un compte gratuit ?')) {
+            window.location.href = '/register?plan=free';
+        }
+    } else {
+        window.location.href = `/checkout?plan=${plan}&billing=${billing}`;
+    }
+}
+
+// Animation au scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.plan-card, .faq-item').forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}

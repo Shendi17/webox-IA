@@ -1,0 +1,322 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Marketplace - WeBox Multi-IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/marketplace.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🛒 Marketplace WeBox</h1>
+    <p>Découvrez et achetez des outils, templates et services IA premium</p>
+</div>
+
+    <!-- Filtres et recherche -->
+    <div class="marketplace-filters">
+        <div class="search-bar">
+            <input type="text" placeholder="Rechercher dans la marketplace..." id="marketplaceSearch">
+            <button class="btn btn-primary">🔍 Rechercher</button>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-category="all">Tout</button>
+            <button class="filter-btn" data-category="templates">Templates</button>
+            <button class="filter-btn" data-category="tools">Outils IA</button>
+            <button class="filter-btn" data-category="services">Services</button>
+            <button class="filter-btn" data-category="formations">Formations</button>
+        </div>
+    </div>
+
+    <!-- Produits en vedette -->
+    <section class="featured-products">
+        <h2>⭐ Produits en vedette</h2>
+        <div class="products-grid">
+            <div class="product-card featured" data-product-id="1">
+                <div class="product-badge">Populaire</div>
+                <div class="product-image">
+                    <div class="placeholder-image">🎨</div>
+                </div>
+                <div class="product-info">
+                    <h3>Pack Templates Premium</h3>
+                    <p class="product-description">50+ templates professionnels pour vos projets web et marketing</p>
+                    <div class="product-meta">
+                        <span class="product-category">📄 Templates</span>
+                        <span class="product-rating">⭐ 4.9 (127)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">49.99€</span>
+                        <button class="btn btn-primary" onclick="addToCartAndRedirect(1)">Acheter</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card featured" data-product-id="2">
+                <div class="product-badge">Nouveau</div>
+                <div class="product-image">
+                    <div class="placeholder-image">🤖</div>
+                </div>
+                <div class="product-info">
+                    <h3>Assistant IA Personnalisé</h3>
+                    <p class="product-description">Créez votre propre assistant IA sur mesure pour votre entreprise</p>
+                    <div class="product-meta">
+                        <span class="product-category">🔧 Outils IA</span>
+                        <span class="product-rating">⭐ 5.0 (89)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">199.99€</span>
+                        <button class="btn btn-primary" onclick="addToCartAndRedirect(2)">Acheter</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card featured" data-product-id="3">
+                <div class="product-badge">Promo -30%</div>
+                <div class="product-image">
+                    <div class="placeholder-image">📚</div>
+                </div>
+                <div class="product-info">
+                    <h3>Formation Marketing IA</h3>
+                    <p class="product-description">Masterclass complète sur le marketing avec l'intelligence artificielle</p>
+                    <div class="product-meta">
+                        <span class="product-category">🎓 Formations</span>
+                        <span class="product-rating">⭐ 4.8 (234)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price"><del>99.99€</del> 69.99€</span>
+                        <button class="btn btn-primary" onclick="addToCartAndRedirect(3)">Acheter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tous les produits -->
+    <section class="all-products">
+        <h2>📦 Tous les produits</h2>
+        <div class="products-grid">
+            <div class="product-card" data-product-id="4">
+                <div class="product-image">
+                    <div class="placeholder-image">🌐</div>
+                </div>
+                <div class="product-info">
+                    <h3>Website Builder Pro</h3>
+                    <p class="product-description">Créateur de sites web avec IA intégrée</p>
+                    <div class="product-meta">
+                        <span class="product-category">🔧 Outils IA</span>
+                        <span class="product-rating">⭐ 4.7 (156)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">79.99€</span>
+                        <button class="btn btn-outline" onclick="viewProduct(4)">Voir détails</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="5">
+                <div class="product-image">
+                    <div class="placeholder-image">📊</div>
+                </div>
+                <div class="product-info">
+                    <h3>Analytics Dashboard</h3>
+                    <p class="product-description">Tableau de bord analytics avancé avec insights IA</p>
+                    <div class="product-meta">
+                        <span class="product-category">🔧 Outils IA</span>
+                        <span class="product-rating">⭐ 4.6 (98)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">59.99€</span>
+                        <button class="btn btn-outline" onclick="viewProduct(5)">Voir détails</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="6">
+                <div class="product-image">
+                    <div class="placeholder-image">✉️</div>
+                </div>
+                <div class="product-info">
+                    <h3>Email Marketing Suite</h3>
+                    <p class="product-description">Suite complète pour vos campagnes email avec IA</p>
+                    <div class="product-meta">
+                        <span class="product-category">💼 Services</span>
+                        <span class="product-rating">⭐ 4.9 (203)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">89.99€/mois</span>
+                        <button class="btn btn-outline" onclick="viewProduct(6)">Voir détails</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="7">
+                <div class="product-image">
+                    <div class="placeholder-image">🎬</div>
+                </div>
+                <div class="product-info">
+                    <h3>Générateur Vidéo IA</h3>
+                    <p class="product-description">Créez des vidéos professionnelles avec l'IA</p>
+                    <div class="product-meta">
+                        <span class="product-category">🔧 Outils IA</span>
+                        <span class="product-rating">⭐ 4.8 (167)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">129.99€</span>
+                        <button class="btn btn-outline" onclick="viewProduct(7)">Voir détails</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="8">
+                <div class="product-image">
+                    <div class="placeholder-image">📱</div>
+                </div>
+                <div class="product-info">
+                    <h3>App Builder Mobile</h3>
+                    <p class="product-description">Créateur d'applications mobiles sans code</p>
+                    <div class="product-meta">
+                        <span class="product-category">🔧 Outils IA</span>
+                        <span class="product-rating">⭐ 4.5 (142)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">149.99€</span>
+                        <button class="btn btn-outline" onclick="viewProduct(8)">Voir détails</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card" data-product-id="9">
+                <div class="product-image">
+                    <div class="placeholder-image">🎨</div>
+                </div>
+                <div class="product-info">
+                    <h3>Design System Pro</h3>
+                    <p class="product-description">Système de design complet pour vos projets</p>
+                    <div class="product-meta">
+                        <span class="product-category">📄 Templates</span>
+                        <span class="product-rating">⭐ 4.7 (189)</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">39.99€</span>
+                        <button class="btn btn-outline" onclick="viewProduct(9)">Voir détails</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<script>
+// Voir les détails d'un produit
+function viewProduct(productId) {
+    window.location.href = `/product/${productId}`;
+}
+
+// Ajouter au panier et rediriger
+async function addToCartAndRedirect(productId) {
+    try {
+        // Appeler l'API pour ajouter au panier
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Afficher notification
+            showNotification('✓ Produit ajouté au panier !', 'success');
+            
+            // Mettre à jour le badge du panier depuis l'API
+            await updateCartBadgeFromAPI();
+            
+            // Rediriger vers le panier après 1 seconde
+            setTimeout(() => {
+                window.location.href = '/cart';
+            }, 1000);
+        } else {
+            showNotification('❌ Erreur: ' + (data.detail || 'Impossible d\'ajouter au panier'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur ajout panier:', error);
+        showNotification('❌ Erreur de connexion', 'error');
+    }
+}
+
+// Afficher une notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? '#4caf50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Mettre à jour le badge du panier depuis l'API
+async function updateCartBadgeFromAPI() {
+    try {
+        const response = await fetch('/api/cart');
+        if (response.ok) {
+            const data = await response.json();
+            const badge = document.getElementById('cartBadge');
+            if (badge && data.success) {
+                const totalItems = data.cart.total_items || 0;
+                badge.textContent = totalItems;
+                badge.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Erreur mise à jour badge:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtres de catégorie
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const category = this.dataset.category;
+            console.log('Filtre sélectionné:', category);
+            // Logique de filtrage à implémenter
+        });
+    });
+    
+    // Rendre les cartes produits cliquables
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+            // Ne pas déclencher si on clique sur un bouton
+            if (e.target.tagName === 'BUTTON') return;
+            
+            const productId = this.dataset.productId;
+            if (productId) {
+                viewProduct(productId);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

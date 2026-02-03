@@ -1,0 +1,401 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Mes Commandes - WeBox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/orders.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📦 Mes Commandes</h1>
+    <p>Suivez l'état de vos commandes et téléchargez vos factures</p>
+</div>
+
+<div class="orders-page">
+    <!-- Filtres -->
+    <div class="orders-filters">
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-status="all">
+                Toutes <span class="count">12</span>
+            </button>
+            <button class="filter-btn" data-status="completed">
+                Complétées <span class="count">8</span>
+            </button>
+            <button class="filter-btn" data-status="pending">
+                En attente <span class="count">3</span>
+            </button>
+            <button class="filter-btn" data-status="cancelled">
+                Annulées <span class="count">1</span>
+            </button>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="Rechercher une commande..." id="orderSearch">
+            <button class="btn-search">🔍</button>
+        </div>
+    </div>
+
+    <!-- Liste des commandes -->
+    <div class="orders-list">
+        <!-- Commande 1 - Complétée -->
+        <div class="order-card" data-status="completed">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-number">#WB-2026-001234</div>
+                    <div class="order-date">23 janvier 2026 - 23:45</div>
+                </div>
+                <div class="order-status status-completed">
+                    <span class="status-icon">✓</span>
+                    <span>Complétée</span>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <div class="order-item">
+                    <div class="item-image">
+                        <div class="placeholder-image">🎨</div>
+                    </div>
+                    <div class="item-details">
+                        <h4>Générateur de Contenu IA Pro</h4>
+                        <p>Licence perpétuelle</p>
+                    </div>
+                    <div class="item-quantity">x1</div>
+                    <div class="item-price">49,99 €</div>
+                </div>
+                
+                <div class="order-item">
+                    <div class="item-image">
+                        <div class="placeholder-image">📄</div>
+                    </div>
+                    <div class="item-details">
+                        <h4>Pack Templates Premium</h4>
+                        <p>50+ templates professionnels</p>
+                    </div>
+                    <div class="item-quantity">x2</div>
+                    <div class="item-price">59,98 €</div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div class="order-payment">
+                    <span class="payment-method">💳 Carte bancaire</span>
+                    <span class="payment-status">Payé</span>
+                </div>
+                <div class="order-total">
+                    <span>Total:</span>
+                    <span class="total-amount">95,96 €</span>
+                </div>
+                <div class="order-actions">
+                    <button class="btn-secondary" onclick="viewOrderDetails('WB-2026-001234')">
+                        Voir détails
+                    </button>
+                    <button class="btn-primary" onclick="downloadInvoice('WB-2026-001234')">
+                        📥 Facture
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commande 2 - En attente -->
+        <div class="order-card" data-status="pending">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-number">#WB-2026-001235</div>
+                    <div class="order-date">24 janvier 2026 - 10:30</div>
+                </div>
+                <div class="order-status status-pending">
+                    <span class="status-icon">⏳</span>
+                    <span>En attente de paiement</span>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <div class="order-item">
+                    <div class="item-image">
+                        <div class="placeholder-image">🤖</div>
+                    </div>
+                    <div class="item-details">
+                        <h4>Assistant IA Personnalisé</h4>
+                        <p>Configuration sur mesure</p>
+                    </div>
+                    <div class="item-quantity">x1</div>
+                    <div class="item-price">199,99 €</div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div class="order-payment">
+                    <span class="payment-method">🏦 Virement bancaire</span>
+                    <span class="payment-status pending">En attente</span>
+                </div>
+                <div class="order-total">
+                    <span>Total:</span>
+                    <span class="total-amount">199,99 €</span>
+                </div>
+                <div class="order-actions">
+                    <button class="btn-secondary" onclick="viewOrderDetails('WB-2026-001235')">
+                        Voir détails
+                    </button>
+                    <button class="btn-warning" onclick="viewBankDetails('WB-2026-001235')">
+                        Infos virement
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commande 3 - Complétée -->
+        <div class="order-card" data-status="completed">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-number">#WB-2026-001220</div>
+                    <div class="order-date">20 janvier 2026 - 15:20</div>
+                </div>
+                <div class="order-status status-completed">
+                    <span class="status-icon">✓</span>
+                    <span>Complétée</span>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <div class="order-item">
+                    <div class="item-image">
+                        <div class="placeholder-image">📚</div>
+                    </div>
+                    <div class="item-details">
+                        <h4>Formation Marketing IA</h4>
+                        <p>Masterclass complète</p>
+                    </div>
+                    <div class="item-quantity">x1</div>
+                    <div class="item-price">69,99 €</div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div class="order-payment">
+                    <span class="payment-method">🅿️ PayPal</span>
+                    <span class="payment-status">Payé</span>
+                </div>
+                <div class="order-total">
+                    <span>Total:</span>
+                    <span class="total-amount">69,99 €</span>
+                </div>
+                <div class="order-actions">
+                    <button class="btn-secondary" onclick="viewOrderDetails('WB-2026-001220')">
+                        Voir détails
+                    </button>
+                    <button class="btn-primary" onclick="downloadInvoice('WB-2026-001220')">
+                        📥 Facture
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commande 4 - Complétée -->
+        <div class="order-card" data-status="completed">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-number">#WB-2026-001215</div>
+                    <div class="order-date">18 janvier 2026 - 09:15</div>
+                </div>
+                <div class="order-status status-completed">
+                    <span class="status-icon">✓</span>
+                    <span>Complétée</span>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <div class="order-item">
+                    <div class="item-image">
+                        <div class="placeholder-image">🌐</div>
+                    </div>
+                    <div class="item-details">
+                        <h4>Website Builder Pro</h4>
+                        <p>Créateur de sites web avec IA</p>
+                    </div>
+                    <div class="item-quantity">x1</div>
+                    <div class="item-price">79,99 €</div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div class="order-payment">
+                    <span class="payment-method">💳 Carte bancaire</span>
+                    <span class="payment-status">Payé</span>
+                </div>
+                <div class="order-total">
+                    <span>Total:</span>
+                    <span class="total-amount">79,99 €</span>
+                </div>
+                <div class="order-actions">
+                    <button class="btn-secondary" onclick="viewOrderDetails('WB-2026-001215')">
+                        Voir détails
+                    </button>
+                    <button class="btn-primary" onclick="downloadInvoice('WB-2026-001215')">
+                        📥 Facture
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commande 5 - Annulée -->
+        <div class="order-card" data-status="cancelled">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-number">#WB-2026-001210</div>
+                    <div class="order-date">15 janvier 2026 - 14:00</div>
+                </div>
+                <div class="order-status status-cancelled">
+                    <span class="status-icon">✕</span>
+                    <span>Annulée</span>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <div class="order-item">
+                    <div class="item-image">
+                        <div class="placeholder-image">📊</div>
+                    </div>
+                    <div class="item-details">
+                        <h4>Analytics Dashboard</h4>
+                        <p>Tableau de bord analytics avancé</p>
+                    </div>
+                    <div class="item-quantity">x1</div>
+                    <div class="item-price">59,99 €</div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div class="order-payment">
+                    <span class="payment-method">💳 Carte bancaire</span>
+                    <span class="payment-status cancelled">Annulée</span>
+                </div>
+                <div class="order-total">
+                    <span>Total:</span>
+                    <span class="total-amount">59,99 €</span>
+                </div>
+                <div class="order-actions">
+                    <button class="btn-secondary" onclick="viewOrderDetails('WB-2026-001210')">
+                        Voir détails
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message si aucune commande -->
+    <div class="no-orders" style="display: none;">
+        <div class="no-orders-icon">📦</div>
+        <h3>Aucune commande trouvée</h3>
+        <p>Vous n'avez pas encore passé de commande</p>
+        <a href="/marketplace" class="btn-primary">Découvrir le marketplace</a>
+    </div>
+</div>
+
+<script>
+// Filtrage des commandes
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const status = this.dataset.status;
+        
+        // Activer le bouton
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Filtrer les commandes
+        const orders = document.querySelectorAll('.order-card');
+        let visibleCount = 0;
+        
+        orders.forEach(order => {
+            if (status === 'all' || order.dataset.status === status) {
+                order.style.display = 'block';
+                visibleCount++;
+            } else {
+                order.style.display = 'none';
+            }
+        });
+        
+        // Afficher message si aucune commande
+        const noOrders = document.querySelector('.no-orders');
+        if (visibleCount === 0) {
+            noOrders.style.display = 'flex';
+        } else {
+            noOrders.style.display = 'none';
+        }
+    });
+});
+
+// Recherche
+document.getElementById('orderSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const orders = document.querySelectorAll('.order-card');
+    let visibleCount = 0;
+    
+    orders.forEach(order => {
+        const orderNumber = order.querySelector('.order-number').textContent.toLowerCase();
+        const items = Array.from(order.querySelectorAll('.item-details h4')).map(h => h.textContent.toLowerCase());
+        
+        const matches = orderNumber.includes(searchTerm) || items.some(item => item.includes(searchTerm));
+        
+        if (matches) {
+            order.style.display = 'block';
+            visibleCount++;
+        } else {
+            order.style.display = 'none';
+        }
+    });
+    
+    // Afficher message si aucune commande
+    const noOrders = document.querySelector('.no-orders');
+    if (visibleCount === 0) {
+        noOrders.style.display = 'flex';
+    } else {
+        noOrders.style.display = 'none';
+    }
+});
+
+// Voir détails de la commande
+function viewOrderDetails(orderNumber) {
+    alert(`📋 Détails de la commande ${orderNumber}\n\nCette fonctionnalité ouvrira une modale avec tous les détails de la commande.`);
+}
+
+// Télécharger la facture
+function downloadInvoice(orderNumber) {
+    showNotification(`📥 Téléchargement de la facture ${orderNumber}...`, 'success');
+    // Simuler le téléchargement
+    setTimeout(() => {
+        showNotification('✓ Facture téléchargée !', 'success');
+    }, 1000);
+}
+
+// Voir les détails du virement
+function viewBankDetails(orderNumber) {
+    alert(`🏦 Informations de virement pour ${orderNumber}\n\nBénéficiaire: WeBox SAS\nIBAN: FR76 XXXX XXXX XXXX XXXX XXXX XXX\nBIC: WBOXFRPP\nRéférence: ${orderNumber}\n\nVeuillez indiquer cette référence lors de votre virement.`);
+}
+
+// Notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? '#4caf50' : type === 'info' ? '#2196f3' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

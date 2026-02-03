@@ -1,0 +1,295 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Panier - WeBox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/cart.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🛒 Mon Panier</h1>
+    <p>Finalisez votre commande</p>
+</div>
+
+<div class="cart-page">
+    <div class="cart-main">
+        <!-- Liste des articles (chargée dynamiquement) -->
+        <div class="cart-items" id="cartItems">
+            <div class="loading">Chargement du panier...</div>
+        </div>
+
+        <!-- Panier vide -->
+        <div class="cart-empty" id="cartEmpty" style="display: none;">
+            <div class="empty-icon">🛒</div>
+            <h2>Votre panier est vide</h2>
+            <p>Découvrez nos produits et outils IA pour booster votre productivité</p>
+            <a href="/marketplace" class="btn-shop">Découvrir le Marketplace</a>
+        </div>
+
+        <!-- Code promo -->
+        <div class="promo-section" id="promoSection" style="display: none;">
+            <h3>💰 Code promo</h3>
+            <div class="promo-input">
+                <input type="text" id="promoCode" placeholder="Entrez votre code promo">
+                <button class="btn-apply" onclick="applyPromo()">Appliquer</button>
+            </div>
+            <div class="promo-message" id="promoMessage"></div>
+        </div>
+    </div>
+
+    <!-- Résumé de commande -->
+    <div class="cart-summary" id="cartSummary" style="display: none;">
+        <h2>Résumé de la commande</h2>
+        
+        <div class="summary-details">
+            <div class="summary-row">
+                <span>Sous-total</span>
+                <span id="subtotal">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>Remise</span>
+                <span id="discount" class="discount-amount">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span>TVA (20%)</span>
+                <span id="tax">0,00 €</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">0,00 €</span>
+            </div>
+        </div>
+
+        <button class="btn-checkout" onclick="goToCheckout()">
+            ⚡ Passer la commande
+        </button>
+
+        <div class="payment-methods">
+            <p>Moyens de paiement acceptés :</p>
+            <div class="payment-icons">
+                <span>💳</span>
+                <span>🏦</span>
+                <span>📱</span>
+            </div>
+        </div>
+
+        <div class="security-badges">
+            <div class="badge">
+                <span>🔒</span>
+                <span>Paiement sécurisé</span>
+            </div>
+            <div class="badge">
+                <span>✓</span>
+                <span>Garantie satisfait ou remboursé</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let cartData = null;
+
+// Charger le panier depuis l'API
+async function loadCart() {
+    try {
+        const response = await fetch('/api/cart');
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            throw new Error('Erreur chargement panier');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            cartData = data.cart;
+            renderCart();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('cartItems').innerHTML = 
+            '<div class="error">❌ Erreur de chargement du panier</div>';
+    }
+}
+
+// Afficher le panier
+function renderCart() {
+    const cartItems = document.getElementById('cartItems');
+    const cartEmpty = document.getElementById('cartEmpty');
+    const cartSummary = document.getElementById('cartSummary');
+    const promoSection = document.getElementById('promoSection');
+    
+    if (!cartData || cartData.items.length === 0) {
+        cartItems.style.display = 'none';
+        cartEmpty.style.display = 'flex';
+        cartSummary.style.display = 'none';
+        promoSection.style.display = 'none';
+        return;
+    }
+    
+    // Afficher les items
+    cartItems.innerHTML = cartData.items.map(item => `
+        <div class="cart-item" data-id="${item.id}">
+            <div class="item-image">
+                <div class="placeholder-image">🎨</div>
+            </div>
+            <div class="item-details">
+                <h3 class="item-name">${item.product_name || 'Produit'}</h3>
+                <p class="item-description">Produit #${item.product_id}</p>
+                <div class="item-meta">
+                    <span class="item-stock">✓ En stock</span>
+                </div>
+            </div>
+            <div class="item-quantity">
+                <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                <input type="number" value="${item.quantity}" min="1" max="10" readonly>
+                <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+            </div>
+            <div class="item-price">
+                <div class="price-current">${item.price_at_addition.toFixed(2)} €</div>
+            </div>
+            <button class="item-remove" onclick="removeItem(${item.id})">
+                <span>🗑️</span>
+            </button>
+        </div>
+    `).join('');
+    
+    cartItems.style.display = 'block';
+    cartEmpty.style.display = 'none';
+    cartSummary.style.display = 'block';
+    promoSection.style.display = 'block';
+    
+    updateSummary();
+}
+
+// Mettre à jour la quantité
+async function updateQuantity(itemId, newQuantity) {
+    if (newQuantity < 1) {
+        removeItem(itemId);
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/cart/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: newQuantity })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Recharger le panier
+            await loadCart();
+            await updateCartBadgeFromAPI();
+        } else {
+            showNotification('❌ ' + (data.detail || 'Erreur mise à jour'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de connexion', 'error');
+    }
+}
+
+// Supprimer un item
+async function removeItem(itemId) {
+    if (!confirm('Voulez-vous vraiment retirer cet article du panier ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/cart/${itemId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Recharger le panier
+            await loadCart();
+            await updateCartBadgeFromAPI();
+            showNotification('✓ Article retiré', 'success');
+        } else {
+            showNotification('❌ ' + (data.detail || 'Erreur suppression'), 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de connexion', 'error');
+    }
+}
+
+// Mettre à jour le résumé
+function updateSummary() {
+    if (!cartData) return;
+    
+    document.getElementById('subtotal').textContent = cartData.subtotal.toFixed(2) + ' €';
+    document.getElementById('discount').textContent = '0,00 €';
+    document.getElementById('tax').textContent = cartData.tax.toFixed(2) + ' €';
+    document.getElementById('total').textContent = cartData.total.toFixed(2) + ' €';
+}
+
+// Mettre à jour le badge du panier
+async function updateCartBadgeFromAPI() {
+    try {
+        const response = await fetch('/api/cart');
+        if (response.ok) {
+            const data = await response.json();
+            const badge = document.getElementById('cartBadge');
+            if (badge && data.success) {
+                const totalItems = data.cart.total_items || 0;
+                badge.textContent = totalItems;
+                badge.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Erreur badge:', error);
+    }
+}
+
+// Aller au checkout
+function goToCheckout() {
+    if (!cartData || cartData.items.length === 0) {
+        alert('Votre panier est vide');
+        return;
+    }
+    window.location.href = '/checkout';
+}
+
+// Afficher notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? '#4caf50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    loadCart();
+    updateCartBadgeFromAPI();
+});
+</script>
+{% endblock %}

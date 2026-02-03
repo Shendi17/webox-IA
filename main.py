@@ -3,7 +3,7 @@ WeBox Multi-IA - Application FastAPI avec Architecture MVC
 Point d'entrée principal de l'application
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -32,7 +32,6 @@ app.add_middleware(
 )
 
 # Créer le dossier uploads s'il n'existe pas
-from pathlib import Path
 Path("uploads").mkdir(exist_ok=True)
 
 # Monter les fichiers statiques
@@ -109,6 +108,25 @@ app.include_router(profile_router, tags=["Profile"])
 # Importer et inclure les routes admin
 from app.routes.admin_routes import router as admin_router
 app.include_router(admin_router, tags=["Admin"])
+
+# Route page admin principale
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    """Page d'administration principale"""
+    user = get_current_user_from_cookie(request)
+    
+    # Rediriger vers login si non connecté
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    # Vérifier si admin
+    if not user.get("is_admin", False):
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    
+    return templates.TemplateResponse("dashboard/admin_analytics.html", {
+        "request": request,
+        "user": user
+    })
 
 # Importer et inclure les routes blog
 from app.routes.blog_routes import router as blog_router
@@ -191,6 +209,78 @@ app.include_router(marketing_pages_router, tags=["Marketing Pages"])
 from app.routes.agent_routes import router as agent_router
 app.include_router(agent_router, tags=["Agents"])
 
+# Importer et inclure les routes Marketplace
+from app.routes.marketplace_routes import router as marketplace_router
+app.include_router(marketplace_router, tags=["Marketplace"])
+
+# Importer et inclure les routes Notifications
+from app.routes.notifications_routes import router as notifications_router
+app.include_router(notifications_router, tags=["Notifications"])
+
+# Importer et inclure les nouvelles routes Notification WebSocket
+from app.routes.notification_routes import router as notification_ws_router
+app.include_router(notification_ws_router, tags=["Notifications WebSocket"])
+
+# Importer et inclure les routes Settings
+from app.routes.settings_routes import router as settings_router
+app.include_router(settings_router, tags=["Settings"])
+
+# Importer et inclure les routes Support
+from app.routes.support_routes import router as support_router
+app.include_router(support_router, tags=["Support"])
+
+# Importer et inclure les routes Account
+from app.routes.account_routes import router as account_router
+app.include_router(account_router, tags=["Account"])
+
+# Importer et inclure les routes Activities
+from app.routes.activities_routes import router as activities_router
+app.include_router(activities_router, tags=["Activities"])
+
+# Importer et inclure les routes Payment
+from app.routes.payment_routes import router as payment_router
+app.include_router(payment_router, tags=["Payment"])
+
+# Importer et inclure les routes Orders
+from app.routes.orders_routes import router as orders_router
+app.include_router(orders_router, tags=["Orders"])
+
+# Importer et inclure les routes Cart
+from app.routes.cart_routes import router as cart_router
+app.include_router(cart_router, prefix="/api", tags=["Cart"])
+
+# Importer et inclure les routes Search
+from app.routes.search_routes import router as search_router
+app.include_router(search_router, tags=["Search"])
+
+# Importer et inclure les routes Promo Codes
+from app.routes.promo_routes import router as promo_router
+app.include_router(promo_router, tags=["Promo Codes"])
+
+# Importer et inclure les routes Invoices
+from app.routes.invoice_routes import router as invoice_router
+app.include_router(invoice_router, tags=["Invoices"])
+
+# Importer et inclure les routes Tickets
+from app.routes.ticket_routes import router as ticket_router
+app.include_router(ticket_router, tags=["Support Tickets"])
+
+# Importer et inclure les routes Security
+from app.routes.security_routes import router as security_router
+app.include_router(security_router, tags=["Security"])
+
+# Importer et inclure les routes Monitoring
+from app.routes.monitoring_routes import router as monitoring_router
+app.include_router(monitoring_router, tags=["Monitoring"])
+
+# Importer et inclure les routes 2FA
+from app.routes.twofa_routes import router as twofa_router
+app.include_router(twofa_router, tags=["2FA"])
+
+# Importer et inclure les routes Cache
+from app.routes.cache_routes import router as cache_router
+app.include_router(cache_router, tags=["Cache"])
+
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -216,14 +306,6 @@ async def home(request: Request):
         "footer_tagline": landing_data.FOOTER_TAGLINE,
         "footer_features": landing_data.FOOTER_FEATURES,
         "copyright": landing_data.COPYRIGHT,
-    })
-
-
-@app.get("/test-modal", response_class=HTMLResponse)
-async def test_modal(request: Request):
-    """Page de test pour le centrage des modals"""
-    return templates.TemplateResponse("test_modal.html", {
-        "request": request
     })
 
 

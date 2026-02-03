@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}👤 Mes Avatars - WeBox{% endblock %}
 
@@ -7,36 +7,25 @@
     .avatars-page {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-        font-size: 2rem;
-        color: #333;
     }
 
     .btn-create {
-        padding: 1rem 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #1a1a2e;
         border: none;
         border-radius: 10px;
         font-weight: 600;
         cursor: pointer;
         text-decoration: none;
         display: inline-block;
-        transition: transform 0.3s;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn-create:hover {
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
     }
 
     /* Stats */
@@ -124,7 +113,7 @@
     .avatar-image {
         width: 100%;
         aspect-ratio: 1;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -282,12 +271,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="avatars-page">
-    <div class="page-header">
-        <h1>👤 Mes Avatars</h1>
-        <a href="/avatar/create" class="btn-create">+ Créer un Avatar</a>
-    </div>
+<div class="page-header">
+    <h1>👤 Mes Avatars</h1>
+    <p>Créez des avatars IA réalistes pour vos projets</p>
+</div>
 
+<div class="page-actions" style="margin-bottom: 2rem; text-align: right;">
+    <a href="/avatar/create" class="btn-create" style="text-decoration: none;">
+        + Créer un avatar
+    </a>
+</div>
+
+<div class="avatars-page">
     <!-- Stats -->
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card">

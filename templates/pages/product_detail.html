@@ -1,0 +1,354 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}{{ product.name }} - WeBox Marketplace{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/product.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🛍️ {{ product.name }}</h1>
+    <p>{{ product.category }}</p>
+</div>
+
+<div class="product-detail-page">
+    <div class="product-main">
+        <!-- Galerie d'images -->
+        <div class="product-gallery">
+            <div class="main-image">
+                <img src="{{ product.image }}" alt="{{ product.name }}" id="mainImage">
+            </div>
+            <div class="thumbnail-images">
+                <img src="{{ product.image }}" alt="Image 1" class="thumbnail active" onclick="changeImage(this)">
+                <img src="{{ product.image }}" alt="Image 2" class="thumbnail" onclick="changeImage(this)">
+                <img src="{{ product.image }}" alt="Image 3" class="thumbnail" onclick="changeImage(this)">
+                <img src="{{ product.image }}" alt="Image 4" class="thumbnail" onclick="changeImage(this)">
+            </div>
+        </div>
+
+        <!-- Informations produit -->
+        <div class="product-info">
+            <div class="product-header">
+                <div class="product-rating">
+                    <span class="stars">⭐⭐⭐⭐⭐</span>
+                    <span class="rating-count">({{ product.reviews }} avis)</span>
+                </div>
+                <div class="product-badge">{{ product.badge }}</div>
+            </div>
+
+            <div class="product-price">
+                <span class="current-price">{{ product.price }}</span>
+                {% if product.original_price %}
+                <span class="original-price">{{ product.original_price }}</span>
+                <span class="discount">-{{ product.discount }}%</span>
+                {% endif %}
+            </div>
+
+            <div class="product-description">
+                <h3>📝 Description</h3>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <div class="product-features">
+                <h3>✨ Fonctionnalités principales</h3>
+                <ul>
+                    <li>✓ Accès illimité à l'outil</li>
+                    <li>✓ Support technique prioritaire</li>
+                    <li>✓ Mises à jour gratuites à vie</li>
+                    <li>✓ Documentation complète</li>
+                    <li>✓ Intégration API</li>
+                    <li>✓ Personnalisation avancée</li>
+                </ul>
+            </div>
+
+            <div class="product-actions">
+                <div class="quantity-selector">
+                    <button class="qty-btn" onclick="decreaseQty()">-</button>
+                    <input type="number" id="quantity" value="1" min="1" max="10">
+                    <button class="qty-btn" onclick="increaseQty()">+</button>
+                </div>
+                <button class="btn-add-cart" onclick="addToCart('{{ product.id }}')">
+                    🛒 Ajouter au panier
+                </button>
+                <button class="btn-buy-now" onclick="buyNow('{{ product.id }}')">
+                    ⚡ Acheter maintenant
+                </button>
+            </div>
+
+            <div class="product-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Catégorie:</span>
+                    <span class="meta-value">{{ product.category }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Vendeur:</span>
+                    <span class="meta-value">WeBox Official</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Disponibilité:</span>
+                    <span class="meta-value stock-available">En stock</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onglets d'informations -->
+    <div class="product-tabs">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('description')">Description détaillée</button>
+            <button class="tab-btn" onclick="switchTab('specs')">Spécifications</button>
+            <button class="tab-btn" onclick="switchTab('reviews')">Avis clients</button>
+            <button class="tab-btn" onclick="switchTab('support')">Support</button>
+        </div>
+
+        <div class="tabs-content">
+            <!-- Description détaillée -->
+            <div class="tab-panel active" id="description">
+                <h3>À propos de ce produit</h3>
+                <p>{{ product.long_description }}</p>
+                
+                <h4>Pourquoi choisir cet outil ?</h4>
+                <ul>
+                    <li>Interface intuitive et facile à utiliser</li>
+                    <li>Performances optimales grâce à l'IA</li>
+                    <li>Gain de temps considérable</li>
+                    <li>Résultats professionnels garantis</li>
+                </ul>
+            </div>
+
+            <!-- Spécifications -->
+            <div class="tab-panel" id="specs">
+                <h3>Spécifications techniques</h3>
+                <table class="specs-table">
+                    <tr>
+                        <td>Type de licence</td>
+                        <td>Licence perpétuelle</td>
+                    </tr>
+                    <tr>
+                        <td>Plateforme</td>
+                        <td>Web, API</td>
+                    </tr>
+                    <tr>
+                        <td>Langues supportées</td>
+                        <td>Français, Anglais, Espagnol, +20</td>
+                    </tr>
+                    <tr>
+                        <td>Intégrations</td>
+                        <td>Zapier, Make, API REST</td>
+                    </tr>
+                    <tr>
+                        <td>Support</td>
+                        <td>Email, Chat, Téléphone</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Avis clients -->
+            <div class="tab-panel" id="reviews">
+                <h3>Avis clients ({{ product.reviews }})</h3>
+                
+                <div class="review-summary">
+                    <div class="average-rating">
+                        <div class="rating-number">4.8</div>
+                        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                        <div class="rating-text">Basé sur {{ product.reviews }} avis</div>
+                    </div>
+                    <div class="rating-breakdown">
+                        <div class="rating-bar">
+                            <span>5 étoiles</span>
+                            <div class="bar"><div class="fill" style="width: 85%"></div></div>
+                            <span>85%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>4 étoiles</span>
+                            <div class="bar"><div class="fill" style="width: 10%"></div></div>
+                            <span>10%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>3 étoiles</span>
+                            <div class="bar"><div class="fill" style="width: 3%"></div></div>
+                            <span>3%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>2 étoiles</span>
+                            <div class="bar"><div class="fill" style="width: 1%"></div></div>
+                            <span>1%</span>
+                        </div>
+                        <div class="rating-bar">
+                            <span>1 étoile</span>
+                            <div class="bar"><div class="fill" style="width: 1%"></div></div>
+                            <span>1%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reviews-list">
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">M</div>
+                                <div>
+                                    <div class="reviewer-name">Marie Dupont</div>
+                                    <div class="review-date">Il y a 2 jours</div>
+                                </div>
+                            </div>
+                            <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                        <div class="review-content">
+                            <h4>Excellent outil !</h4>
+                            <p>Très satisfaite de cet achat. L'outil est puissant et facile à utiliser. Le support client est réactif.</p>
+                        </div>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-avatar">J</div>
+                                <div>
+                                    <div class="reviewer-name">Jean Martin</div>
+                                    <div class="review-date">Il y a 1 semaine</div>
+                                </div>
+                            </div>
+                            <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                        <div class="review-content">
+                            <h4>Parfait pour mon business</h4>
+                            <p>Gain de temps énorme ! Je recommande vivement cet outil à tous les professionnels.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="tab-panel" id="support">
+                <h3>Support et assistance</h3>
+                <div class="support-options">
+                    <div class="support-card">
+                        <div class="support-icon">📖</div>
+                        <h4>Documentation</h4>
+                        <p>Guides complets et tutoriels vidéo</p>
+                        <a href="/documentation" class="btn-support">Accéder</a>
+                    </div>
+                    <div class="support-card">
+                        <div class="support-icon">💬</div>
+                        <h4>Chat en direct</h4>
+                        <p>Support instantané 24/7</p>
+                        <a href="/support" class="btn-support">Démarrer</a>
+                    </div>
+                    <div class="support-card">
+                        <div class="support-icon">📧</div>
+                        <h4>Email</h4>
+                        <p>Réponse sous 24h</p>
+                        <a href="mailto:support@webox.com" class="btn-support">Contacter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Produits similaires -->
+    <div class="related-products">
+        <h2>Produits similaires</h2>
+        <div class="products-grid">
+            <!-- Les produits similaires seront chargés dynamiquement -->
+        </div>
+    </div>
+</div>
+
+<script>
+function changeImage(thumbnail) {
+    document.getElementById('mainImage').src = thumbnail.src;
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumbnail.classList.add('active');
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+}
+
+function increaseQty() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) < parseInt(input.max)) {
+        input.value = parseInt(input.value) + 1;
+    }
+}
+
+function decreaseQty() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > parseInt(input.min)) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+function addToCart(productId) {
+    const quantity = document.getElementById('quantity').value;
+    
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: parseInt(quantity)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✓ Produit ajouté au panier !', 'success');
+            updateCartCount();
+        }
+    })
+    .catch(error => {
+        showNotification('❌ Erreur lors de l\'ajout au panier', 'error');
+    });
+}
+
+function buyNow(productId) {
+    const quantity = document.getElementById('quantity').value;
+    window.location.href = `/checkout?product=${productId}&qty=${quantity}`;
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? '#4caf50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+function updateCartCount() {
+    fetch('/api/cart/count')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('.cart-badge');
+            if (badge) {
+                badge.textContent = data.count;
+                badge.style.display = data.count > 0 ? 'block' : 'none';
+            }
+        });
+}
+</script>
+{% endblock %}

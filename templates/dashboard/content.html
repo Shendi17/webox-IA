@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Content Engine{% endblock %}
 
@@ -35,12 +35,13 @@
     color: #1a1a2e;
     padding: 1rem 2rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s;
     width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-generate:hover {
@@ -56,16 +57,12 @@
 {% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>📝 Content Engine</h1>
+    <p>Générez tous types de contenus avec l'intelligence artificielle</p>
+</div>
+
 <div class="page-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div class="page-header-content">
-            <div class="page-header-text">
-                <h1>📝 Content Engine</h1>
-                <p>Générez tous types de contenus avec l'intelligence artificielle</p>
-            </div>
-        </div>
-    </div>
 
     <!-- Types de contenu -->
     <div class="tabs" style="flex-wrap: wrap; border-bottom: none; gap: 1rem; margin-bottom: 2rem;">
@@ -128,13 +125,13 @@
     <!-- Générateur Réseaux Sociaux -->
     <div id="generator-social" class="generator-section" style="display: none;">
         <!-- Bannière d'information -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+        <div style="background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
             <div style="font-size: 2rem;">💡</div>
             <div style="flex: 1;">
                 <strong style="font-size: 1.1rem;">Prêt à publier ?</strong>
                 <p style="margin: 0.3rem 0 0 0; opacity: 0.95;">Une fois votre contenu généré, publiez-le directement sur vos réseaux sociaux !</p>
             </div>
-            <a href="/social" style="background: white; color: #667eea; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; white-space: nowrap;">
+            <a href="/social" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #1a1a2e; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; white-space: nowrap;">
                 📱 Aller aux Réseaux Sociaux
             </a>
         </div>

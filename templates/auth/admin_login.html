@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion Administrateur - WeBox Multi-IA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #2d1b4e 0%, #8b0000 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .auth-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        max-width: 450px;
+        width: 100%;
+        padding: 3rem;
+        border: 3px solid #ffd700;
+    }
+    
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-logo h1 {
+        font-size: 2.5rem;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-logo .emoji {
+        color: #ffd700;
+    }
+    
+    .auth-logo .webox {
+        color: #ffd700;
+    }
+    
+    .auth-logo .multi-ia {
+        color: #8b0000;
+    }
+    
+    .auth-logo p {
+        color: #666;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .admin-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        color: #1a1a2e;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #8b0000;
+        box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-check input {
+        width: auto;
+        margin-right: 0.5rem;
+    }
+    
+    .form-check label {
+        color: #666;
+        font-weight: normal;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #8b0000 0%, #2d1b4e 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(139, 0, 0, 0.4);
+    }
+    
+    .auth-links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .auth-links a {
+        color: #8b0000;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .auth-links a:hover {
+        text-decoration: underline;
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        display: none;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .security-notice {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <span class="admin-badge">👑 ADMINISTRATEUR</span>
+            <h1>
+                <span class="emoji">🤖</span>
+                <span class="webox">WeBox</span>
+                <span class="multi-ia">Multi-IA</span>
+            </h1>
+            <p>Connexion Administrateur</p>
+        </div>
+        
+        <div class="security-notice">
+            🔒 Accès réservé aux administrateurs uniquement
+        </div>
+        
+        <div id="alert" class="alert"></div>
+        
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="email">Email Administrateur</label>
+                <input type="email" id="email" name="email" required placeholder="admin@webox.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" id="remember_me" name="remember_me">
+                <label for="remember_me">Se souvenir de moi</label>
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                👑 Connexion Administrateur
+            </button>
+        </form>
+        
+        <div class="auth-links">
+            <p><a href="/login">← Connexion utilisateur</a></p>
+            <p><a href="/">← Retour à l'accueil</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gestion du formulaire de connexion admin
+if (document.getElementById('adminLoginForm')) {
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const alert = document.getElementById('alert');
+        
+        try {
+            const response = await fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert.className = 'alert alert-success';
+                alert.style.display = 'block';
+                alert.textContent = data.message;
+                
+                setTimeout(function() {
+                    window.location.href = data.redirect;
+                }, 1000);
+            } else {
+                alert.className = 'alert alert-error';
+                alert.style.display = 'block';
+                alert.textContent = data.message;
+            }
+        } catch (error) {
+            console.error('Erreur de connexion:', error);
+            alert.className = 'alert alert-error';
+            alert.style.display = 'block';
+            alert.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+        }
+    });
+}
+</script>
+{% endblock %}

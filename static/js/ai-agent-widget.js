@@ -46,6 +46,9 @@ class AIAgentWidget {
                         </div>
                     </div>
                     <div class="agent-header-right">
+                        <button class="agent-btn" onclick="aiAgent.openVoiceCommand()" title="Commande vocale">
+                            🎤
+                        </button>
                         <button class="agent-btn" onclick="aiAgent.clearChat()" title="Nouvelle conversation">
                             🔄
                         </button>
@@ -223,6 +226,21 @@ class AIAgentWidget {
         this.messages.push({ role, content });
 
         return messageId;
+    }
+
+    openVoiceCommand() {
+        // Déclencher la commande vocale
+        if (typeof openVoiceModal === 'function') {
+            openVoiceModal();
+        } else {
+            // Fallback: ouvrir le modal vocal directement
+            const voiceModal = document.querySelector('.voice-automation-modal');
+            if (voiceModal) {
+                voiceModal.style.display = 'flex';
+            } else {
+                alert('La commande vocale n\'est pas disponible sur cette page.');
+            }
+        }
     }
 
     clearChat() {

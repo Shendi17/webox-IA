@@ -4,6 +4,71 @@
 
 {% block extra_css %}
 <style>
+/* ==================== MODAL CSS ==================== */
+#createModal,
+#generateModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99999;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#createModal.modal-open,
+#generateModal.modal-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#createModal .modal-content,
+#generateModal .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+#createModal .modal-header,
+#generateModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+#createModal .modal-close,
+#generateModal .modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+#createModal .modal-close:hover,
+#generateModal .modal-close:hover {
+    color: #000;
+}
+
 /* Styles spécifiques LMS uniquement */
 .course-price {
     font-size: 1.25rem;
@@ -13,24 +78,21 @@
 {% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1>📚 Formations LMS</h1>
+    <p>Créez et gérez vos formations en ligne avec l'IA</p>
+</div>
+
+<div class="page-actions" style="margin-bottom: 2rem; text-align: right;">
+    <button class="btn btn-primary" onclick="openCreateModal()">
+        + Créer une formation
+    </button>
+    <button class="btn btn-ai" onclick="openGenerateModal()" style="margin-left: 0.5rem;">
+        🤖 Générer avec IA
+    </button>
+</div>
+
 <div class="page-container">
-    <!-- Header -->
-    <div class="page-header">
-        <div class="page-header-content">
-            <div class="page-header-text">
-                <h1>📚 Formations LMS</h1>
-                <p>Créez et gérez vos formations en ligne avec l'IA</p>
-            </div>
-            <div class="page-actions">
-                <button class="btn btn-primary" onclick="openCreateModal()">
-                    + Créer une formation
-                </button>
-                <button class="btn btn-ai" onclick="openGenerateModal()">
-                    🤖 Générer avec IA
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Tabs -->
     <div class="tabs">
@@ -52,8 +114,8 @@
 </div>
 
 <!-- Modal Créer Formation -->
-<div id="createModal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 600px;">
+<div id="createModal">
+    <div class="modal-content">
         <div class="modal-header">
             <h3>Créer une Formation</h3>
             <button class="modal-close" onclick="closeCreateModal()">×</button>
@@ -102,8 +164,8 @@
 </div>
 
 <!-- Modal Générer avec IA -->
-<div id="generateModal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 600px;">
+<div id="generateModal">
+    <div class="modal-content">
         <div class="modal-header">
             <h3>🤖 Générer une Formation avec IA</h3>
             <button class="modal-close" onclick="closeGenerateModal()">×</button>
@@ -264,12 +326,12 @@ function renderEmptyState() {
 
 // Ouvrir modal création
 function openCreateModal() {
-    document.getElementById('createModal').style.display = 'flex';
+    document.getElementById('createModal').classList.add('modal-open');
 }
 
 // Fermer modal création
 function closeCreateModal() {
-    document.getElementById('createModal').style.display = 'none';
+    document.getElementById('createModal').classList.remove('modal-open');
     document.getElementById('createForm').reset();
 }
 
@@ -307,12 +369,12 @@ async function createCourse() {
 
 // Ouvrir modal génération
 function openGenerateModal() {
-    document.getElementById('generateModal').style.display = 'flex';
+    document.getElementById('generateModal').classList.add('modal-open');
 }
 
 // Fermer modal génération
 function closeGenerateModal() {
-    document.getElementById('generateModal').style.display = 'none';
+    document.getElementById('generateModal').classList.remove('modal-open');
     document.getElementById('generateForm').reset();
 }
 

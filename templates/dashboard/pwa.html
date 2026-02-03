@@ -7,26 +7,25 @@
     .pwa-page {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
     }
 
     .btn-create {
-        padding: 1rem 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #1a1a2e;
         border: none;
         border-radius: 10px;
         font-weight: 600;
         cursor: pointer;
         text-decoration: none;
         display: inline-block;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
     }
 
     .stats-grid {
@@ -79,7 +78,7 @@
 
     .pwa-header {
         padding: 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
         color: white;
         text-align: center;
     }
@@ -187,12 +186,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="pwa-page">
-    <div class="page-header">
-        <h1>📱 Mes PWA</h1>
-        <a href="/pwa/create" class="btn-create">+ Créer une PWA</a>
-    </div>
+<div class="page-header">
+    <h1>📱 Mes PWA</h1>
+    <p>Créez des applications web progressives modernes</p>
+</div>
 
+<div class="page-actions" style="margin-bottom: 2rem; text-align: right;">
+    <a href="/pwa/create" class="btn-create" style="text-decoration: none;">
+        + Créer une PWA
+    </a>
+</div>
+
+<div class="pwa-page">
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
             <div class="stat-icon">📱</div>
@@ -216,9 +221,7 @@
         </div>
     </div>
 
-    <div class="pwa-grid" id="pwaGrid">
-        <!-- PWAs will be loaded here -->
-    </div>
+    <div class="pwa-grid" id="pwaGrid"></div>
 
     <div class="empty-state" id="emptyState" style="display: none;">
         <div class="empty-state-icon">📱</div>
@@ -329,10 +332,8 @@
             const data = await response.json();
 
             if (data.success) {
-                // Créer un ZIP virtuel ou télécharger les fichiers
                 alert('✅ Fichiers prêts à télécharger !\n\nmanifest.json\nsw.js\nindex.html');
                 
-                // Télécharger chaque fichier
                 for (const [filename, content] of Object.entries(data.files)) {
                     const blob = new Blob([content], { type: 'text/plain' });
                     const url = URL.createObjectURL(blob);

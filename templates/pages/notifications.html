@@ -1,0 +1,166 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Notifications - WeBox Multi-IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/notifications.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🔔 Notifications</h1>
+    <p>Gérez vos notifications et restez informé</p>
+</div>
+
+    <!-- Filtres -->
+    <div class="notifications-filters">
+        <button class="filter-btn active" data-filter="all">Toutes</button>
+        <button class="filter-btn" data-filter="unread">Non lues</button>
+        <button class="filter-btn" data-filter="read">Lues</button>
+        <button class="mark-all-read-btn">Tout marquer comme lu</button>
+    </div>
+
+    <!-- Liste des notifications -->
+    <div class="notifications-list">
+        <div class="notification-item unread">
+            <div class="notification-icon">🎉</div>
+            <div class="notification-content">
+                <div class="notification-title">Bienvenue sur WeBox Multi-IA !</div>
+                <div class="notification-message">Découvrez toutes les fonctionnalités de la plateforme.</div>
+                <div class="notification-time">Il y a 2 heures</div>
+            </div>
+            <button class="notification-action">Marquer comme lu</button>
+        </div>
+
+        <div class="notification-item unread">
+            <div class="notification-icon">🚀</div>
+            <div class="notification-content">
+                <div class="notification-title">Nouveau modèle IA disponible</div>
+                <div class="notification-message">GPT-4o est maintenant accessible dans le chat.</div>
+                <div class="notification-time">Il y a 5 heures</div>
+            </div>
+            <button class="notification-action">Marquer comme lu</button>
+        </div>
+
+        <div class="notification-item read">
+            <div class="notification-icon">📊</div>
+            <div class="notification-content">
+                <div class="notification-title">Rapport mensuel disponible</div>
+                <div class="notification-message">Consultez vos statistiques du mois dernier.</div>
+                <div class="notification-time">Hier</div>
+            </div>
+        </div>
+
+        <div class="notification-item read">
+            <div class="notification-icon">💡</div>
+            <div class="notification-content">
+                <div class="notification-title">Astuce du jour</div>
+                <div class="notification-message">Utilisez les raccourcis clavier pour gagner du temps.</div>
+                <div class="notification-time">Il y a 2 jours</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paramètres de notifications -->
+    <div class="notification-settings">
+        <h2>⚙️ Paramètres de notifications</h2>
+        <div class="settings-list">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Notifications par email</div>
+                    <div class="setting-description">Recevoir les notifications importantes par email</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Notifications push</div>
+                    <div class="setting-description">Recevoir des notifications dans le navigateur</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Nouveautés et mises à jour</div>
+                    <div class="setting-description">Être informé des nouvelles fonctionnalités</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Rapports hebdomadaires</div>
+                    <div class="setting-description">Recevoir un résumé de votre activité chaque semaine</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtres
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            const notifications = document.querySelectorAll('.notification-item');
+            
+            notifications.forEach(notif => {
+                if (filter === 'all') {
+                    notif.style.display = 'flex';
+                } else if (filter === 'unread' && notif.classList.contains('unread')) {
+                    notif.style.display = 'flex';
+                } else if (filter === 'read' && notif.classList.contains('read')) {
+                    notif.style.display = 'flex';
+                } else {
+                    notif.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Marquer comme lu
+    const actionButtons = document.querySelectorAll('.notification-action');
+    actionButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const notifItem = this.closest('.notification-item');
+            notifItem.classList.remove('unread');
+            notifItem.classList.add('read');
+            this.remove();
+        });
+    });
+
+    // Tout marquer comme lu
+    const markAllBtn = document.querySelector('.mark-all-read-btn');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function() {
+            const unreadNotifs = document.querySelectorAll('.notification-item.unread');
+            unreadNotifs.forEach(notif => {
+                notif.classList.remove('unread');
+                notif.classList.add('read');
+                const actionBtn = notif.querySelector('.notification-action');
+                if (actionBtn) actionBtn.remove();
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

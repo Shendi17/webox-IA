@@ -1,0 +1,467 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Configuration Agent - WeBox{% endblock %}
+
+{% block content %}
+<style>
+.config-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.config-header {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.config-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.config-info h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.config-info p {
+    opacity: 0.9;
+}
+
+.config-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.config-section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-help {
+    font-size: 0.85rem;
+    color: #999;
+    margin-top: 0.5rem;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #e9ecef;
+    outline: none;
+}
+
+.slider-value {
+    font-weight: 700;
+    color: #667eea;
+    min-width: 50px;
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-box {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1a2e;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+.danger-zone {
+    border: 2px solid #dc3545;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.danger-zone-title {
+    color: #dc3545;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+</style>
+
+<div class="config-container">
+    <div class="config-header">
+        <div class="config-avatar" id="agentAvatar">🤖</div>
+        <div class="config-info">
+            <h1 id="agentName">Configuration Agent</h1>
+            <p id="agentCategory">Chargement...</p>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="config-card">
+        <div class="config-section-title">📊 Statistiques</div>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value" id="statConversations">0</div>
+                <div class="stat-label">Conversations</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statTasks">0</div>
+                <div class="stat-label">Tâches</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statSatisfaction">0</div>
+                <div class="stat-label">Satisfaction</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statCreated">-</div>
+                <div class="stat-label">Créé le</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration de base -->
+    <div class="config-card">
+        <div class="config-section-title">⚙️ Configuration de base</div>
+        
+        <form id="configForm">
+            <div class="form-group">
+                <label class="form-label">Nom de l'agent</label>
+                <input type="text" id="inputName" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Catégorie</label>
+                <select id="inputCategory" class="form-select" required>
+                    <option value="marketing">📢 Marketing</option>
+                    <option value="sales">💰 Ventes</option>
+                    <option value="support">💬 Support</option>
+                    <option value="dev">💻 Développement</option>
+                    <option value="finance">💵 Finance</option>
+                    <option value="operations">⚙️ Opérations</option>
+                    <option value="strategy">🎯 Stratégie</option>
+                    <option value="hr">👥 Ressources Humaines</option>
+                    <option value="product">📱 Produit</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="inputDescription" class="form-textarea" required></textarea>
+                <p class="form-help">Décrivez le rôle et les capacités de votre agent</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Instructions système</label>
+                <textarea id="inputInstructions" class="form-textarea" required></textarea>
+                <p class="form-help">Définissez le comportement et les instructions de l'agent</p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Configuration IA -->
+    <div class="config-card">
+        <div class="config-section-title">🤖 Configuration IA</div>
+        
+        <div class="form-group">
+            <label class="form-label">Modèle IA</label>
+            <select id="inputModel" class="form-select">
+                <option value="gpt-4">GPT-4 (Recommandé)</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Rapide)</option>
+                <option value="claude-3">Claude 3 Opus</option>
+                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                <option value="mistral-large">Mistral Large</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Température (Créativité)</label>
+            <div class="slider-container">
+                <input type="range" id="inputTemperature" class="slider" min="0" max="1" step="0.1" value="0.7">
+                <span class="slider-value" id="temperatureValue">0.7</span>
+            </div>
+            <p class="form-help">0 = Précis et déterministe | 1 = Créatif et varié</p>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-buttons">
+        <button class="btn btn-secondary" onclick="cancelConfig()">Annuler</button>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 Enregistrer</button>
+    </div>
+
+    <!-- Zone de danger -->
+    <div class="danger-zone">
+        <div class="danger-zone-title">⚠️ Zone de danger</div>
+        <p style="color: #666; margin-bottom: 1rem;">
+            La suppression de cet agent est irréversible. Toutes les conversations et données associées seront perdues.
+        </p>
+        <button class="btn btn-danger" onclick="deleteAgent()">🗑️ Supprimer l'agent</button>
+    </div>
+</div>
+
+<script>
+let agentId = null;
+let agentData = null;
+
+// Récupérer l'ID depuis l'URL
+function getAgentIdFromUrl() {
+    const path = window.location.pathname;
+    const match = path.match(/\/agent-config\/(\d+)/);
+    return match ? parseInt(match[1]) : null;
+}
+
+// Charger les données de l'agent
+async function loadAgent() {
+    agentId = getAgentIdFromUrl();
+    
+    if (!agentId) {
+        alert('Agent non trouvé');
+        window.location.href = '/agents';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/agents/my-agents');
+        const data = await response.json();
+        
+        agentData = data.agents.find(a => a.id === agentId);
+        
+        if (!agentData) {
+            alert('Agent non trouvé');
+            window.location.href = '/agents';
+            return;
+        }
+        
+        // Remplir le formulaire
+        document.getElementById('agentAvatar').textContent = agentData.icon || '🤖';
+        document.getElementById('agentName').textContent = agentData.name;
+        document.getElementById('agentCategory').textContent = agentData.category;
+        
+        document.getElementById('inputName').value = agentData.name;
+        document.getElementById('inputCategory').value = agentData.category;
+        document.getElementById('inputDescription').value = agentData.description || '';
+        document.getElementById('inputInstructions').value = agentData.instructions || '';
+        document.getElementById('inputModel').value = agentData.model || 'gpt-4';
+        document.getElementById('inputTemperature').value = agentData.temperature || 0.7;
+        document.getElementById('temperatureValue').textContent = agentData.temperature || 0.7;
+        
+        // Statistiques
+        document.getElementById('statConversations').textContent = agentData.conversations || 0;
+        document.getElementById('statTasks').textContent = agentData.tasks || 0;
+        document.getElementById('statSatisfaction').textContent = agentData.satisfaction || 0;
+        
+        if (agentData.created_at) {
+            const date = new Date(agentData.created_at);
+            document.getElementById('statCreated').textContent = date.toLocaleDateString('fr-FR');
+        }
+        
+    } catch (error) {
+        console.error('Erreur chargement agent:', error);
+        alert('Erreur lors du chargement de l\'agent');
+    }
+}
+
+// Mise à jour de l'affichage de la température
+document.addEventListener('DOMContentLoaded', () => {
+    const tempSlider = document.getElementById('inputTemperature');
+    const tempValue = document.getElementById('temperatureValue');
+    
+    tempSlider.addEventListener('input', (e) => {
+        tempValue.textContent = e.target.value;
+    });
+    
+    loadAgent();
+});
+
+// Sauvegarder la configuration
+async function saveConfig() {
+    const updatedData = {
+        name: document.getElementById('inputName').value,
+        category: document.getElementById('inputCategory').value,
+        description: document.getElementById('inputDescription').value,
+        instructions: document.getElementById('inputInstructions').value,
+        model: document.getElementById('inputModel').value,
+        temperature: parseFloat(document.getElementById('inputTemperature').value)
+    };
+    
+    try {
+        const response = await fetch(`/api/agents/${agentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Configuration enregistrée avec succès ! ✅');
+            window.location.href = '/agents';
+        } else {
+            alert('Erreur lors de la sauvegarde');
+        }
+    } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert('Erreur lors de la sauvegarde');
+    }
+}
+
+// Annuler
+function cancelConfig() {
+    if (confirm('Annuler les modifications ?')) {
+        window.location.href = '/agents';
+    }
+}
+
+// Supprimer l'agent
+async function deleteAgent() {
+    if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer cet agent ?\n\nCette action est irréversible.')) {
+        return;
+    }
+    
+    if (!confirm('Confirmez-vous la suppression définitive ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/agents/${agentId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Agent supprimé avec succès');
+            window.location.href = '/agents';
+        } else {
+            alert('Erreur lors de la suppression');
+        }
+    } catch (error) {
+        console.error('Erreur suppression:', error);
+        alert('Erreur lors de la suppression');
+    }
+}
+</script>
+{% endblock %}

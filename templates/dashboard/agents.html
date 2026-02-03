@@ -1,14 +1,79 @@
-{% extends "dashboard/base_dashboard.html" %}
+﻿{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Agents IA - WeBox Studio Créatif{% endblock %}
 
 {% block extra_css %}
 <style>
-/* Page Header */
-.agents-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* ==================== MODAL CSS ==================== */
+#createAgentModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99999;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#createAgentModal.modal-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#createAgentModal .modal-content {
+    background: white;
     padding: 2rem;
     border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+#createAgentModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+#createAgentModal .modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+#createAgentModal .modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+#createAgentModal .modal-close:hover {
+    color: #000;
+}
+
+/* Header */
+.agents-header {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    padding: 3rem 2rem;
+    border-radius: 15px;
     margin-bottom: 2rem;
     color: white;
 }
@@ -17,6 +82,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1.5rem;
 }
 
 .header-title {
@@ -29,66 +95,106 @@
     opacity: 0.9;
 }
 
-.btn-create-agent {
-    background: white;
-    color: #667eea;
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-create {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1a2e;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-create-agent:hover {
+.btn-create:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
-/* Filtres */
-.agents-filters {
+/* Stats globales */
+.global-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.global-stat-card {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.global-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.global-stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Tabs */
+.agents-tabs {
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
-    flex-wrap: wrap;
+    border-bottom: 2px solid #e0e0e0;
 }
 
-.filter-input {
-    flex: 1;
-    min-width: 300px;
-    padding: 0.75rem 1rem 0.75rem 3rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
-    background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
-}
-
-.filter-select {
-    padding: 0.75rem 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
+.tab-btn {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
     cursor: pointer;
-    background: white;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+    margin-bottom: -2px;
 }
 
-/* Agents Grid */
+.tab-btn:hover {
+    color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Grille agents */
 .agents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .agent-card {
     background: white;
-    border-radius: 15px;
     padding: 1.5rem;
+    border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: all 0.3s;
     cursor: pointer;
+    border: 1px solid #f0f0f0;
 }
 
 .agent-card:hover {
@@ -112,7 +218,6 @@
     justify-content: center;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 15px;
-    flex-shrink: 0;
 }
 
 .agent-info {
@@ -124,34 +229,65 @@
     font-weight: 700;
     color: #1a1a2e;
     margin-bottom: 0.25rem;
+    line-height: 1.2;
 }
 
-.agent-specialty {
-    color: #666;
+.agent-category {
+    color: #e5e7eb;
     font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: capitalize;
 }
 
-.agent-description {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    line-height: 1.6;
-}
-
-.agent-tags {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-}
-
-.agent-tag {
-    background: #e3f2fd;
-    color: #1976d2;
+.agent-badge {
+    display: inline-block;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.badge-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-beta {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-premium {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.agent-description {
+    color: #555;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.agent-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.agent-features li {
+    padding: 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.agent-features li::before {
+    content: "✓ ";
+    color: #28a745;
+    font-weight: bold;
+    margin-right: 0.5rem;
 }
 
 .agent-stats {
@@ -163,45 +299,19 @@
     margin: 1rem 0;
 }
 
-.stat {
+.agent-stat {
     text-align: center;
 }
 
-.stat-value {
+.agent-stat-value {
     font-size: 1.5rem;
     font-weight: 700;
     color: #667eea;
 }
 
-.stat-label {
+.agent-stat-label {
     font-size: 0.8rem;
     color: #666;
-}
-
-.agent-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.status-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.status-active {
-    background: #28a745;
-}
-
-.status-inactive {
-    background: #dc3545;
-}
-
-.status-text {
-    font-size: 0.9rem;
-    font-weight: 600;
 }
 
 .agent-actions {
@@ -220,56 +330,295 @@
 }
 
 .btn-use {
-    background: #4169e1;
+    background: #667eea;
     color: white;
 }
 
 .btn-use:hover {
-    background: #3558c9;
+    background: #5568d3;
 }
 
-.btn-edit {
+.btn-test {
     background: #28a745;
     color: white;
 }
 
-.btn-edit:hover {
+.btn-test:hover {
     background: #218838;
 }
 
-.btn-delete {
-    background: #dc3545;
+.btn-config {
+    background: #6c757d;
     color: white;
 }
 
-.btn-delete:hover {
-    background: #c82333;
+.btn-config:hover {
+    background: #5a6268;
 }
 
-/* État vide */
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
+/* Conversations */
+.conversations-section {
     background: white;
+    padding: 2rem;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.empty-icon {
-    font-size: 5rem;
-    margin-bottom: 1rem;
+.conversation-item {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
-.empty-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1a1a2e;
+.conversation-item:hover {
+    background: #f8f9fa;
+}
+
+.conversation-item:last-child {
+    border-bottom: none;
+}
+
+.conversation-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 0.5rem;
 }
 
-.empty-description {
+.conversation-icon {
+    font-size: 2rem;
+}
+
+.conversation-info {
+    flex: 1;
+}
+
+.conversation-agent {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.conversation-message {
     color: #666;
+    font-size: 0.9rem;
+}
+
+.conversation-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #999;
+}
+
+/* Marketplace */
+.marketplace-filters {
+    display: flex;
+    gap: 1rem;
     margin-bottom: 2rem;
+}
+
+.filter-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Performance */
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.performance-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.performance-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.performance-icon {
+    font-size: 2.5rem;
+}
+
+.performance-info {
+    flex: 1;
+}
+
+.performance-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.performance-trend {
+    color: #28a745;
+    font-size: 0.9rem;
+}
+
+.performance-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.perf-stat {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.perf-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.perf-stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Styles du modal gérés dans /static/css/agents-modal.css */
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-help {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #d0d0d0;
+}
+
+.btn-submit {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Filtres avancés */
+.filters-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+}
+
+.filter-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.filter-tag {
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.filter-tag:hover {
+    border-color: #667eea;
+}
+
+.filter-tag.active {
+    background: #667eea;
+    color: white;
 }
 
 /* Responsive */
@@ -283,252 +632,621 @@
     .agents-grid {
         grid-template-columns: 1fr;
     }
+    
+    .filters-row {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Page Header -->
+<!-- Header avec stats -->
 <div class="agents-header">
     <div class="header-content">
         <div>
             <h1 class="header-title">🤖 Agents IA Spécialisés</h1>
-            <p class="header-subtitle">Créez et gérez vos agents IA personnalisés</p>
+            <p class="header-subtitle">Déployez des agents IA intelligents pour automatiser vos tâches</p>
         </div>
-        <button class="btn-create-agent" onclick="createAgent()">
-            ➕ Créer un Agent
-        </button>
+        <div class="header-actions">
+            <button class="btn-create" onclick="createCustomAgent()">
+                ➕ Créer un Agent
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats globales -->
+    <div class="global-stats">
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalConversations">0</div>
+            <div class="global-stat-label">Conversations</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="totalTasks">0</div>
+            <div class="global-stat-label">Tâches complétées</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="timeSaved">0h</div>
+            <div class="global-stat-label">Temps économisé</div>
+        </div>
+        <div class="global-stat-card">
+            <div class="global-stat-value" id="avgSatisfaction">0%</div>
+            <div class="global-stat-label">Satisfaction</div>
+        </div>
     </div>
 </div>
 
-<!-- Filtres -->
-<div class="agents-filters">
-    <input type="text" class="filter-input" placeholder="🔍 Rechercher un agent..." id="searchInput">
-    
-    <select class="filter-select" id="specialtyFilter">
-        <option value="">Toutes spécialités</option>
-        <option value="marketing">Marketing</option>
-        <option value="support">Support Client</option>
-        <option value="sales">Ventes</option>
-        <option value="content">Création Contenu</option>
-        <option value="analysis">Analyse</option>
-        <option value="coding">Développement</option>
-    </select>
-    
-    <select class="filter-select" id="statusFilter">
-        <option value="">Tous statuts</option>
-        <option value="active">Actif</option>
-        <option value="inactive">Inactif</option>
-    </select>
+<!-- Tabs -->
+<div class="agents-tabs">
+    <button class="tab-btn active" onclick="switchTab('mes-agents')">Mes Agents</button>
+    <button class="tab-btn" onclick="switchTab('marketplace')">Marketplace</button>
+    <button class="tab-btn" onclick="switchTab('conversations')">Conversations</button>
+    <button class="tab-btn" onclick="switchTab('performance')">Performance</button>
 </div>
 
-<!-- Agents Grid -->
-<div class="agents-grid" id="agentsGrid">
-    <!-- Les agents seront chargés ici -->
+<!-- Tab: Mes Agents -->
+<div class="tab-content active" id="mes-agents-content">
+    <!-- Filtres avancés -->
+    <div class="filters-section">
+        <div class="filters-row">
+            <input type="text" class="filter-input" placeholder="🔍 Rechercher un agent..." id="searchAgents" oninput="filterAgents()">
+            <select class="filter-select" id="filterCategory" onchange="filterAgents()">
+                <option value="">Toutes catégories</option>
+                <option value="marketing">Marketing</option>
+                <option value="sales">Ventes</option>
+                <option value="support">Support</option>
+                <option value="dev">Développement</option>
+                <option value="finance">Finance</option>
+                <option value="operations">Opérations</option>
+                <option value="strategy">Stratégie</option>
+                <option value="hr">Ressources Humaines</option>
+                <option value="product">Produit</option>
+            </select>
+            <select class="filter-select" id="filterStatus" onchange="filterAgents()">
+                <option value="">Tous statuts</option>
+                <option value="active">Actifs</option>
+                <option value="beta">Beta</option>
+            </select>
+        </div>
+        <div class="filter-tags">
+            <span class="filter-tag" onclick="toggleTag(this, 'high-performance')">⚡ Haute performance</span>
+            <span class="filter-tag" onclick="toggleTag(this, 'most-used')">🔥 Plus utilisés</span>
+            <span class="filter-tag" onclick="toggleTag(this, 'recent')">🆕 Récents</span>
+        </div>
+    </div>
+    
+    <div class="agents-grid" id="myAgentsGrid">
+        <!-- Agents chargés dynamiquement -->
+    </div>
 </div>
 
-<!-- État vide -->
-<div class="empty-state hidden" id="emptyState">
-    <div class="empty-icon">🤖</div>
-    <div class="empty-title">Aucun agent pour le moment</div>
-    <div class="empty-description">Créez votre premier agent IA spécialisé</div>
-    <button class="btn-create-agent" onclick="createAgent()">
-        ➕ Créer mon premier agent
-    </button>
+<!-- Tab: Marketplace -->
+<div class="tab-content" id="marketplace-content">
+    <div class="marketplace-filters">
+        <input type="text" class="filter-input" placeholder="🔍 Rechercher un agent..." id="marketplaceSearch" oninput="filterMarketplace()">
+        <select class="filter-select" id="categoryFilter" onchange="filterMarketplace()">
+            <option value="">Toutes catégories</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Ventes</option>
+            <option value="support">Support</option>
+            <option value="dev">Développement</option>
+            <option value="finance">Finance</option>
+            <option value="operations">Opérations</option>
+            <option value="strategy">Stratégie</option>
+            <option value="hr">Ressources Humaines</option>
+            <option value="product">Produit</option>
+        </select>
+    </div>
+    
+    <div class="agents-grid" id="marketplaceGrid">
+        <!-- Marketplace agents -->
+    </div>
+</div>
+
+<!-- Tab: Conversations -->
+<div class="tab-content" id="conversations-content">
+    <div class="conversations-section">
+        <h2>💬 Conversations récentes</h2>
+        <div id="conversationsList">
+            <!-- Conversations chargées dynamiquement -->
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Performance -->
+<div class="tab-content" id="performance-content">
+    <div class="performance-grid" id="performanceGrid">
+        <!-- Performance chargée dynamiquement -->
+    </div>
+</div>
+
+<!-- Modal Création Agent -->
+<div id="createAgentModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">🤖 Créer un Agent Personnalisé</h2>
+            <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+        </div>
+        
+        <form onsubmit="submitCreateAgent(event)">
+            <div class="form-group">
+                <label class="form-label">Nom de l'agent *</label>
+                <input type="text" name="name" class="form-input" placeholder="Ex: Assistant Marketing" required>
+                <p class="form-help">Donnez un nom descriptif à votre agent</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Catégorie *</label>
+                <select name="category" class="form-select" required>
+                    <option value="">Sélectionner une catégorie</option>
+                    <option value="marketing">📢 Marketing</option>
+                    <option value="sales">💰 Ventes</option>
+                    <option value="support">💬 Support</option>
+                    <option value="dev">💻 Développement</option>
+                    <option value="finance">💵 Finance</option>
+                    <option value="operations">⚙️ Opérations</option>
+                    <option value="strategy">🎯 Stratégie</option>
+                    <option value="hr">👥 Ressources Humaines</option>
+                    <option value="product">📱 Produit</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea name="description" class="form-textarea" placeholder="Décrivez le rôle et les capacités de votre agent..." required></textarea>
+                <p class="form-help">Expliquez ce que fait votre agent et comment il peut aider</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Instructions système *</label>
+                <textarea name="instructions" class="form-textarea" placeholder="Tu es un expert en... Ta mission est de..." required></textarea>
+                <p class="form-help">Définissez le comportement et les instructions de l'agent</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Modèle IA *</label>
+                <select name="model" class="form-select" required>
+                    <option value="gpt-4">GPT-4 (Recommandé)</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Rapide)</option>
+                    <option value="claude-3">Claude 3 Opus</option>
+                    <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                    <option value="mistral-large">Mistral Large</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Température (Créativité)</label>
+                <input type="range" name="temperature" class="form-input" min="0" max="1" step="0.1" value="0.7">
+                <p class="form-help">0 = Précis et déterministe | 1 = Créatif et varié</p>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeCreateModal()">Annuler</button>
+                <button type="submit" class="btn-submit">✨ Créer l'Agent</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
-let allAgents = [];
+let currentTab = 'mes-agents';
+
+// ==================== TABS ====================
+function switchTab(tab, event = null) {
+    currentTab = tab;
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // Activer le bouton correspondant
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // Si pas d'événement, trouver le bouton par son attribut onclick
+        const tabBtn = document.querySelector(`[onclick*="switchTab('${tab}')"]`);
+        if (tabBtn) tabBtn.classList.add('active');
+    }
+    
+    document.getElementById(tab + '-content').classList.add('active');
+    
+    if (tab === 'mes-agents') loadMyAgents();
+    if (tab === 'marketplace') loadMarketplace();
+    if (tab === 'conversations') loadConversations();
+    if (tab === 'performance') loadPerformance();
+}
 
 // ==================== CHARGEMENT ====================
-async function loadAgents() {
+async function loadStats() {
     try {
-        const response = await fetch('/api/agents');
+        const response = await fetch('/api/agents/stats');
+        const data = await response.json();
+        
+        document.getElementById('totalConversations').textContent = data.total_conversations;
+        document.getElementById('totalTasks').textContent = data.total_tasks;
+        document.getElementById('timeSaved').textContent = data.time_saved + 'h';
+        document.getElementById('avgSatisfaction').textContent = data.avg_satisfaction + '%';
+    } catch (error) {
+        console.error('Erreur chargement stats:', error);
+    }
+}
+
+async function loadMyAgents() {
+    const grid = document.getElementById('myAgentsGrid');
+    
+    try {
+        const response = await fetch('/api/agents/my-agents');
         const data = await response.json();
         
         allAgents = data.agents || [];
-        displayAgents(allAgents);
+        
+        if (allAgents.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <p style="font-size: 1.2rem; color: #666; margin-bottom: 1rem;">🤖 Aucun agent pour le moment</p>
+                    <p style="color: #999; margin-bottom: 2rem;">Créez votre premier agent ou installez-en un depuis la marketplace</p>
+                    <button onclick="createCustomAgent()" class="btn-action btn-use">✨ Créer un Agent</button>
+                    <button onclick="switchTab('marketplace')" class="btn-action btn-test" style="margin-left: 1rem;">📚 Marketplace</button>
+                </div>
+            `;
+        } else {
+            grid.innerHTML = allAgents.map(agent => createAgentCard(agent)).join('');
+        }
     } catch (error) {
         console.error('Erreur chargement agents:', error);
-        loadDemoAgents();
+        grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #f44;">Erreur de chargement</p>';
     }
 }
 
-function loadDemoAgents() {
-    allAgents = [
-        {
-            id: 1,
-            name: 'Agent Marketing Pro',
-            specialty: 'Marketing Digital',
-            description: 'Expert en stratégies marketing, SEO, publicités et génération de leads. Optimise vos campagnes pour un ROI maximal.',
-            tags: ['SEO', 'Ads', 'Content', 'Analytics'],
-            status: 'active',
-            uses: 1234,
-            success_rate: 94,
-            icon: '📊'
-        },
-        {
-            id: 2,
-            name: 'Support Client 24/7',
-            specialty: 'Service Client',
-            description: 'Agent de support disponible 24/7 pour répondre aux questions clients, gérer les tickets et résoudre les problèmes.',
-            tags: ['Support', 'Chat', 'Tickets', 'FAQ'],
-            status: 'active',
-            uses: 5678,
-            success_rate: 98,
-            icon: '💬'
-        },
-        {
-            id: 3,
-            name: 'Créateur de Contenu',
-            specialty: 'Création Contenu',
-            description: 'Génère des articles de blog, posts réseaux sociaux, scripts vidéo et newsletters de qualité professionnelle.',
-            tags: ['Blog', 'Social', 'Video', 'Email'],
-            status: 'active',
-            uses: 892,
-            success_rate: 91,
-            icon: '✍️'
-        },
-        {
-            id: 4,
-            name: 'Analyste de Données',
-            specialty: 'Analyse',
-            description: 'Analyse vos données, génère des rapports détaillés et fournit des insights actionnables pour votre business.',
-            tags: ['Analytics', 'Reports', 'Insights', 'KPIs'],
-            status: 'active',
-            uses: 456,
-            success_rate: 96,
-            icon: '📈'
-        },
-        {
-            id: 5,
-            name: 'Assistant Développeur',
-            specialty: 'Développement',
-            description: 'Aide au développement, debugging, revue de code et génération de documentation technique.',
-            tags: ['Code', 'Debug', 'Review', 'Docs'],
-            status: 'inactive',
-            uses: 234,
-            success_rate: 89,
-            icon: '💻'
-        },
-        {
-            id: 6,
-            name: 'Expert Ventes',
-            specialty: 'Ventes',
-            description: 'Qualifie les leads, gère les relances, crée des propositions commerciales et optimise votre tunnel de vente.',
-            tags: ['Leads', 'Sales', 'CRM', 'Proposals'],
-            status: 'active',
-            uses: 678,
-            success_rate: 93,
-            icon: '💼'
-        }
-    ];
-    
-    displayAgents(allAgents);
-}
-
-// ==================== AFFICHAGE ====================
-function displayAgents(agents) {
-    const grid = document.getElementById('agentsGrid');
-    const emptyState = document.getElementById('emptyState');
-    
-    if (agents.length === 0) {
-        grid.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-        return;
-    }
-    
-    grid.classList.remove('hidden');
-    emptyState.classList.add('hidden');
-    
-    grid.innerHTML = agents.map(agent => `
+function createAgentCard(agent) {
+    return `
         <div class="agent-card" onclick="openAgent(${agent.id})">
             <div class="agent-header">
-                <div class="agent-icon">${agent.icon || '🤖'}</div>
+                <div class="agent-icon">${agent.icon}</div>
                 <div class="agent-info">
                     <div class="agent-name">${agent.name}</div>
-                    <div class="agent-specialty">${agent.specialty}</div>
+                    <div class="agent-category">${agent.category}</div>
                 </div>
             </div>
             
-            <div class="agent-status">
-                <div class="status-indicator ${agent.status === 'active' ? 'status-active' : 'status-inactive'}"></div>
-                <span class="status-text">${agent.status === 'active' ? 'Actif' : 'Inactif'}</span>
-            </div>
+            <span class="agent-badge badge-${agent.status}">${agent.status === 'active' ? '✅ Actif' : '🧪 Beta'}</span>
             
-            <p class="agent-description">${agent.description}</p>
+            <div class="agent-description">${agent.description}</div>
             
-            <div class="agent-tags">
-                ${agent.tags.map(tag => `<span class="agent-tag">${tag}</span>`).join('')}
-            </div>
+            <ul class="agent-features">
+                ${agent.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
             
             <div class="agent-stats">
-                <div class="stat">
-                    <div class="stat-value">${agent.uses}</div>
-                    <div class="stat-label">Utilisations</div>
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.conversations}</div>
+                    <div class="agent-stat-label">Conversations</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-value">${agent.success_rate}%</div>
-                    <div class="stat-label">Succès</div>
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.tasks}</div>
+                    <div class="agent-stat-label">Tâches</div>
+                </div>
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.satisfaction}</div>
+                    <div class="agent-stat-label">Note</div>
                 </div>
             </div>
             
             <div class="agent-actions" onclick="event.stopPropagation()">
                 <button class="btn-action btn-use" onclick="useAgent(${agent.id})">Utiliser</button>
-                <button class="btn-action btn-edit" onclick="editAgent(${agent.id})">✏️</button>
-                <button class="btn-action btn-delete" onclick="deleteAgent(${agent.id})">🗑️</button>
+                <button class="btn-action btn-test" onclick="testAgent(${agent.id})">Tester</button>
+                <button class="btn-action btn-config" onclick="configAgent(${agent.id})">⚙️</button>
             </div>
         </div>
-    `).join('');
+    `;
 }
 
-// ==================== ACTIONS ====================
-function createAgent() {
-    alert('Création d\'agent - À implémenter');
-}
-
-function openAgent(id) {
-    window.location.href = `/agents/${id}`;
-}
-
-function useAgent(id) {
-    window.location.href = `/chat?agent=${id}`;
-}
-
-function editAgent(id) {
-    window.location.href = `/agents/${id}/edit`;
-}
-
-function deleteAgent(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet agent ?')) {
-        alert(`Suppression de l'agent ${id} - À implémenter`);
+async function loadMarketplace() {
+    const grid = document.getElementById('marketplaceGrid');
+    
+    try {
+        const response = await fetch('/api/agents/marketplace');
+        const data = await response.json();
+        
+        allMarketplaceAgents = data.agents || [];
+        
+        if (allMarketplaceAgents.length === 0) {
+            grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #666;">Aucun agent disponible</p>';
+        } else {
+            grid.innerHTML = allMarketplaceAgents.map(agent => createMarketplaceCard(agent)).join('');
+        }
+    } catch (error) {
+        console.error('Erreur chargement marketplace:', error);
+        grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #f44;">Erreur de chargement</p>';
     }
 }
 
-// ==================== FILTRES ====================
-document.getElementById('searchInput').addEventListener('input', filterAgents);
-document.getElementById('specialtyFilter').addEventListener('change', filterAgents);
-document.getElementById('statusFilter').addEventListener('change', filterAgents);
-
-function filterAgents() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const specialty = document.getElementById('specialtyFilter').value.toLowerCase();
-    const status = document.getElementById('statusFilter').value;
+function filterMarketplace() {
+    const searchTerm = document.getElementById('marketplaceSearch').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
     
-    const filtered = allAgents.filter(agent => {
-        const matchSearch = agent.name.toLowerCase().includes(search) || 
-                          agent.description.toLowerCase().includes(search) ||
-                          agent.specialty.toLowerCase().includes(search);
-        const matchSpecialty = !specialty || agent.specialty.toLowerCase().includes(specialty);
-        const matchStatus = !status || agent.status === status;
+    let filtered = allMarketplaceAgents.filter(agent => {
+        const matchSearch = agent.name.toLowerCase().includes(searchTerm) || 
+                          agent.description.toLowerCase().includes(searchTerm);
+        const matchCategory = !category || agent.category === category;
         
-        return matchSearch && matchSpecialty && matchStatus;
+        return matchSearch && matchCategory;
     });
     
-    displayAgents(filtered);
+    const grid = document.getElementById('marketplaceGrid');
+    if (filtered.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #666;">Aucun agent trouvé</p>';
+    } else {
+        grid.innerHTML = filtered.map(agent => createMarketplaceCard(agent)).join('');
+    }
+}
+
+function createMarketplaceCard(agent) {
+    return `
+        <div class="agent-card" onclick="installAgent(${agent.id})">
+            <div class="agent-header">
+                <div class="agent-icon">${agent.icon}</div>
+                <div class="agent-info">
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-category">${agent.category}</div>
+                </div>
+            </div>
+            
+            <span class="agent-badge badge-${agent.status}">${agent.price}</span>
+            
+            <div class="agent-description">${agent.description}</div>
+            
+            <ul class="agent-features">
+                ${agent.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+            
+            <div class="agent-stats">
+                <div class="agent-stat">
+                    <div class="agent-stat-value">${agent.downloads}</div>
+                    <div class="agent-stat-label">Téléchargements</div>
+                </div>
+                <div class="agent-stat">
+                    <div class="agent-stat-value">⭐ ${agent.rating}</div>
+                    <div class="agent-stat-label">Note</div>
+                </div>
+            </div>
+            
+            <div class="agent-actions" onclick="event.stopPropagation()">
+                <button class="btn-action btn-use" onclick="installAgent(${agent.id})">📥 Installer</button>
+                <button class="btn-action btn-test" onclick="previewAgent(${agent.id})">👁️ Aperçu</button>
+            </div>
+        </div>
+    `;
+}
+
+async function loadConversations() {
+    try {
+        const response = await fetch('/api/agents/conversations/recent');
+        const data = await response.json();
+        
+        const container = document.getElementById('conversationsList');
+        container.innerHTML = data.conversations.map(conv => `
+            <div class="conversation-item" onclick="openConversation('${conv.agent_name}')">
+                <div class="conversation-header">
+                    <div class="conversation-icon">${conv.icon}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-agent">${conv.agent_name}</div>
+                        <div class="conversation-message">${conv.first_message}</div>
+                    </div>
+                </div>
+                <div class="conversation-meta">
+                    <span>${conv.time_ago}</span>
+                    <span>💬 ${conv.message_count} messages</span>
+                    <span>⭐ ${conv.rating}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erreur chargement conversations:', error);
+    }
+}
+
+async function loadPerformance() {
+    try {
+        const response = await fetch('/api/agents/performance');
+        const data = await response.json();
+        
+        const grid = document.getElementById('performanceGrid');
+        grid.innerHTML = data.performances.map(perf => `
+            <div class="performance-card">
+                <div class="performance-header">
+                    <div class="performance-icon">${perf.icon}</div>
+                    <div class="performance-info">
+                        <div class="performance-name">${perf.agent_name}</div>
+                        <div class="performance-trend">↑ ${perf.trend}</div>
+                    </div>
+                </div>
+                <div class="performance-stats">
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.conversations}</div>
+                        <div class="perf-stat-label">Conversations</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.tasks}</div>
+                        <div class="perf-stat-label">Tâches</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.time_saved}h</div>
+                        <div class="perf-stat-label">Temps économisé</div>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-stat-value">${perf.satisfaction}</div>
+                        <div class="perf-stat-label">Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Erreur chargement performance:', error);
+    }
+}
+
+// ==================== ACTIONS ====================
+function createCustomAgent() {
+    const modal = document.getElementById('createAgentModal');
+    modal.classList.add('modal-open');
+}
+
+function closeCreateModal() {
+    const modal = document.getElementById('createAgentModal');
+    modal.classList.remove('modal-open');
+}
+
+async function installAgent(id) {
+    if (!confirm('Installer cet agent dans votre workspace ?')) return;
+    
+    try {
+        const response = await fetch(`/api/agents/install/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`Agent installé avec succès ! ✅`);
+            switchTab('mes-agents');
+            loadMyAgents();
+        } else {
+            alert('Erreur lors de l\'installation');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'installation');
+    }
+}
+
+function previewAgent(id) {
+    // Trouver l'agent dans la marketplace
+    const agent = allMarketplaceAgents.find(a => a.id === id);
+    if (agent) {
+        alert(`👁️ Aperçu: ${agent.name}\n\n${agent.description}\n\nFonctionnalités:\n${agent.features.join('\n')}`);
+    }
+}
+
+async function submitCreateAgent(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    const agentData = {
+        name: formData.get('name'),
+        category: formData.get('category'),
+        description: formData.get('description'),
+        instructions: formData.get('instructions'),
+        model: formData.get('model'),
+        temperature: parseFloat(formData.get('temperature'))
+    };
+    
+    try {
+        const response = await fetch('/api/agents/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(agentData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Agent créé avec succès ! ✅');
+            closeCreateModal();
+            loadMyAgents();
+        } else {
+            alert('Erreur lors de la création de l\'agent');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la création de l\'agent');
+    }
+}
+
+function openAgent(id) {
+    // Ouvrir la page de l'agent
+    window.location.href = `/agent/${id}`;
+}
+
+function useAgent(id) {
+    // Utiliser l'agent - Ouvrir la page de conversation dédiée
+    window.location.href = `/agent-chat/${id}`;
+}
+
+function testAgent(id) {
+    // Ouvrir en mode test (conversation temporaire)
+    window.location.href = `/agent-chat/${id}?mode=test`;
+}
+
+function configAgent(id) {
+    // Ouvrir la page de configuration de l'agent
+    window.location.href = `/agent-config/${id}`;
+}
+
+function openConversation(agentName) {
+    // Ouvrir la dernière conversation avec cet agent
+    window.location.href = `/agent-chat/${agentName}`;
+}
+
+// ==================== FILTRAGE ====================
+let allAgents = [];
+let allMarketplaceAgents = [];
+let activeTags = [];
+
+function filterAgents() {
+    const searchTerm = document.getElementById('searchAgents').value.toLowerCase();
+    const category = document.getElementById('filterCategory').value;
+    const status = document.getElementById('filterStatus').value;
+    
+    let filtered = allAgents.filter(agent => {
+        const matchSearch = agent.name.toLowerCase().includes(searchTerm) || 
+                          agent.description.toLowerCase().includes(searchTerm);
+        const matchCategory = !category || agent.category === category;
+        const matchStatus = !status || agent.status === status;
+        
+        return matchSearch && matchCategory && matchStatus;
+    });
+    
+    // Appliquer les tags actifs
+    if (activeTags.includes('high-performance')) {
+        filtered = filtered.filter(a => a.satisfaction >= 4.8);
+    }
+    if (activeTags.includes('most-used')) {
+        filtered = filtered.sort((a, b) => b.conversations - a.conversations).slice(0, 3);
+    }
+    if (activeTags.includes('recent')) {
+        filtered = filtered.slice(-3);
+    }
+    
+    const grid = document.getElementById('myAgentsGrid');
+    if (filtered.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; padding: 2rem; color: #666;">Aucun agent trouvé</p>';
+    } else {
+        grid.innerHTML = filtered.map(agent => createAgentCard(agent)).join('');
+    }
+}
+
+function toggleTag(element, tag) {
+    element.classList.toggle('active');
+    
+    if (activeTags.includes(tag)) {
+        activeTags = activeTags.filter(t => t !== tag);
+    } else {
+        activeTags.push(tag);
+    }
+    
+    filterAgents();
 }
 
 // Charger au démarrage
-document.addEventListener('DOMContentLoaded', loadAgents);
+document.addEventListener('DOMContentLoaded', () => {
+    loadStats();
+    loadMyAgents();
+});
 </script>
+
 {% endblock %}

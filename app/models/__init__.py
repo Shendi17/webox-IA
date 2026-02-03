@@ -37,15 +37,17 @@ from .influencer_db import (
 from .business_db import (
     GeneratedLogoDB,
     PresentationDB,
-    EmailCampaignDB,
     LandingPageDB
 )
 
-# Modèles de tunnels de vente
-from .funnel_db import (
-    FunnelDB,
-    FunnelAnalyticsDB,
-    FunnelContactDB
+# Modèles de marketing et CRM
+from .marketing_db import (
+    Funnel,
+    FunnelPage,
+    EmailCampaign,
+    Lead,
+    LeadInteraction,
+    AdCampaign
 )
 
 # Modèles de website builder
@@ -87,11 +89,13 @@ __all__ = [
     "InfluencerContentDB",
     "GeneratedLogoDB",
     "PresentationDB",
-    "EmailCampaignDB",
     "LandingPageDB",
-    "FunnelDB",
-    "FunnelAnalyticsDB",
-    "FunnelContactDB",
+    "Funnel",
+    "FunnelPage",
+    "EmailCampaign",
+    "Lead",
+    "LeadInteraction",
+    "AdCampaign",
     "WebsiteDB",
     "WebsitePageDB",
     "BlogPostDB",

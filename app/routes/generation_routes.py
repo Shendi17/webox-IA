@@ -157,39 +157,23 @@ async def _generate_image_task(image_id: int, request: ImageGenerationRequest, u
 
 async def _generate_with_dalle(request: ImageGenerationRequest, user: dict) -> tuple:
     """
-    Générer une image avec DALL-E
+    Générer une image avec DALL-E via le service d'intégration
     """
     try:
-        # Récupérer la clé API OpenAI de l'utilisateur
-        api_key = os.getenv("OPENAI_API_KEY")  # TODO: Récupérer depuis le profil utilisateur
+        from app.services.ai_integration_service import ai_service
         
-        if not api_key:
-            raise ValueError("Clé API OpenAI non configurée")
-        
-        client = OpenAI(api_key=api_key)
-        
-        # Générer l'image
-        response = client.images.generate(
-            model=request.model,
+        result = await ai_service.generate_image_dalle(
             prompt=request.prompt,
+            model=request.model,
             size=request.size,
             quality=request.quality,
-            style=request.style if request.model == "dall-e-3" else None,
-            n=1
+            style=request.style
         )
         
-        image_url = response.data[0].url
+        if not result["success"]:
+            raise Exception(result["error"])
         
-        # Calculer le coût
-        if request.model == "dall-e-3":
-            if request.quality == "hd":
-                cost = 0.080 if request.size == "1024x1024" else 0.120
-            else:
-                cost = 0.040 if request.size == "1024x1024" else 0.080
-        else:  # dall-e-2
-            cost = 0.020 if request.size == "1024x1024" else 0.018
-        
-        return image_url, cost
+        return result["image_url"], result["cost"]
         
     except Exception as e:
         raise Exception(f"Erreur DALL-E : {str(e)}")
@@ -197,17 +181,21 @@ async def _generate_with_dalle(request: ImageGenerationRequest, user: dict) -> t
 
 async def _generate_with_stable_diffusion(request: ImageGenerationRequest, user: dict) -> tuple:
     """
-    Générer une image avec Stable Diffusion (Stability AI)
+    Générer une image avec Stable Diffusion via le service d'intégration
     """
     try:
-        api_key = os.getenv("STABILITY_API_KEY")
+        from app.services.ai_integration_service import ai_service
         
-        if not api_key:
-            raise ValueError("Clé API Stability AI non configurée")
+        result = await ai_service.generate_image_stable_diffusion(
+            prompt=request.prompt,
+            width=int(request.size.split("x")[0]),
+            height=int(request.size.split("x")[1])
+        )
         
-        # TODO: Implémenter l'appel à l'API Stability AI
-        # Pour l'instant, retourner une erreur
-        raise NotImplementedError("Stable Diffusion pas encore implémenté")
+        if not result["success"]:
+            raise Exception(result["error"])
+        
+        return result["image_path"], result["cost"]
         
     except Exception as e:
         raise Exception(f"Erreur Stable Diffusion : {str(e)}")
@@ -742,12 +730,12 @@ async def _generate_ebook_task(ebook_id: int, request: EbookGenerationRequest, u
     Tâche en arrière-plan pour générer l'eBook
     """
     from app.database import SessionLocal
-    from app.models.generation_db import GeneratedEbookDB
+    from app.models.generation_db import EBookDB
     
     db = SessionLocal()
     
     try:
-        db_ebook = db.query(GeneratedEbookDB).filter(GeneratedEbookDB.id == ebook_id).first()
+        db_ebook = db.query(EBookDB).filter(EBookDB.id == ebook_id).first()
         
         # Générer le contenu avec GPT-4
         content, cost = await _generate_ebook_content(request, user)
@@ -756,15 +744,16 @@ async def _generate_ebook_task(ebook_id: int, request: EbookGenerationRequest, u
         pdf_path = await _generate_pdf(content, request.title, ebook_id)
         
         # Mettre à jour en DB
-        db_ebook.content = content
-        db_ebook.pdf_path = pdf_path
+        db_ebook.pdf_url = pdf_path
         db_ebook.cost = cost
         db_ebook.status = "completed"
+        db_ebook.progress = 100
         db_ebook.completed_at = datetime.utcnow()
         
         if pdf_path:
             db_ebook.file_size = os.path.getsize(pdf_path)
-            db_ebook.page_count = content.count("\n\n") // 10  # Estimation
+            db_ebook.total_pages = content.count("\n\n") // 10  # Estimation
+            db_ebook.word_count = len(content.split())
         
         db.commit()
         
@@ -779,40 +768,166 @@ async def _generate_ebook_task(ebook_id: int, request: EbookGenerationRequest, u
 
 async def _generate_ebook_content(request: EbookGenerationRequest, user: dict) -> tuple:
     """
-    Générer le contenu de l'eBook avec GPT-4
+    Générer le contenu de l'eBook avec GPT-4 ou simulation
     """
-    import asyncio
-    await asyncio.sleep(2)
-    
-    # Simulation
-    content = f"# {request.title}\n\n"
-    content += f"## Introduction\n\nCe livre traite de {request.topic}.\n\n"
-    
-    for i in range(1, request.num_chapters + 1):
-        content += f"## Chapitre {i}\n\nContenu du chapitre {i}...\n\n"
-    
-    content += "## Conclusion\n\nMerci d'avoir lu ce livre.\n"
-    
-    cost = 0.10 * request.num_chapters
-    
-    return content, cost
+    try:
+        from app.services.ai_integration_service import ai_service
+        
+        # Construire le prompt pour GPT-4
+        prompt = f"""Écris un eBook complet sur le sujet suivant:
+
+Titre: {request.title}
+Sujet: {request.topic}
+Nombre de chapitres: {request.num_chapters}
+Langue: {request.language}
+Style: {request.style}
+Public cible: {request.target_audience}
+
+Format de sortie en Markdown:
+- Utilise # pour le titre principal
+- Utilise ## pour les chapitres
+- Utilise ### pour les sous-sections
+- Écris des paragraphes détaillés et informatifs
+- Ajoute une introduction et une conclusion
+
+Génère le contenu complet maintenant."""
+
+        # Essayer avec GPT-4
+        result = await ai_service.chat_openai(
+            messages=[{"role": "user", "content": prompt}],
+            model="gpt-4",
+            temperature=0.7
+        )
+        
+        if result["success"]:
+            return result["message"], result["cost"]
+        else:
+            # Fallback vers simulation
+            raise Exception("GPT-4 non disponible")
+            
+    except Exception as e:
+        # Simulation en cas d'erreur
+        print(f"Utilisation de la simulation pour eBook: {e}")
+        
+        content = f"# {request.title}\n\n"
+        content += f"## Introduction\n\nCe livre traite de {request.topic}.\n\n"
+        content += f"Ce guide complet explore les différents aspects de {request.topic} "
+        content += f"de manière {request.style} pour un public {request.target_audience}.\n\n"
+        
+        for i in range(1, request.num_chapters + 1):
+            content += f"## Chapitre {i}: Exploration de {request.topic}\n\n"
+            content += f"Dans ce chapitre, nous allons découvrir les éléments essentiels "
+            content += f"liés à {request.topic}. Cette section fournit des informations "
+            content += f"détaillées et pratiques.\n\n"
+            content += f"### Section {i}.1: Fondamentaux\n\n"
+            content += f"Les concepts de base sont essentiels pour comprendre {request.topic}.\n\n"
+            content += f"### Section {i}.2: Applications pratiques\n\n"
+            content += f"Voici comment appliquer ces concepts dans la pratique.\n\n"
+        
+        content += "## Conclusion\n\n"
+        content += f"Ce livre vous a fourni une compréhension complète de {request.topic}. "
+        content += "Nous espérons que ces informations vous seront utiles.\n\n"
+        content += "Merci d'avoir lu ce livre généré par WeBox Multi-IA.\n"
+        
+        cost = 0.10 * request.num_chapters
+        
+        return content, cost
 
 
 async def _generate_pdf(content: str, title: str, ebook_id: int) -> str:
     """
-    Générer un PDF à partir du contenu Markdown
+    Générer un PDF à partir du contenu Markdown avec ReportLab
     """
     try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+        from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+        
         output_dir = "generated/ebooks"
         os.makedirs(output_dir, exist_ok=True)
         
         pdf_path = os.path.join(output_dir, f"ebook_{ebook_id}.pdf")
         
-        # Simulation - créer un fichier vide
-        with open(pdf_path, "wb") as f:
-            f.write(b"")
+        # Créer le document PDF
+        doc = SimpleDocTemplate(pdf_path, pagesize=A4,
+                                rightMargin=72, leftMargin=72,
+                                topMargin=72, bottomMargin=18)
+        
+        # Styles
+        styles = getSampleStyleSheet()
+        
+        # Style titre
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor='#1a1a1a',
+            spaceAfter=30,
+            alignment=TA_CENTER
+        )
+        
+        # Style chapitre
+        chapter_style = ParagraphStyle(
+            'CustomChapter',
+            parent=styles['Heading2'],
+            fontSize=18,
+            textColor='#2c3e50',
+            spaceAfter=12,
+            spaceBefore=12
+        )
+        
+        # Style contenu
+        content_style = ParagraphStyle(
+            'CustomBody',
+            parent=styles['BodyText'],
+            fontSize=12,
+            textColor='#333333',
+            alignment=TA_JUSTIFY,
+            spaceAfter=12
+        )
+        
+        # Construire le contenu
+        story = []
+        
+        # Page de couverture
+        story.append(Spacer(1, 2*inch))
+        story.append(Paragraph(title, title_style))
+        story.append(Spacer(1, 0.5*inch))
+        story.append(Paragraph("Généré par WeBox Multi-IA", styles['Normal']))
+        story.append(PageBreak())
+        
+        # Contenu
+        lines = content.split('\n')
+        for line in lines:
+            line = line.strip()
+            if not line:
+                story.append(Spacer(1, 0.2*inch))
+            elif line.startswith('# '):
+                # Chapitre
+                story.append(Paragraph(line[2:], chapter_style))
+            elif line.startswith('## '):
+                # Sous-chapitre
+                story.append(Paragraph(line[3:], styles['Heading3']))
+            else:
+                # Paragraphe normal
+                story.append(Paragraph(line, content_style))
+        
+        # Générer le PDF
+        doc.build(story)
         
         return pdf_path
+        
+    except ImportError:
+        # Si ReportLab n'est pas installé, créer un fichier texte
+        print("ReportLab non installé, création d'un fichier texte")
+        output_dir = "generated/ebooks"
+        os.makedirs(output_dir, exist_ok=True)
+        txt_path = os.path.join(output_dir, f"ebook_{ebook_id}.txt")
+        with open(txt_path, "w", encoding="utf-8") as f:
+            f.write(f"{title}\n\n{content}")
+        return txt_path
         
     except Exception as e:
         print(f"Erreur lors de la génération du PDF : {e}")

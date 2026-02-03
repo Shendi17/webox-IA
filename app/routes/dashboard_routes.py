@@ -13,6 +13,14 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
+@router.get("/test-modal", response_class=HTMLResponse)
+async def test_modal(request: Request):
+    """Page de test pour les modals"""
+    return templates.TemplateResponse("test_modal_page.html", {
+        "request": request
+    })
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     """Dashboard principal"""
@@ -75,6 +83,34 @@ async def agents(request: Request):
     return templates.TemplateResponse("dashboard/agents.html", {
         "request": request,
         "user": user
+    })
+
+
+@router.get("/agent-chat/{agent_id}", response_class=HTMLResponse)
+async def agent_chat(agent_id: int, request: Request):
+    """Page de conversation avec un agent spécifique"""
+    user = get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    return templates.TemplateResponse("dashboard/agent_chat.html", {
+        "request": request,
+        "user": user,
+        "agent_id": agent_id
+    })
+
+
+@router.get("/agent-config/{agent_id}", response_class=HTMLResponse)
+async def agent_config(agent_id: int, request: Request):
+    """Page de configuration d'un agent"""
+    user = get_current_user_from_cookie(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    
+    return templates.TemplateResponse("dashboard/agent_config.html", {
+        "request": request,
+        "user": user,
+        "agent_id": agent_id
     })
 
 
@@ -184,10 +220,8 @@ async def analytics(request: Request):
 
 @router.get("/blog", response_class=HTMLResponse)
 async def blog(request: Request):
-    """Page du blog IA"""
+    """Page du blog IA - Accessible sans authentification"""
     user = get_current_user_from_cookie(request)
-    if not user:
-        return RedirectResponse(url="/login", status_code=302)
     
     return templates.TemplateResponse("dashboard/blog.html", {
         "request": request,

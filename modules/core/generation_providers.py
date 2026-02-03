@@ -4,6 +4,7 @@ from typing import Optional, Dict, List
 from abc import ABC, abstractmethod
 import openai
 from modules.core.config import config
+import base64
 
 
 class ImageProvider(ABC):
@@ -63,6 +64,54 @@ class DALLEProvider(ImageProvider):
         
         except Exception as e:
             raise Exception(f"Erreur DALL-E 3: {str(e)}")
+
+
+class ImagenProvider(ImageProvider):
+    """Provider pour Imagen (Google Vertex AI)"""
+    
+    def __init__(self):
+        self.configured = bool(config.VERTEX_AI_PROJECT_ID)
+    
+    def is_configured(self) -> bool:
+        return self.configured
+    
+    async def generate_image(
+        self, 
+        prompt: str,
+        model: str = "imagen-4.0-generate-001",
+        negative_prompt: str = "",
+        aspect_ratio: str = "1:1",
+        number_of_images: int = 1
+    ) -> bytes:
+        """Génère une image avec Imagen (Vertex AI)"""
+        if not self.is_configured():
+            raise Exception("Imagen n'est pas configuré. Configurez Vertex AI.")
+        
+        try:
+            import vertexai
+            from vertexai.preview.vision_models import ImageGenerationModel
+            
+            vertexai.init(
+                project=config.VERTEX_AI_PROJECT_ID,
+                location=config.VERTEX_AI_LOCATION
+            )
+            
+            generation_model = ImageGenerationModel.from_pretrained(model)
+            
+            images = generation_model.generate_images(
+                prompt=prompt,
+                negative_prompt=negative_prompt if negative_prompt else None,
+                aspect_ratio=aspect_ratio,
+                number_of_images=number_of_images
+            )
+            
+            if images and len(images.images) > 0:
+                return images.images[0]._image_bytes
+            else:
+                raise Exception("Aucune image générée")
+        
+        except Exception as e:
+            raise Exception(f"Erreur Imagen: {str(e)}")
 
 
 class StableDiffusionProvider(ImageProvider):
@@ -257,6 +306,52 @@ class VideoProvider(ABC):
         pass
 
 
+class VeoProvider(VideoProvider):
+    """Provider pour Veo (Google Vertex AI)"""
+    
+    def __init__(self):
+        self.configured = bool(config.VERTEX_AI_PROJECT_ID)
+    
+    def is_configured(self) -> bool:
+        return self.configured
+    
+    async def generate_video(
+        self,
+        prompt: str,
+        model: str = "veo-3.1-generate-001",
+        duration: int = 5,
+        aspect_ratio: str = "16:9"
+    ) -> bytes:
+        """Génère une vidéo avec Veo (Vertex AI)"""
+        if not self.is_configured():
+            raise Exception("Veo n'est pas configuré. Configurez Vertex AI.")
+        
+        try:
+            import vertexai
+            from vertexai.preview.vision_models import VideoGenerationModel
+            
+            vertexai.init(
+                project=config.VERTEX_AI_PROJECT_ID,
+                location=config.VERTEX_AI_LOCATION
+            )
+            
+            generation_model = VideoGenerationModel.from_pretrained(model)
+            
+            video = generation_model.generate_video(
+                prompt=prompt,
+                duration=duration,
+                aspect_ratio=aspect_ratio
+            )
+            
+            if video and video.video_bytes:
+                return video.video_bytes
+            else:
+                raise Exception("Aucune vidéo générée")
+        
+        except Exception as e:
+            raise Exception(f"Erreur Veo: {str(e)}")
+
+
 class RunwayProvider(VideoProvider):
     """Provider pour Runway (génération vidéo) - Placeholder"""
     
@@ -276,6 +371,9 @@ class MediaGenerationManager:
     
     def __init__(self):
         self.image_providers = {
+            "Imagen 4 Ultra": ImagenProvider(),
+            "Imagen 4": ImagenProvider(),
+            "Imagen 3": ImagenProvider(),
             "DALL-E 3": DALLEProvider(),
             "Stable Diffusion": StableDiffusionProvider()
         }
@@ -286,6 +384,8 @@ class MediaGenerationManager:
         }
         
         self.video_providers = {
+            "Veo 3.1": VeoProvider(),
+            "Veo 3.0": VeoProvider(),
             "Runway": RunwayProvider()
         }
     

@@ -1,0 +1,765 @@
+<!-- Navbar principale modulaire WeBox -->
+<nav class="main-navbar" id="mainNavbar">
+    <div class="navbar-container">
+        <!-- Logo et nom du site -->
+        <div class="navbar-brand">
+            <a href="/" class="brand-link">
+                <img src="/static/images/logo.svg" alt="WeBox" class="navbar-logo" onerror="this.style.display='none'">
+                <span class="brand-name">WeBox Multi-IA</span>
+            </a>
+        </div>
+
+        <!-- Barre de recherche -->
+        <div class="navbar-search">
+            <form class="search-form" method="get" action="/search">
+                <input type="text" name="q" placeholder="Rechercher..." class="search-input" autocomplete="off">
+                <button type="submit" class="search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Menu principal -->
+        <ul class="navbar-menu">
+            <li><a href="/catalog" class="menu-link">Catalogue d'Outils IA</a></li>
+            <li><a href="/blog" class="menu-link">Blog</a></li>
+            <li><a href="/marketplace" class="menu-link">Marketplace</a></li>
+        </ul>
+
+        <!-- Menu utilisateur -->
+        <div class="navbar-user">
+            {% if user %}
+            <!-- Icône panier -->
+            <a href="/cart" class="cart-icon-link">
+                <span class="cart-icon">🛒</span>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+            
+            <!-- Utilisateur connecté - Menu déroulant -->
+            <div class="user-dropdown">
+                <button class="user-btn" id="userMenuBtn">
+                    <div class="user-avatar">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar }}" alt="{{ user.name }}">
+                        {% else %}
+                        <span class="avatar-placeholder">{{ user.name[0]|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="user-name">{{ user.name }}</span>
+                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                <!-- Menu déroulant -->
+                <div class="user-dropdown-menu" id="userDropdownMenu">
+                    <div class="dropdown-header">
+                        <div class="dropdown-user-info">
+                            <div class="dropdown-avatar">
+                                {% if user.avatar %}
+                                <img src="{{ user.avatar }}" alt="{{ user.name }}">
+                                {% else %}
+                                <span class="avatar-placeholder">{{ user.name[0]|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="dropdown-user-details">
+                                <div class="dropdown-user-name">{{ user.name }}</div>
+                                <div class="dropdown-user-email">{{ user.email }}</div>
+                            </div>
+                            <a href="/notifications" class="notification-icon-link" title="Notifications">
+                                <span class="notification-icon">🔔</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Compte -->
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Compte</div>
+                        <a href="/dashboard" class="dropdown-item">
+                            <span class="item-icon">🏠</span>
+                            <span>Tableau de bord</span>
+                        </a>
+                        <a href="/activities" class="dropdown-item">
+                            <span class="item-icon">📊</span>
+                            <span>Mes Activités</span>
+                        </a>
+                        <a href="/profile" class="dropdown-item">
+                            <span class="item-icon">👤</span>
+                            <span>Mon Profil</span>
+                        </a>
+                        <a href="/account" class="dropdown-item">
+                            <span class="item-icon">💳</span>
+                            <span>Mon Compte</span>
+                        </a>
+                        <a href="/settings" class="dropdown-item">
+                            <span class="item-icon">⚙️</span>
+                            <span>Paramètres</span>
+                        </a>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Équipe et documents -->
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Équipe et documents</div>
+                        <a href="/collaboration" class="dropdown-item">
+                            <span class="item-icon">👥</span>
+                            <span>Collaboration</span>
+                        </a>
+                        <a href="/projects" class="dropdown-item">
+                            <span class="item-icon">🏗️</span>
+                            <span>Projets</span>
+                        </a>
+                        <a href="/media" class="dropdown-item">
+                            <span class="item-icon">📁</span>
+                            <span>Gestionnaire Média</span>
+                        </a>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Statistiques -->
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Statistiques</div>
+                        <a href="/analytics" class="dropdown-item">
+                            <span class="item-icon">📊</span>
+                            <span>Analytics</span>
+                        </a>
+                        <a href="/marketing-dashboard" class="dropdown-item">
+                            <span class="item-icon">📈</span>
+                            <span>Dashboard Marketing</span>
+                        </a>
+                        {% if user.is_admin %}
+                        <a href="/admin/analytics" class="dropdown-item">
+                            <span class="item-icon">🔐</span>
+                            <span>Admin Analytics</span>
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Ressources -->
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Ressources</div>
+                        <a href="/documentation" class="dropdown-item">
+                            <span class="item-icon">📖</span>
+                            <span>Documentation</span>
+                        </a>
+                        <a href="/support" class="dropdown-item">
+                            <span class="item-icon">💬</span>
+                            <span>Support</span>
+                        </a>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Déconnexion -->
+                    <a href="/logout" class="dropdown-item logout-item">
+                        <span class="item-icon">🚪</span>
+                        <span>Déconnexion</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Utilisateur hors ligne - Boutons connexion/inscription -->
+            <div class="auth-buttons">
+                <a href="/login" class="btn btn-outline">Se connecter</a>
+                <a href="/register" class="btn btn-primary">S'inscrire</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<style>
+/* ==================== NAVBAR PRINCIPALE ==================== */
+.main-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 70px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    transition: left 0.3s ease, width 0.3s ease;
+}
+
+/* Ajustement quand la sidebar est ouverte (uniquement pour dashboard) */
+body.has-sidebar .sidebar:not(.compact) ~ .main-navbar {
+    left: 280px;
+    width: calc(100% - 280px);
+}
+
+body.has-sidebar .sidebar.compact ~ .main-navbar {
+    left: 70px;
+    width: calc(100% - 70px);
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 2rem;
+    gap: 2rem;
+}
+
+/* Logo et nom */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+.brand-link:hover {
+    opacity: 0.8;
+}
+
+.navbar-logo {
+    height: 40px;
+    width: auto;
+}
+
+.brand-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffd700;
+    white-space: nowrap;
+}
+
+/* Barre de recherche */
+.navbar-search {
+    flex: 1;
+    max-width: 600px;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ffd700;
+}
+
+.search-btn {
+    padding: 0.75rem 1.25rem;
+    background: #ffd700;
+    border: none;
+    border-radius: 8px;
+    color: #1a1a2e;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-btn:hover {
+    background: #ffed4e;
+    transform: translateY(-2px);
+}
+
+/* Menu principal */
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.menu-link {
+    padding: 0.75rem 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.menu-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.menu-link.active {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+/* Menu utilisateur */
+.navbar-user {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Icône panier */
+.cart-icon-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cart-icon-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ffd700;
+    transform: scale(1.05);
+}
+
+.cart-icon {
+    font-size: 1.5rem;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 20px;
+    height: 20px;
+    background: #ff6b6b;
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0 6px;
+    display: none;
+}
+
+.cart-badge:not(:empty) {
+    display: flex;
+}
+
+/* Boutons auth (hors ligne) */
+.auth-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.btn-outline {
+    border: 2px solid #ffd700;
+    color: #ffd700;
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: #ffd700;
+    color: #1a1a2e;
+}
+
+.btn-primary {
+    background: #ffd700;
+    color: #1a1a2e;
+    border: 2px solid #ffd700;
+}
+
+.btn-primary:hover {
+    background: #ffed4e;
+    border-color: #ffed4e;
+    transform: translateY(-2px);
+}
+
+/* Dropdown utilisateur */
+.user-dropdown {
+    position: relative;
+}
+
+.user-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ffd700;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+}
+
+.user-dropdown.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* Menu déroulant */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 320px;
+    max-height: 80vh;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.user-dropdown.active .user-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 237, 78, 0.05) 100%);
+}
+
+.dropdown-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dropdown-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dropdown-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dropdown-avatar .avatar-placeholder {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.dropdown-user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.dropdown-user-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-user-email {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.notification-icon-link:hover {
+    background: rgba(255, 215, 0, 0.2);
+    transform: scale(1.1);
+}
+
+.notification-icon {
+    font-size: 1.3rem;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
+}
+
+.dropdown-section {
+    padding: 0.75rem 0;
+}
+
+.dropdown-section-title {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.item-icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.logout-item {
+    color: #ff6b6b;
+}
+
+.logout-item:hover {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff8787;
+}
+
+/* Scrollbar pour le menu déroulant */
+.user-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-dropdown-menu::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.user-dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.user-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .navbar-menu {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 1rem;
+        gap: 1rem;
+    }
+    
+    .brand-name {
+        display: none;
+    }
+    
+    .navbar-search {
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-search {
+        max-width: 200px;
+    }
+    
+    .search-input {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .user-name {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// Gestion du menu déroulant utilisateur
+document.addEventListener('DOMContentLoaded', function() {
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.querySelector('.user-dropdown');
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+
+    if (userMenuBtn && userDropdown) {
+        // Toggle du menu
+        userMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
+
+        // Fermer le menu en cliquant ailleurs
+        document.addEventListener('click', function(e) {
+            if (!userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+
+        // Empêcher la fermeture en cliquant dans le menu
+        if (userDropdownMenu) {
+            userDropdownMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    }
+
+    // Connecter les boutons des outils IA
+    const navVoiceBtn = document.getElementById('navVoiceCommandTrigger');
+    const navAiBtn = document.getElementById('navAiAssistantTrigger');
+
+    if (navVoiceBtn) {
+        navVoiceBtn.addEventListener('click', function() {
+            // Fermer le menu
+            if (userDropdown) userDropdown.classList.remove('active');
+            
+            // Déclencher la commande vocale
+            const voiceBtn = document.getElementById('voiceCommandTrigger');
+            if (voiceBtn) {
+                voiceBtn.click();
+            } else if (typeof openVoiceModal === 'function') {
+                openVoiceModal();
+            }
+        });
+    }
+
+    if (navAiBtn) {
+        navAiBtn.addEventListener('click', function() {
+            // Fermer le menu
+            if (userDropdown) userDropdown.classList.remove('active');
+            
+            // Déclencher l'assistant IA
+            const aiBtn = document.getElementById('aiAssistantTrigger');
+            if (aiBtn) {
+                aiBtn.click();
+            } else if (typeof toggleAIAgent === 'function') {
+                toggleAIAgent();
+            }
+        });
+    }
+
+    // Marquer le lien actif dans le menu principal
+    const currentPath = window.location.pathname;
+    const menuLinks = document.querySelectorAll('.menu-link');
+    menuLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>

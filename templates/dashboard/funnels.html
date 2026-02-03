@@ -4,7 +4,72 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', path='/css/modals.css') }}">
+<style>
+/* ==================== MODAL CSS ==================== */
+#createModal,
+#generateModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 99999;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+#createModal.modal-open,
+#generateModal.modal-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#createModal .modal-content,
+#generateModal .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+#createModal .modal-header,
+#generateModal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+#createModal .modal-close,
+#generateModal .modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+}
+
+#createModal .modal-close:hover,
+#generateModal .modal-close:hover {
+    color: #000;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -42,7 +107,7 @@
 </div>
 
 <!-- Modal Créer Tunnel -->
-<div id="createModal" class="modal">
+<div id="createModal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>🎯 Créer un Tunnel</h2>
@@ -78,7 +143,7 @@
 </div>
 
 <!-- Modal Générer avec IA -->
-<div id="generateModal" class="modal">
+<div id="generateModal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>🤖 Générer un Tunnel avec IA</h2>
@@ -348,24 +413,25 @@ async function deleteFunnel(id) {
 
 // Modals
 function openCreateModal() {
-    document.getElementById('createModal').classList.add('active');
+    document.getElementById('createModal').classList.add('modal-open');
 }
 
 function closeCreateModal() {
-    document.getElementById('createModal').classList.remove('active');
+    document.getElementById('createModal').classList.remove('modal-open');
 }
 
 function openGenerateModal() {
-    document.getElementById('generateModal').classList.add('active');
+    document.getElementById('generateModal').classList.add('modal-open');
 }
 
 function closeGenerateModal() {
-    document.getElementById('generateModal').classList.remove('active');
+    document.getElementById('generateModal').classList.remove('modal-open');
 }
 
 // Notification
 function showNotification(message, type) {
-    // Ne pas afficher d'alerte pour éviter les popups intrusifs}
+    // Ne pas afficher d'alerte pour éviter les popups intrusifs
+}
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
