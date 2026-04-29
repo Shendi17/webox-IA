@@ -38,6 +38,10 @@ ENV/
 .env.local
 .env.*.local
 
+# Google Cloud credentials
+webox-*.json
+*-service-account*.json
+
 # Streamlit
 .streamlit/secrets.toml
 
