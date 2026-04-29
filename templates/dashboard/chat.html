@@ -669,30 +669,8 @@
                         <span>DeepSeek</span>
                         <select id="deepseek-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
                             <optgroup label="DeepSeek Chat">
-                                <option value="deepseek-chat" selected>DeepSeek Chat - Équilibré ⭐</option>
-                            </optgroup>
-                            <optgroup label="DeepSeek Reasoner">
-                                <option value="deepseek-reasoner">DeepSeek Reasoner - Raisonnement avancé 🧠</option>
-                            </optgroup>
-                        </select>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="ai" value="perplexity">
-                        <span>Perplexity (Recherche)</span>
-                        <select id="perplexity-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
-                            <optgroup label="Sonar (Recherche en ligne) 🔍">
-                                <option value="sonar" selected>Sonar - Recherche standard ⭐</option>
-                                <option value="sonar-pro">Sonar Pro - Recherche avancée</option>
-                                <option value="sonar-reasoning">Sonar Reasoning - Raisonnement avec recherche 🧠</option>
-                            </optgroup>
-                            <optgroup label="Llama Sonar (En ligne)">
-                                <option value="llama-3.1-sonar-small-128k-online">Llama 3.1 Sonar Small - Rapide ⚡</option>
-                                <option value="llama-3.1-sonar-large-128k-online">Llama 3.1 Sonar Large - Puissant</option>
-                                <option value="llama-3.1-sonar-huge-128k-online">Llama 3.1 Sonar Huge - Très puissant</option>
-                            </optgroup>
-                            <optgroup label="Llama (Sans recherche)">
-                                <option value="llama-3.1-8b-instruct">Llama 3.1 8B Instruct</option>
-                                <option value="llama-3.1-70b-instruct">Llama 3.1 70B Instruct</option>
+                                <option value="deepseek-chat" selected>DeepSeek Chat - Polyvalent ⭐</option>
+                                <option value="deepseek-coder">DeepSeek Coder - Expert code 💻</option>
                             </optgroup>
                         </select>
                     </label>
@@ -700,19 +678,75 @@
                         <input type="checkbox" name="ai" value="cohere">
                         <span>Cohere</span>
                         <select id="cohere-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
-                            <optgroup label="Command A (Dernière génération) 🌟">
-                                <option value="command-a-vision-07-2025" selected>Command A Vision - Vision et texte 🎨</option>
-                                <option value="command-a-reasoning-08-2025">Command A Reasoning - Raisonnement avancé 🧠</option>
-                            </optgroup>
-                            <optgroup label="Command R">
+                            <optgroup label="Command R+">
+                                <option value="command-r-plus-08-2024" selected>Command R+ (Août 2024) ⭐</option>
                                 <option value="command-r-08-2024">Command R (Août 2024)</option>
-                                <option value="command-r7b-12-2024">Command R7B (Déc 2024)</option>
+                                <option value="command-light">Command Light - Rapide ⚡</option>
                             </optgroup>
-                            <optgroup label="Aya (Multilingue)">
-                                <option value="c4ai-aya-expanse-32b">Aya Expanse 32B - Multilingue</option>
-                                <option value="c4ai-aya-expanse-8b">Aya Expanse 8B</option>
-                                <option value="c4ai-aya-vision-32b">Aya Vision 32B 🎨</option>
-                                <option value="c4ai-aya-vision-8b">Aya Vision 8B 🎨</option>
+                        </select>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="ai" value="perplexity">
+                        <span>Perplexity (Recherche Web)</span>
+                        <select id="perplexity-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
+                            <optgroup label="Sonar Online 🔍">
+                                <option value="llama-3.1-sonar-small-128k-online" selected>Sonar Small Online ⭐</option>
+                                <option value="llama-3.1-sonar-large-128k-online">Sonar Large Online</option>
+                                <option value="llama-3.1-sonar-huge-128k-online">Sonar Huge Online</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="ai" value="xai">
+                        <span>xAI (Grok)</span>
+                        <select id="xai-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
+                            <optgroup label="Grok">
+                                <option value="grok-3" selected>Grok 3 - Dernière version ⭐</option>
+                                <option value="grok-2">Grok 2</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="ai" value="together">
+                        <span>Together AI</span>
+                        <select id="together-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
+                            <optgroup label="Llama (Meta) 🦙">
+                                <option value="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo" selected>Llama 3.1 70B Turbo ⭐</option>
+                                <option value="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo">Llama 3.1 405B Turbo</option>
+                                <option value="meta-llama/Meta-Llama-3-70B-Instruct">Llama 3 70B</option>
+                            </optgroup>
+                            <optgroup label="Mixtral">
+                                <option value="mistralai/Mixtral-8x7B-Instruct-v0.1">Mixtral 8x7B</option>
+                                <option value="mistralai/Mixtral-8x22B-Instruct-v0.1">Mixtral 8x22B</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="ai" value="replicate">
+                        <span>Replicate</span>
+                        <select id="replicate-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
+                            <optgroup label="Llama (Meta) 🦙">
+                                <option value="meta/meta-llama-3.1-405b-instruct" selected>Llama 3.1 405B ⭐</option>
+                                <option value="meta/llama-2-70b-chat">Llama 2 70B</option>
+                            </optgroup>
+                            <optgroup label="Mixtral">
+                                <option value="mistralai/mixtral-8x7b-instruct-v0.1">Mixtral 8x7B</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="ai" value="huggingface">
+                        <span>Hugging Face</span>
+                        <select id="huggingface-model-selector" style="margin-left: 10px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff;">
+                            <optgroup label="Llama (Meta) 🦙">
+                                <option value="meta-llama/Meta-Llama-3-70B-Instruct" selected>Llama 3 70B ⭐</option>
+                                <option value="meta-llama/Meta-Llama-3-8B-Instruct">Llama 3 8B</option>
+                            </optgroup>
+                            <optgroup label="Mixtral">
+                                <option value="mistralai/Mixtral-8x7B-Instruct-v0.1">Mixtral 8x7B</option>
+                            </optgroup>
+                            <optgroup label="Gemma (Google)">
+                                <option value="google/gemma-7b-it">Gemma 7B</option>
                             </optgroup>
                         </select>
                     </label>

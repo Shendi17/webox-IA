@@ -27,6 +27,12 @@ if (document.getElementById('loginForm')) {
                 alert.style.display = 'block';
                 alert.textContent = data.message;
                 
+                // Stocker les données utilisateur dans localStorage
+                if (data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    console.log('✅ Utilisateur stocké dans localStorage:', data.user);
+                }
+                
                 setTimeout(function() {
                     window.location.href = data.redirect;
                 }, 1000);

@@ -377,17 +377,32 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="imageModel">
-                    <optgroup label="Imagen (Google Vertex AI)">
-                        <option value="imagen-4.0-ultra-generate-001">Imagen 4 Ultra 🌟 - Meilleure qualité</option>
+                    <optgroup label="Imagen (Google Vertex AI) 🌟">
+                        <option value="imagen-4.0-ultra-generate-001">Imagen 4 Ultra - Meilleure qualité</option>
                         <option value="imagen-4.0-generate-001" selected>Imagen 4 Standard - Recommandé</option>
-                        <option value="imagen-4.0-fast-generate-001">Imagen 4 Fast ⚡ - Rapide</option>
-                        <option value="imagen-3.0-generate-002">Imagen 3 v2 - Stable</option>
+                        <option value="imagen-4.0-fast-generate-001">Imagen 4 Fast ⚡</option>
+                        <option value="imagen-3.0-generate-002">Imagen 3 v2</option>
                         <option value="imagen-3.0-generate-001">Imagen 3 v1</option>
-                        <option value="imagen-3.0-fast-generate-001">Imagen 3 Fast</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="dall-e-3">DALL-E 3 (OpenAI) - Qualité premium</option>
-                        <option value="stable-diffusion">Stable Diffusion - Open source</option>
+                    <optgroup label="OpenAI">
+                        <option value="dall-e-3">DALL-E 3 - Haute qualité</option>
+                        <option value="dall-e-2">DALL-E 2 - Standard</option>
+                    </optgroup>
+                    <optgroup label="Replicate">
+                        <option value="black-forest-labs/flux-pro">Flux Pro - Ultra qualité 🎨</option>
+                        <option value="black-forest-labs/flux-dev">Flux Dev</option>
+                        <option value="stability-ai/sdxl">Stable Diffusion XL</option>
+                        <option value="stability-ai/stable-diffusion">Stable Diffusion</option>
+                    </optgroup>
+                    <optgroup label="Hugging Face (Gratuit)">
+                        <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0</option>
+                        <option value="stabilityai/stable-diffusion-3-medium">SD 3 Medium</option>
+                        <option value="black-forest-labs/FLUX.1-dev">Flux Dev</option>
+                    </optgroup>
+                    <optgroup label="Stability AI">
+                        <option value="stable-diffusion-3.5-large">SD 3.5 Large</option>
+                        <option value="stable-diffusion-3.5-medium">SD 3.5 Medium</option>
+                        <option value="stable-diffusion-xl-1024-v1-0">SDXL 1.0</option>
                     </optgroup>
                 </select>
             </div>
@@ -480,12 +495,17 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="videoModel">
-                    <optgroup label="Veo (Google Vertex AI)">
-                        <option value="veo-3.1-generate-001" selected>Veo 3.1 Generate 🌟 - Meilleure qualité</option>
-                        <option value="veo-3.1-fast-generate-001">Veo 3.1 Fast ⚡ - Rapide</option>
-                        <option value="veo-3.0-generate-001">Veo 3.0 Generate - Stable</option>
+                    <optgroup label="Veo (Google Vertex AI) 🌟">
+                        <option value="veo-3.1-generate-001" selected>Veo 3.1 Generate - Meilleure qualité</option>
+                        <option value="veo-3.1-fast-generate-001">Veo 3.1 Fast ⚡</option>
+                        <option value="veo-3.0-generate-001">Veo 3.0 Generate</option>
                         <option value="veo-3.0-fast-generate-001">Veo 3.0 Fast</option>
-                        <option value="veo-2.0-generate-001">Veo 2.0 Generate</option>
+                        <option value="veo-2.0-generate-001">Veo 2.0</option>
+                    </optgroup>
+                    <optgroup label="Replicate">
+                        <option value="minimax/video-01">MiniMax Video-01</option>
+                        <option value="tencent/hunyuan-video">Hunyuan Video</option>
+                        <option value="genmo/mochi-1-preview">Mochi 1 Preview</option>
                     </optgroup>
                     <optgroup label="Autres fournisseurs">
                         <option value="runway">Runway Gen-2 - Cinématique</option>
@@ -598,7 +618,7 @@
                 </select>
             </div>
             
-            <button class="btn-generate">
+            <button class="btn-generate" onclick="generateAudio()">
                 🎙️ Générer l'audio
             </button>
             
@@ -636,13 +656,27 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="ebookModel">
-                    <optgroup label="Gemini (Google Vertex AI)">
-                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
-                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Haute qualité</option>
+                    <optgroup label="Meilleure Qualité 🌟">
+                        <option value="claude-3-5-sonnet-latest" selected>Claude 3.5 Sonnet - Cohérence</option>
+                        <option value="claude-3-opus-20240229">Claude 3 Opus - Longs contenus</option>
+                        <option value="gpt-4o">GPT-4o - Polyvalent</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
-                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    <optgroup label="Vertex AI (Google) - Gratuit ⚡">
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    </optgroup>
+                    <optgroup label="Économique">
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="llama-3.3-70b-versatile">Groq Llama 3.3 (Gratuit)</option>
+                    </optgroup>
+                    <optgroup label="Avec Recherche Web">
+                        <option value="perplexity-sonar">Perplexity Sonar</option>
+                    </optgroup>
+                    <optgroup label="Autres">
+                        <option value="mistral-large-latest">Mistral Large</option>
+                        <option value="cohere-command-r-plus">Cohere Command R+</option>
+                        <option value="xai-grok-3">xAI Grok 3</option>
+                        <option value="together-llama-3.1-405b">Together AI Llama 3.1 405B</option>
                     </optgroup>
                 </select>
             </div>
@@ -721,13 +755,25 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA (Script)</label>
                 <select class="form-select" id="shortModel">
-                    <optgroup label="Gemini (Google Vertex AI)">
-                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
-                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Meilleur script</option>
+                    <optgroup label="Créatifs 🎨">
+                        <option value="claude-3-5-sonnet-latest" selected>Claude 3.5 Sonnet - Créatif</option>
+                        <option value="gpt-4o">GPT-4o - Polyvalent</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
-                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    <optgroup label="Vertex AI (Google) - Gratuit ⚡">
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    </optgroup>
+                    <optgroup label="Avec Recherche Tendances">
+                        <option value="perplexity-sonar">Perplexity Sonar</option>
+                    </optgroup>
+                    <optgroup label="Rapide">
+                        <option value="llama-3.3-70b-versatile">Groq Llama 3.3 (Gratuit)</option>
+                    </optgroup>
+                    <optgroup label="Autres">
+                        <option value="mistral-large-latest">Mistral Large</option>
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="cohere-command-r-plus">Cohere Command R+</option>
+                        <option value="xai-grok-3">xAI Grok 3</option>
                     </optgroup>
                 </select>
             </div>
@@ -807,13 +853,25 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA (Script)</label>
                 <select class="form-select" id="adModel">
-                    <optgroup label="Gemini (Google Vertex AI)">
-                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
-                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Meilleur script</option>
+                    <optgroup label="Marketing 📊">
+                        <option value="claude-3-5-sonnet-latest" selected>Claude 3.5 Sonnet - Persuasif</option>
+                        <option value="gpt-4o">GPT-4o - Polyvalent</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
-                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    <optgroup label="Vertex AI (Google) - Gratuit ⚡">
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    </optgroup>
+                    <optgroup label="Avec Recherche Marché">
+                        <option value="perplexity-sonar">Perplexity Sonar</option>
+                    </optgroup>
+                    <optgroup label="Rapide">
+                        <option value="llama-3.3-70b-versatile">Groq Llama 3.3 (Gratuit)</option>
+                    </optgroup>
+                    <optgroup label="Autres">
+                        <option value="mistral-large-latest">Mistral Large</option>
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="cohere-command-r-plus">Cohere Command R+</option>
+                        <option value="xai-grok-3">xAI Grok 3</option>
                     </optgroup>
                 </select>
             </div>
@@ -938,14 +996,27 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="logoModel">
-                    <optgroup label="Imagen (Google Vertex AI)">
-                        <option value="imagen-4.0-generate-001" selected>Imagen 4 Standard - Recommandé</option>
-                        <option value="imagen-4.0-ultra-generate-001">Imagen 4 Ultra 🌟</option>
+                    <optgroup label="Imagen (Google Vertex AI) 🌟">
+                        <option value="imagen-4.0-ultra-generate-001" selected>Imagen 4 Ultra - Meilleure qualité</option>
+                        <option value="imagen-4.0-generate-001">Imagen 4 Standard</option>
                         <option value="imagen-4.0-fast-generate-001">Imagen 4 Fast ⚡</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="dall-e-3">DALL-E 3 (OpenAI)</option>
-                        <option value="stable-diffusion">Stable Diffusion</option>
+                    <optgroup label="OpenAI">
+                        <option value="dall-e-3">DALL-E 3 - Haute qualité</option>
+                        <option value="dall-e-2">DALL-E 2</option>
+                    </optgroup>
+                    <optgroup label="Replicate">
+                        <option value="black-forest-labs/flux-pro">Flux Pro - Ultra qualité 🎨</option>
+                        <option value="black-forest-labs/flux-dev">Flux Dev</option>
+                        <option value="stability-ai/sdxl">Stable Diffusion XL</option>
+                    </optgroup>
+                    <optgroup label="Hugging Face (Gratuit)">
+                        <option value="stabilityai/stable-diffusion-xl-base-1.0">SDXL Base 1.0</option>
+                        <option value="black-forest-labs/FLUX.1-dev">Flux Dev</option>
+                    </optgroup>
+                    <optgroup label="Stability AI">
+                        <option value="stable-diffusion-3.5-large">SD 3.5 Large</option>
+                        <option value="stable-diffusion-xl-1024-v1-0">SDXL 1.0</option>
                     </optgroup>
                 </select>
             </div>
@@ -984,14 +1055,34 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="textModel">
-                    <optgroup label="Gemini (Google Vertex AI)">
-                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
-                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Haute qualité</option>
-                        <option value="gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+                    <optgroup label="Vertex AI (Google) - Gratuit ⚡">
+                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                        <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
-                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    <optgroup label="OpenAI">
+                        <option value="gpt-4o">GPT-4o - Rapide</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                    </optgroup>
+                    <optgroup label="Anthropic">
+                        <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                    </optgroup>
+                    <optgroup label="Mistral AI">
+                        <option value="mistral-large-latest">Mistral Large</option>
+                        <option value="mistral-medium-latest">Mistral Medium</option>
+                    </optgroup>
+                    <optgroup label="Groq (Ultra-rapide - Gratuit)">
+                        <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                        <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant</option>
+                    </optgroup>
+                    <optgroup label="Autres">
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="cohere-command-r-plus">Cohere Command R+</option>
+                        <option value="perplexity-sonar">Perplexity Sonar</option>
+                        <option value="xai-grok-3">xAI Grok 3</option>
+                        <option value="together-llama-3.1-70b">Together AI Llama 3.1</option>
                     </optgroup>
                 </select>
             </div>
@@ -1009,19 +1100,19 @@
             
             <div class="form-group">
                 <label class="form-label">Sujet *</label>
-                <textarea class="form-textarea" placeholder="Ex: Les avantages de l'IA dans le marketing digital"></textarea>
+                <textarea class="form-textarea" id="textTopic" placeholder="Ex: Les avantages de l'IA dans le marketing digital"></textarea>
             </div>
             
             <div class="form-group">
                 <label class="form-label">Longueur</label>
-                <select class="form-select">
+                <select class="form-select" id="textLength">
                     <option value="short">Court (100-300 mots)</option>
                     <option value="medium">Moyen (300-800 mots)</option>
                     <option value="long">Long (800-1500 mots)</option>
                 </select>
             </div>
             
-            <button class="btn-generate">
+            <button class="btn-generate" onclick="generateText()">
                 📝 Générer le texte
             </button>
             
@@ -1053,16 +1144,27 @@
             <div class="form-group">
                 <label class="form-label">Modèle IA</label>
                 <select class="form-select" id="codeModel">
-                    <optgroup label="Gemini (Google Vertex AI)">
-                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash ⚡ - Gratuit</option>
-                        <option value="gemini-2.5-pro">Gemini 2.5 Pro - Meilleur pour code</option>
+                    <optgroup label="Spécialisés Code 💻">
+                        <option value="mistral-codestral-latest">Mistral Codestral - Expert code</option>
+                        <option value="deepseek-coder" selected>DeepSeek Coder - Économique</option>
                     </optgroup>
-                    <optgroup label="Gemma (Open Source)">
-                        <option value="codegemma">CodeGemma - Spécialisé code</option>
+                    <optgroup label="Vertex AI (Google) - Gratuit ⚡">
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                     </optgroup>
-                    <optgroup label="Autres fournisseurs">
-                        <option value="gpt-4o">GPT-4 (OpenAI)</option>
-                        <option value="claude-3-5-sonnet">Claude 3.5 (Anthropic)</option>
+                    <optgroup label="Haute Qualité">
+                        <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+                        <option value="gpt-4o">GPT-4o</option>
+                    </optgroup>
+                    <optgroup label="Groq (Ultra-rapide - Gratuit)">
+                        <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                    </optgroup>
+                    <optgroup label="Autres">
+                        <option value="mistral-large-latest">Mistral Large</option>
+                        <option value="cohere-command-r-plus">Cohere Command R+</option>
+                        <option value="perplexity-sonar">Perplexity Sonar</option>
+                        <option value="xai-grok-3">xAI Grok 3</option>
+                        <option value="together-llama-3.1-70b">Together AI Llama 3.1</option>
                     </optgroup>
                 </select>
             </div>
@@ -1080,10 +1182,10 @@
             
             <div class="form-group">
                 <label class="form-label">Description de la fonctionnalité *</label>
-                <textarea class="form-textarea" placeholder="Ex: Créer une fonction qui trie un tableau d'objets par date"></textarea>
+                <textarea class="form-textarea" id="codeDescription" placeholder="Ex: Créer une fonction qui trie un tableau d'objets par date"></textarea>
             </div>
             
-            <button class="btn-generate">
+            <button class="btn-generate" onclick="generateCode()">
                 💻 Générer le code
             </button>
             
@@ -1164,62 +1266,841 @@ async function loadHistory() {
     const grid = document.getElementById('historyGrid');
     grid.innerHTML = '<div class="history-empty">Chargement...</div>';
     
-    // Simuler le chargement (à remplacer par un vrai appel API)
-    setTimeout(() => {
-        grid.innerHTML = `
-            <div class="history-item">
-                <div class="history-thumbnail">🖼️</div>
-                <div class="history-info">
-                    <div class="history-type">Image DALL-E 3</div>
-                    <div class="history-date">Il y a 2 heures</div>
-                </div>
-            </div>
-            <div class="history-item">
-                <div class="history-thumbnail">🎙️</div>
-                <div class="history-info">
-                    <div class="history-type">Podcast IA</div>
-                    <div class="history-date">Il y a 5 heures</div>
-                </div>
-            </div>
-            <div class="history-item">
-                <div class="history-thumbnail">👤</div>
-                <div class="history-info">
-                    <div class="history-type">Avatar</div>
-                    <div class="history-date">Hier</div>
-                </div>
-            </div>
-        `;
-    }, 500);
+    try {
+        const token = localStorage.getItem('token');
+        
+        // Vérifier si l'utilisateur est admin
+        const userStr = localStorage.getItem('user');
+        const isAdmin = userStr ? JSON.parse(userStr).role === 'admin' : false;
+        
+        // DEBUG: Afficher le rôle de l'utilisateur
+        console.log('User from localStorage:', userStr);
+        console.log('Is Admin:', isAdmin);
+        
+        // Récupérer tous les types de générations
+        const allItems = [];
+        
+        // Images
+        try {
+            const imagesResponse = await fetch('/api/generation/images?limit=10', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (imagesResponse.ok) {
+                const imagesData = await imagesResponse.json();
+                const images = imagesData.images || [];
+                allItems.push(...images.map(img => ({...img, type: 'image'})));
+            }
+        } catch (e) {
+            console.log('Images non disponibles:', e);
+        }
+        
+        // Vidéos
+        try {
+            const videosResponse = await fetch('/api/generation/videos?limit=10', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            console.log('Videos response status:', videosResponse.status);
+            if (videosResponse.ok) {
+                const videosData = await videosResponse.json();
+                console.log('Videos data:', videosData);
+                const videos = videosData.videos || [];
+                console.log('Videos count:', videos.length);
+                allItems.push(...videos.map(vid => ({...vid, type: 'video'})));
+            }
+        } catch (e) {
+            console.error('Erreur vidéos:', e);
+        }
+        
+        // Audios
+        try {
+            const audiosResponse = await fetch('/api/generation/audios?limit=10', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (audiosResponse.ok) {
+                const audiosData = await audiosResponse.json();
+                const audios = audiosData.audios || [];
+                allItems.push(...audios.map(aud => ({...aud, type: 'audio'})));
+            }
+        } catch (e) {
+            console.log('Audios non disponibles:', e);
+        }
+        
+        // eBooks
+        try {
+            const ebooksResponse = await fetch('/api/generation/ebooks?limit=10', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (ebooksResponse.ok) {
+                const ebooksData = await ebooksResponse.json();
+                const ebooks = ebooksData.ebooks || [];
+                allItems.push(...ebooks.map(ebook => ({...ebook, type: 'ebook'})));
+            }
+        } catch (e) {
+            console.log('Ebooks non disponibles:', e);
+        }
+        
+        // Shorts
+        try {
+            const shortsResponse = await fetch('/api/generation/shorts?limit=10', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (shortsResponse.ok) {
+                const shortsData = await shortsResponse.json();
+                const shorts = shortsData.shorts || [];
+                allItems.push(...shorts.map(short => ({...short, type: 'short'})));
+            }
+        } catch (e) {
+            console.log('Shorts non disponibles:', e);
+        }
+        
+        // Publicités
+        try {
+            const adsResponse = await fetch('/api/generation/ads?limit=10', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (adsResponse.ok) {
+                const adsData = await adsResponse.json();
+                const ads = adsData.ads || [];
+                allItems.push(...ads.map(ad => ({...ad, type: 'ad'})));
+            }
+        } catch (e) {
+            console.log('Publicités non disponibles:', e);
+        }
+        
+        // Trier par date
+        allItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        console.log('Total items in history:', allItems.length);
+        console.log('Items by type:', allItems.reduce((acc, item) => {
+            acc[item.type] = (acc[item.type] || 0) + 1;
+            return acc;
+        }, {}));
+        
+        if (allItems.length === 0) {
+            grid.innerHTML = '<div class="history-empty">Aucune génération pour le moment</div>';
+            return;
+        }
+        
+        // Afficher les résultats
+        const htmlItems = allItems.map((item, index) => {
+            console.log(`Item ${index}: type=${item.type}, id=${item.id}, status=${item.status}`);
+            
+            const statusIcon = item.status === 'completed' ? '✅' : 
+                              item.status === 'generating' ? '⏳' : '❌';
+            const statusText = item.status === 'completed' ? 'Terminé' : 
+                              item.status === 'generating' ? 'En cours...' : 'Échoué';
+            
+            const showDeleteBtn = isAdmin || item.status === 'failed';
+            const deleteBtn = showDeleteBtn ? 
+                `<button onclick="event.stopPropagation(); deleteGeneration(${item.id}, '${item.type}')" 
+                        style="position:absolute;top:8px;right:8px;background:#dc3545;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10;"
+                        title="Supprimer">×</button>` : '';
+            
+            // Icône et couleur selon le type
+            let icon = '🖼️';
+            let bgColor = '#6c757d';
+            let typeName = 'Image';
+            
+            if (item.type === 'ebook') {
+                icon = '📚';
+                bgColor = '#4169e1';
+                typeName = 'eBook';
+            } else if (item.type === 'video') {
+                icon = '🎬';
+                bgColor = '#dc3545';
+                typeName = 'Vidéo';
+            } else if (item.type === 'audio') {
+                icon = '🎙️';
+                bgColor = '#28a745';
+                typeName = 'Audio';
+            } else if (item.type === 'short') {
+                icon = '📱';
+                bgColor = '#ff6b6b';
+                typeName = 'Short';
+            } else if (item.type === 'ad') {
+                icon = '📢';
+                bgColor = '#ffa500';
+                typeName = 'Publicité';
+            }
+            
+            // Affichage selon le type
+            if (item.type === 'image') {
+                return `
+                    <div class="history-item" onclick="viewGeneration(${item.id}, 'image')" style="position:relative;">
+                        ${deleteBtn}
+                        <div class="history-thumbnail">
+                            ${item.status === 'completed' && item.image_url ? 
+                              `<img src="${item.image_url}" alt="Image générée" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22>Image non disponible</text></svg>'">` : 
+                              '🖼️'}
+                        </div>
+                        <div class="history-info">
+                            <div class="history-type">${statusIcon} ${item.model || 'Image'}</div>
+                            <div class="history-date">${statusText} - ${new Date(item.created_at).toLocaleString('fr-FR')}</div>
+                            ${item.prompt ? `<div style="font-size:0.85em;color:#666;margin-top:4px;">${item.prompt.substring(0, 60)}...</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Affichage générique pour video, audio, ebook, etc.
+                const description = item.title || item.prompt || item.subject || item.text || '';
+                return `
+                    <div class="history-item" onclick="viewGeneration(${item.id}, '${item.type}')" style="position:relative;">
+                        ${deleteBtn}
+                        <div class="history-thumbnail" style="background:${bgColor};display:flex;align-items:center;justify-content:center;font-size:3rem;">
+                            ${icon}
+                        </div>
+                        <div class="history-info">
+                            <div class="history-type">${statusIcon} ${typeName}</div>
+                            <div class="history-date">${statusText} - ${new Date(item.created_at).toLocaleString('fr-FR')}</div>
+                            ${description ? `<div style="font-size:0.85em;color:#666;margin-top:4px;font-weight:600;">${description.substring(0, 60)}...</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        
+        console.log('HTML items generated:', htmlItems.length);
+        grid.innerHTML = htmlItems.join('');
+        
+    } catch (error) {
+        console.error('Erreur chargement historique:', error);
+        grid.innerHTML = '<div class="history-empty">Erreur de chargement</div>';
+    }
+}
+
+// Voir les détails d'une génération
+async function viewGeneration(id, type) {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/generation/${type}/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Créer une modal pour afficher les détails
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10000;';
+            modal.onclick = () => modal.remove();
+            
+            const content = document.createElement('div');
+            content.style.cssText = 'background:white;padding:20px;border-radius:12px;max-width:800px;max-height:90vh;overflow:auto;';
+            content.onclick = (e) => e.stopPropagation();
+            
+            let detailsHTML = '';
+            
+            if (type === 'ebook') {
+                // Affichage spécifique pour les ebooks
+                detailsHTML = `
+                    <h2>📚 Détails de l'eBook #${id}</h2>
+                    <p><strong>Titre:</strong> ${data.title || 'Sans titre'}</p>
+                    <p><strong>Sujet:</strong> ${data.subject || '-'}</p>
+                    <p><strong>Statut:</strong> ${data.status}</p>
+                    <p><strong>Chapitres:</strong> ${data.chapters || '-'}</p>
+                    <p><strong>Langue:</strong> ${data.language || '-'}</p>
+                    <p><strong>Ton:</strong> ${data.tone || '-'}</p>
+                    <p><strong>Public:</strong> ${data.audience || '-'}</p>
+                    ${data.progress ? `<p><strong>Progression:</strong> ${data.progress}%</p>` : ''}
+                    ${data.word_count ? `<p><strong>Mots:</strong> ${data.word_count}</p>` : ''}
+                    ${data.total_pages ? `<p><strong>Pages:</strong> ${data.total_pages}</p>` : ''}
+                    ${data.file_size ? `<p><strong>Taille:</strong> ${(data.file_size / 1024).toFixed(2)} KB</p>` : ''}
+                    ${data.pdf_url && data.status === 'completed' ? `<p><a href="${data.pdf_url}" target="_blank" style="color:#007bff;text-decoration:underline;">📥 Télécharger le PDF</a></p>` : ''}
+                    ${data.cost ? `<p><strong>Coût:</strong> $${data.cost.toFixed(4)}</p>` : ''}
+                    ${data.error_message ? `<p style="color:#dc3545;"><strong>Erreur:</strong> ${data.error_message}</p>` : ''}
+                `;
+            } else if (type === 'video') {
+                // Affichage spécifique pour les vidéos
+                detailsHTML = `
+                    <h2>🎬 Détails de la Vidéo #${id}</h2>
+                    <p><strong>Modèle:</strong> ${data.model || '-'}</p>
+                    <p><strong>Statut:</strong> ${data.status}</p>
+                    ${data.prompt ? `<p><strong>Prompt:</strong> ${data.prompt}</p>` : ''}
+                    ${data.duration ? `<p><strong>Durée:</strong> ${data.duration}s</p>` : ''}
+                    ${data.aspect_ratio ? `<p><strong>Format:</strong> ${data.aspect_ratio}</p>` : ''}
+                    ${data.resolution ? `<p><strong>Résolution:</strong> ${data.resolution}</p>` : ''}
+                    ${data.video_url && data.status === 'completed' ? `
+                        <div style="margin-top:15px;">
+                            <video controls style="max-width:100%;border-radius:8px;">
+                                <source src="${data.video_url}" type="video/mp4">
+                                Votre navigateur ne supporte pas la lecture vidéo.
+                            </video>
+                        </div>
+                        <p style="margin-top:10px;"><a href="${data.video_url}" download style="color:#007bff;text-decoration:underline;">📥 Télécharger la vidéo</a></p>
+                    ` : ''}
+                    ${data.local_path && data.status === 'completed' ? `<p><strong>Fichier local:</strong> ${data.local_path}</p>` : ''}
+                    ${data.cost ? `<p><strong>Coût:</strong> $${data.cost.toFixed(4)}</p>` : ''}
+                    ${data.error_message ? `<p style="color:#dc3545;"><strong>Erreur:</strong> ${data.error_message}</p>` : ''}
+                `;
+            } else if (type === 'audio') {
+                // Affichage spécifique pour les audios
+                detailsHTML = `
+                    <h2>🎙️ Détails de l'Audio #${id}</h2>
+                    <p><strong>Modèle:</strong> ${data.model || '-'}</p>
+                    <p><strong>Statut:</strong> ${data.status}</p>
+                    ${data.prompt ? `<p><strong>Texte:</strong> ${data.prompt}</p>` : ''}
+                    ${data.voice_id ? `<p><strong>Voix:</strong> ${data.voice_id}</p>` : ''}
+                    ${data.duration ? `<p><strong>Durée:</strong> ${data.duration}s</p>` : ''}
+                    ${data.audio_url && data.status === 'completed' ? `
+                        <div style="margin-top:15px;">
+                            <audio controls style="width:100%;">
+                                <source src="${data.audio_url}" type="audio/mpeg">
+                                Votre navigateur ne supporte pas la lecture audio.
+                            </audio>
+                        </div>
+                        <p style="margin-top:10px;"><a href="${data.audio_url}" download style="color:#007bff;text-decoration:underline;">📥 Télécharger l'audio</a></p>
+                    ` : ''}
+                    ${data.local_path && data.status === 'completed' ? `<p><strong>Fichier local:</strong> ${data.local_path}</p>` : ''}
+                    ${data.cost ? `<p><strong>Coût:</strong> $${data.cost.toFixed(4)}</p>` : ''}
+                    ${data.error_message ? `<p style="color:#dc3545;"><strong>Erreur:</strong> ${data.error_message}</p>` : ''}
+                `;
+            } else {
+                // Affichage pour les images et autres
+                detailsHTML = `
+                    <h2>📋 Détails de la génération #${id}</h2>
+                    <p><strong>Type:</strong> ${type}</p>
+                    <p><strong>Modèle:</strong> ${data.model || '-'}</p>
+                    <p><strong>Statut:</strong> ${data.status}</p>
+                    ${data.prompt ? `<p><strong>Prompt:</strong> ${data.prompt}</p>` : ''}
+                    ${data.image_url ? `
+                        <img src="${data.image_url}" style="max-width:100%;border-radius:8px;margin-top:10px;">
+                        <p style="margin-top:10px;"><a href="${data.image_url}" download style="color:#007bff;text-decoration:underline;">📥 Télécharger l'image</a></p>
+                    ` : ''}
+                    ${data.cost ? `<p><strong>Coût:</strong> $${data.cost.toFixed(4)}</p>` : ''}
+                    ${data.error_message ? `<p style="color:#dc3545;"><strong>Erreur:</strong> ${data.error_message}</p>` : ''}
+                `;
+            }
+            
+            detailsHTML += `<button onclick="this.parentElement.parentElement.remove()" style="margin-top:20px;padding:10px 20px;background:#007bff;color:white;border:none;border-radius:6px;cursor:pointer;">Fermer</button>`;
+            
+            content.innerHTML = detailsHTML;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur lors du chargement des détails', 'error');
+    }
 }
 
 // Generate image
-function generateImage() {
-    alert('Génération d\'image en cours... (À implémenter)');
+async function generateImage() {
+    const prompt = document.getElementById('imagePrompt').value;
+    const model = document.getElementById('imageModel').value;
+    const size = document.getElementById('imageSize').value;
+    const quality = document.getElementById('imageQuality').value;
+    
+    if (!prompt) {
+        alert('Veuillez entrer une description pour l\'image');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                model: model,
+                size: size,
+                quality: quality
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Afficher un message de succès
+            showNotification(`✅ Génération lancée ! ID: ${data.id}`, 'success');
+            
+            // Recharger l'historique immédiatement
+            loadHistory();
+            
+            // Démarrer le polling pour vérifier le statut
+            pollGenerationStatus(data.id, 'image');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        alert(`Erreur de connexion: ${error.message}`);
+    }
+}
+
+// Video
+async function generateVideo() {
+    const prompt = document.getElementById('videoPrompt').value;
+    const model = document.getElementById('videoModel').value;
+    const duration = document.getElementById('videoDuration').value;
+    const aspectRatio = document.getElementById('videoAspectRatio').value;
+    
+    if (!prompt) {
+        alert('Veuillez entrer une description pour la vidéo');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/video', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                model: model,
+                duration: parseInt(duration),
+                aspect_ratio: aspectRatio
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération de vidéo lancée ! ID: ${data.id}`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'video');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur génération vidéo:', error);
+        showNotification(`❌ Erreur: ${error.message}`, 'error');
+    }
 }
 
 // eBook
-function generateEbook() {
-    alert('Génération d\'eBook en cours... (À implémenter)');
+async function generateEbook() {
+    const topic = document.getElementById('ebookTopic').value;
+    const model = document.getElementById('ebookModel').value;
+    const length = document.getElementById('ebookLength').value;
+    const language = document.getElementById('ebookLanguage')?.value || 'fr';
+    
+    if (!topic) {
+        alert('Veuillez entrer un sujet pour l\'eBook');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/ebook', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                title: topic,
+                topic: topic,
+                num_chapters: length === 'short' ? 3 : length === 'medium' ? 5 : 8,
+                language: language,
+                style: 'informative',
+                target_audience: 'general'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération d'eBook lancée ! ID: ${data.id} (${data.estimated_time})`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'ebook');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        alert(`Erreur de connexion: ${error.message}`);
+    }
 }
 
 // Shorts
-function generateShort() {
-    alert('Génération de Short en cours... (À implémenter)');
+async function generateShort() {
+    const topic = document.getElementById('shortTopic').value;
+    const model = document.getElementById('shortModel').value;
+    const goal = document.getElementById('shortGoal').value;
+    
+    if (!topic) {
+        alert('Veuillez entrer un sujet pour le Short');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/short', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                topic: topic,
+                duration: 60,
+                style: goal,
+                voice: 'alloy',
+                music: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération de Short lancée ! ID: ${data.id} (${data.estimated_time})`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'short');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        alert(`Erreur de connexion: ${error.message}`);
+    }
 }
 
 // Ads
-function generateAd() {
-    alert('Génération de publicité vidéo en cours... (À implémenter)');
+async function generateAd() {
+    const offer = document.getElementById('adOffer').value;
+    const model = document.getElementById('adModel').value;
+    
+    if (!offer) {
+        alert('Veuillez décrire votre produit/service');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/short', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                topic: offer,
+                duration: 30,
+                style: 'promotional',
+                voice: 'alloy',
+                music: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération de publicité lancée ! ID: ${data.id} (${data.estimated_time})`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'short');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        alert(`Erreur de connexion: ${error.message}`);
+    }
+}
+
+// Audio
+async function generateAudio() {
+    const text = document.getElementById('audioText').value;
+    const model = document.getElementById('audioModel').value;
+    const voice = document.getElementById('audioVoice').value;
+    
+    if (!text) {
+        alert('Veuillez entrer le texte à convertir en audio');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/audio', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                prompt: text,
+                model: model,
+                audio_type: 'speech',
+                voice_id: voice,
+                language: 'fr'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération audio lancée ! ID: ${data.id}`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'audio');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur génération audio:', error);
+        showNotification(`❌ Erreur: ${error.message}`, 'error');
+    }
+}
+
+// Text
+async function generateText() {
+    const topic = document.getElementById('textTopic').value;
+    const model = document.getElementById('textModel').value;
+    const type = document.getElementById('textType').value;
+    const length = document.getElementById('textLength').value;
+    
+    if (!topic) {
+        alert('Veuillez entrer un sujet');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/text', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                prompt: topic,
+                model: model,
+                content_type: type,
+                length: length
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération de texte lancée ! ID: ${data.id}`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'text');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur génération texte:', error);
+        showNotification(`❌ Erreur: ${error.message}`, 'error');
+    }
+}
+
+// Code
+async function generateCode() {
+    const description = document.getElementById('codeDescription').value;
+    const model = document.getElementById('codeModel').value;
+    const language = document.getElementById('codeLanguage').value;
+    
+    if (!description) {
+        alert('Veuillez décrire la fonctionnalité à créer');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                prompt: description,
+                model: model,
+                language: language
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération de code lancée ! ID: ${data.id}`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'code');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur génération code:', error);
+        showNotification(`❌ Erreur: ${error.message}`, 'error');
+    }
 }
 
 // Logos
-function generateLogo() {
-    alert('Génération de logo en cours... (À implémenter)');
+async function generateLogo() {
+    const brand = document.getElementById('logoBrand').value;
+    const model = document.getElementById('logoModel').value;
+    const style = document.getElementById('logoStyle').value;
+    const industry = document.getElementById('logoIndustry').value;
+    
+    if (!brand) {
+        alert('Veuillez entrer le nom de la marque');
+        return;
+    }
+    
+    const prompt = `Professional logo for "${brand}" brand, ${industry} industry, ${style} style, minimalist, vector art, clean design, suitable for business use`;
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/generation/image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                model: model,
+                size: '1024x1024',
+                quality: 'hd'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification(`✅ Génération de logo lancée ! ID: ${data.id}`, 'success');
+            loadHistory();
+            pollGenerationStatus(data.id, 'image');
+        } else {
+            showNotification(`❌ Erreur: ${data.detail || 'Erreur inconnue'}`, 'error');
+        }
+    } catch (error) {
+        alert(`Erreur de connexion: ${error.message}`);
+    }
 }
  
-// Load history on page load
+// Polling pour vérifier le statut d'une génération
+async function pollGenerationStatus(id, type) {
+    const maxAttempts = 60; // 2 minutes max (60 * 2s)
+    let attempts = 0;
+    
+    const interval = setInterval(async () => {
+        attempts++;
+        
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/generation/${type}/${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.status === 'completed') {
+                    clearInterval(interval);
+                    showNotification(`✅ Génération #${id} terminée !`, 'success');
+                    loadHistory();
+                } else if (data.status === 'failed') {
+                    clearInterval(interval);
+                    showNotification(`❌ Génération #${id} échouée: ${data.error_message}`, 'error');
+                    loadHistory();
+                }
+            }
+            
+            if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                showNotification(`⏱️ Timeout pour génération #${id}`, 'warning');
+            }
+        } catch (error) {
+            console.error('Erreur polling:', error);
+        }
+    }, 2000); // Vérifier toutes les 2 secondes
+}
+
+// Afficher une notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#007bff'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        max-width: 400px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// Fonction pour supprimer une génération
+async function deleteGeneration(id, type) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette génération ?')) {
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/generation/${type}/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            showNotification('✅ Génération supprimée avec succès', 'success');
+            loadHistory(); // Recharger l'historique
+        } else {
+            const error = await response.json();
+            showNotification(`❌ Erreur: ${error.detail || 'Impossible de supprimer'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erreur suppression:', error);
+        showNotification('❌ Erreur lors de la suppression', 'error');
+    }
+}
+
+// Charger l'historique au démarrage
 document.addEventListener('DOMContentLoaded', () => {
     loadHistory();
+    // Recharger l'historique toutes les 10 secondes
+    setInterval(loadHistory, 10000);
 });
 </script>
+
+<style>
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.history-item {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.history-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
 {% endblock %}

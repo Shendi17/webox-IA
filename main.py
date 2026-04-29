@@ -11,6 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.middleware.auth import get_current_user_from_cookie
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement au démarrage
+load_dotenv()
 
 # Importer les modules existants
 from modules.core.landing_page.model import LandingPageData
@@ -31,12 +35,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Créer le dossier uploads s'il n'existe pas
+# Créer les dossiers nécessaires s'ils n'existent pas
 Path("uploads").mkdir(exist_ok=True)
+Path("generated/images").mkdir(parents=True, exist_ok=True)
 
 # Monter les fichiers statiques
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/generated", StaticFiles(directory="generated"), name="generated")
 
 # Configurer les templates Jinja2
 templates = Jinja2Templates(directory="templates")
@@ -71,6 +77,12 @@ from app.routes.ai_agent_routes import router as ai_agent_router
 
 # Importer et inclure les routes Series
 from app.routes.series_routes import router as series_router
+
+# Route de test pour vérifier le rôle admin
+@app.get("/test-admin", response_class=HTMLResponse)
+async def test_admin(request: Request):
+    """Page de test pour vérifier le rôle admin"""
+    return templates.TemplateResponse("test_admin.html", {"request": request})
 
 # Importer et inclure les routes PWA
 from app.routes.pwa_routes import router as pwa_router

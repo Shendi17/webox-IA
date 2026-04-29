@@ -34,10 +34,11 @@ class CacheService:
             self.redis_client = redis.from_url(
                 redis_url,
                 decode_responses=True,
-                socket_connect_timeout=2
+                socket_connect_timeout=1,
+                socket_timeout=1
             )
             
-            # Tester la connexion
+            # Tester la connexion avec timeout court
             self.redis_client.ping()
             print("✅ Redis connecté")
             

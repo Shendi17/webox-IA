@@ -21,3 +21,4 @@ qrcode==7.4.2
 redis==5.0.1
 stripe==7.0.0
 werkzeug==3.0.1
+gTTS==2.5.0

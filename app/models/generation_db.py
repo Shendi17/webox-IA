@@ -63,6 +63,7 @@ class GeneratedImageDB(Base):
             "height": self.height,
             "cost": self.cost,
             "status": self.status,
+            "error_message": self.error_message,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None
         }
@@ -459,6 +460,11 @@ class CatalogFavoriteDB(Base):
             "tool_category": self.tool_category,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
+
+
+# Alias pour compatibilité
+GeneratedEbookDB = EBookDB
+GeneratedShortDB = VideoShortDB
 
 
 class GeneratedAdDB(Base):

@@ -13,15 +13,32 @@ class AIIntegrationService:
     """Service centralisé pour toutes les intégrations IA"""
     
     def __init__(self):
-        # Clés API
+        # Clés API - Chat & Text (12 providers)
         self.openai_key = os.getenv("OPENAI_API_KEY")
-        self.stability_key = os.getenv("STABILITY_API_KEY")
-        self.elevenlabs_key = os.getenv("ELEVENLABS_API_KEY")
-        self.runway_key = os.getenv("RUNWAY_API_KEY")
         self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        self.google_key = os.getenv("GOOGLE_API_KEY")
         self.mistral_key = os.getenv("MISTRAL_API_KEY")
         self.groq_key = os.getenv("GROQ_API_KEY")
+        self.cohere_key = os.getenv("COHERE_API_KEY")
+        self.perplexity_key = os.getenv("PERPLEXITY_API_KEY")
+        self.deepseek_key = os.getenv("DEEPSEEK_API_KEY")
+        self.xai_key = os.getenv("XAI_API_KEY")
+        self.together_key = os.getenv("TOGETHER_API_KEY")
+        self.replicate_key = os.getenv("REPLICATE_API_KEY")
+        self.huggingface_key = os.getenv("HUGGINGFACE_API_KEY")
+        
+        # Vertex AI (Google Cloud)
+        self.vertex_project_id = os.getenv("VERTEX_AI_PROJECT_ID")
+        self.vertex_location = os.getenv("VERTEX_AI_LOCATION", "us-central1")
+        self.google_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        
+        # Clés API - Images
+        self.stability_key = os.getenv("STABILITY_API_KEY")
+        
+        # Clés API - Audio
+        self.elevenlabs_key = os.getenv("ELEVENLABS_API_KEY")
+        
+        # Clés API - Vidéo
+        self.runway_key = os.getenv("RUNWAY_API_KEY")
     
     # ============================================
     # GÉNÉRATION D'IMAGES
@@ -356,7 +373,7 @@ class AIIntegrationService:
     async def chat_anthropic(
         self,
         messages: list,
-        model: str = "claude-3-sonnet-20240229",
+        model: str = "claude-3-5-sonnet-latest",
         max_tokens: int = 1024
     ) -> Dict[str, Any]:
         """Chat avec Anthropic Claude"""
@@ -432,6 +449,471 @@ class AIIntegrationService:
                         "success": True,
                         "message": message,
                         "cost": 0.0,  # Gratuit jusqu'à certaines limites
+                        "model": model
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_mistral(
+        self,
+        messages: list,
+        model: str = "mistral-large-latest",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Mistral AI"""
+        if not self.mistral_key:
+            return {"success": False, "error": "Clé Mistral non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.mistral.ai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.mistral_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    input_tokens = data.get("usage", {}).get("prompt_tokens", 0)
+                    output_tokens = data.get("usage", {}).get("completion_tokens", 0)
+                    cost = (input_tokens / 1000 * 0.002) + (output_tokens / 1000 * 0.006)
+                    
+                    return {
+                        "success": True,
+                        "message": data["choices"][0]["message"]["content"],
+                        "cost": cost,
+                        "model": model,
+                        "tokens": {
+                            "input": input_tokens,
+                            "output": output_tokens,
+                            "total": input_tokens + output_tokens
+                        }
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_groq(
+        self,
+        messages: list,
+        model: str = "llama-3.3-70b-versatile",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Groq (ultra-rapide)"""
+        if not self.groq_key:
+            return {"success": False, "error": "Clé Groq non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.groq_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    input_tokens = data.get("usage", {}).get("prompt_tokens", 0)
+                    output_tokens = data.get("usage", {}).get("completion_tokens", 0)
+                    cost = 0.0  # Groq est gratuit actuellement
+                    
+                    return {
+                        "success": True,
+                        "message": data["choices"][0]["message"]["content"],
+                        "cost": cost,
+                        "model": model,
+                        "tokens": {
+                            "input": input_tokens,
+                            "output": output_tokens,
+                            "total": input_tokens + output_tokens
+                        }
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_cohere(
+        self,
+        message: str,
+        model: str = "command-r-plus-08-2024",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Cohere"""
+        if not self.cohere_key:
+            return {"success": False, "error": "Clé Cohere non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.cohere.ai/v1/chat",
+                    headers={
+                        "Authorization": f"Bearer {self.cohere_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "message": message,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    return {
+                        "success": True,
+                        "message": data["text"],
+                        "cost": 0.0,  # Coût variable selon le plan
+                        "model": model
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_perplexity(
+        self,
+        messages: list,
+        model: str = "llama-3.1-sonar-small-128k-online",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Perplexity (avec recherche web)"""
+        if not self.perplexity_key:
+            return {"success": False, "error": "Clé Perplexity non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.perplexity.ai/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.perplexity_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    return {
+                        "success": True,
+                        "message": data["choices"][0]["message"]["content"],
+                        "cost": 0.0,
+                        "model": model,
+                        "citations": data.get("citations", [])
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_deepseek(
+        self,
+        messages: list,
+        model: str = "deepseek-chat",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec DeepSeek"""
+        if not self.deepseek_key:
+            return {"success": False, "error": "Clé DeepSeek non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.deepseek.com/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.deepseek_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    input_tokens = data.get("usage", {}).get("prompt_tokens", 0)
+                    output_tokens = data.get("usage", {}).get("completion_tokens", 0)
+                    cost = (input_tokens / 1000 * 0.00014) + (output_tokens / 1000 * 0.00028)
+                    
+                    return {
+                        "success": True,
+                        "message": data["choices"][0]["message"]["content"],
+                        "cost": cost,
+                        "model": model,
+                        "tokens": {
+                            "input": input_tokens,
+                            "output": output_tokens,
+                            "total": input_tokens + output_tokens
+                        }
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_xai(
+        self,
+        messages: list,
+        model: str = "grok-3",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec xAI Grok"""
+        if not self.xai_key:
+            return {"success": False, "error": "Clé xAI non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.x.ai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.xai_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    return {
+                        "success": True,
+                        "message": data["choices"][0]["message"]["content"],
+                        "cost": 0.0,
+                        "model": model
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+
+    async def chat_vertex_ai(
+        self,
+        messages: list,
+        model: str = "gemini-2.0-flash-exp",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Google Vertex AI (Gemini)"""
+        if not self.vertex_project_id or not self.google_credentials:
+            return {"success": False, "error": "Vertex AI non configuré"}
+        
+        try:
+            # Import dynamique pour éviter erreur si SDK non installé
+            import vertexai
+            from vertexai.preview.generative_models import GenerativeModel
+            
+            vertexai.init(project=self.vertex_project_id, location=self.vertex_location)
+            
+            model_instance = GenerativeModel(model)
+            
+            # Convertir messages au format Vertex AI
+            prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+            
+            response = model_instance.generate_content(
+                prompt,
+                generation_config={"temperature": temperature, "max_output_tokens": 1024}
+            )
+            
+            return {
+                "success": True,
+                "message": response.text,
+                "cost": 0.0,  # Coût variable selon usage
+                "model": model
+            }
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_together(
+        self,
+        messages: list,
+        model: str = "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Together AI"""
+        if not self.together_key:
+            return {"success": False, "error": "Clé Together non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    "https://api.together.xyz/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.together_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "temperature": temperature
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    input_tokens = data.get("usage", {}).get("prompt_tokens", 0)
+                    output_tokens = data.get("usage", {}).get("completion_tokens", 0)
+                    
+                    return {
+                        "success": True,
+                        "message": data["choices"][0]["message"]["content"],
+                        "cost": 0.0,  # Coût variable
+                        "model": model,
+                        "tokens": {
+                            "input": input_tokens,
+                            "output": output_tokens,
+                            "total": input_tokens + output_tokens
+                        }
+                    }
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_replicate(
+        self,
+        messages: list,
+        model: str = "meta/meta-llama-3.1-405b-instruct",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Replicate"""
+        if not self.replicate_key:
+            return {"success": False, "error": "Clé Replicate non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                # Convertir messages en prompt
+                prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+                
+                response = await client.post(
+                    "https://api.replicate.com/v1/predictions",
+                    headers={
+                        "Authorization": f"Bearer {self.replicate_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "version": model,
+                        "input": {
+                            "prompt": prompt,
+                            "temperature": temperature
+                        }
+                    }
+                )
+                
+                if response.status_code == 201:
+                    data = response.json()
+                    prediction_url = data.get("urls", {}).get("get")
+                    
+                    # Attendre la complétion
+                    for _ in range(30):
+                        await asyncio.sleep(2)
+                        status_response = await client.get(
+                            prediction_url,
+                            headers={"Authorization": f"Bearer {self.replicate_key}"}
+                        )
+                        status_data = status_response.json()
+                        
+                        if status_data["status"] == "succeeded":
+                            return {
+                                "success": True,
+                                "message": "".join(status_data.get("output", [])),
+                                "cost": 0.0,
+                                "model": model
+                            }
+                        elif status_data["status"] == "failed":
+                            return {"success": False, "error": "Prédiction échouée"}
+                    
+                    return {"success": False, "error": "Timeout"}
+                else:
+                    return {"success": False, "error": f"Erreur API: {response.status_code}"}
+                    
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def chat_huggingface(
+        self,
+        messages: list,
+        model: str = "meta-llama/Meta-Llama-3-70B-Instruct",
+        temperature: float = 0.7
+    ) -> Dict[str, Any]:
+        """Chat avec Hugging Face Inference API"""
+        if not self.huggingface_key:
+            return {"success": False, "error": "Clé Hugging Face non configurée"}
+        
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                # Convertir messages en prompt
+                prompt = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+                
+                response = await client.post(
+                    f"https://api-inference.huggingface.co/models/{model}",
+                    headers={
+                        "Authorization": f"Bearer {self.huggingface_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "inputs": prompt,
+                        "parameters": {
+                            "temperature": temperature,
+                            "max_new_tokens": 1024
+                        }
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Format de réponse variable selon modèle
+                    if isinstance(data, list) and len(data) > 0:
+                        message = data[0].get("generated_text", "")
+                    else:
+                        message = str(data)
+                    
+                    return {
+                        "success": True,
+                        "message": message,
+                        "cost": 0.0,  # Gratuit pour la plupart
                         "model": model
                     }
                 else:

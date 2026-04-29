@@ -72,12 +72,18 @@ async def login_controller(
         expires_delta=access_token_expires
     )
     
-    # Créer la réponse avec le cookie
+    # Créer la réponse avec le cookie et les données utilisateur
     response = JSONResponse(
         content={
             "success": True,
             "message": f"Bienvenue {user.name} !",
-            "redirect": "/dashboard"
+            "redirect": "/dashboard",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "role": user.role
+            }
         }
     )
     
